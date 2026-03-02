@@ -9,7 +9,7 @@ I was working with Smart Mobile Studio, a compiler that translates Object Pascal
 
 But part of my motivation was also to build something minimal — as lean as it gets. Both the browser and Node.js environments expose an enormous amount of well-designed, well-tested, functioning APIs and I wanted to use as much of that as possible.
 
-So I started Shoestring. Not as a competitor to SMS or QTX, Shoestring had a different goal: to provide the thinnest possible typed layer over the browser itself. Every line of Pascal should map to something the browser does. If the browser already provides a capability, Shoestring exposes it. It does not reimplement it, wrap it, abstract it, or improve upon it.
+So I started Shoestring. Not as a competitor to SMS or QTX but with a different goal: to provide the thinnest possible typed layer over the browser itself. Every line of Pascal should map to something the browser does. If the browser already provides a capability, Shoestring exposes it. It does not reimplement it, wrap it, abstract it, or improve upon it.
 
 Nothing during the development gave me more satisfaction than deleting chunks of code which were not absolutely necessary.
 
