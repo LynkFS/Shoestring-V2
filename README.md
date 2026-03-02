@@ -19,5 +19,3 @@ ShoeString in action : see [the kitchen sink application.](https://lynkfs.com/do
 ## Page layouts
 ## Non-visual components
 ## Examples
-
-Some more examples in [the examples-tab of the kitchensink.](https://lynkfs.com/docs/ss-v2)
