@@ -13,4 +13,6 @@ So I started Shoestring. Not as a competitor to SMS or QTX but with a different 
 
 Nothing during the development gave me more satisfaction than deleting chunks of code which were not absolutely necessary.
 
-ShoeString in action : see [the kitchen sink application.](https://lynkfs.com/docs/ss-v2), and [this link](https://lynkfs.com/docs/ss-v2/booklet) for explanations, architectural choices and documentation.
+This is the upgraded and enhanced version of the original framework.
+
+To get a feel for it, see ShoeString-V2 in action : [a comprehensive kitchensink demo.](https://lynkfs.com/docs/ss-v2), and follow [this link](https://lynkfs.com/docs/ss-v2/booklet) for explanations, architectural choices and documentation.
