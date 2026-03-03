@@ -16,9 +16,9 @@ Fifth Edition — February 2026
 
 4. Styling and Theming
 
-5. Layout
+5. Typography
 
-6. Typography
+6. Layout
 
 7. Forms and Validation
 
@@ -26,11 +26,13 @@ Fifth Edition — February 2026
 
 9. Complex Components
 
-10. The Designer
+10. Non-Visual Components
 
-11. Non-Visual Components
+11. Node.js
 
-12. Node.js
+12. ShoeString in Action
+
+13. The Designer
 
 #  Chapter 1: Origins
 
@@ -63,9 +65,9 @@ The entire framework compiles from five core units plus one entry point :
 **JElement.pas** defines TElement, the ancestor of everything. Everything in Shoestring descends from this class, the application object, forms, panels, buttons, toolbars and anything else. 
 A single variant field — FHandle — holds the DOM element. Every DOM method works through variant dispatch. The class manages child tracking, lazy click binding, CSS class manipulation, inline styles, stylesheet rules, and pseudo-class rules. About 350 lines.
 
-**JForm.pas** defines TW3Form. About 50 lines.
+**JForm.pas** defines TW3Form. About 60 lines. Exposes three virtual methods: `InitializeObject` (runs once on first visit — create components here), `Show` (runs on every `GoToForm` visit — refresh data-driven content here), and `Resize` (runs on every window resize — do manual layout here). Forms that display static content need only `InitializeObject`. Forms that display data driven by navigation state — a detail view, an editor — override `Show` to call `Self.Clear` and rebuild with the current selection.
 
-**JApplication.pas** manages form navigation. About 55 lines.
+**JApplication.pas** manages form navigation. About 60 lines. Forms are singletons: `GoToForm` creates an instance on first visit, reuses it thereafter. On every visit it sets `Visible := true` and calls `Show`. On all other registered forms it sets `Visible := false`.
 
 **Globals.pas** declares browser externals, creates the framework stylesheet for per-element rules, applies body defaults, generates element IDs, and provides a couple of helper functions. About 280 lines.
 
@@ -405,13 +407,13 @@ begin
   NavTitle.SetText('On this page');
   NavTitle.SetStyle('font-weight', '600');
   NavTitle.SetStyle('font-size', '0.8rem');
-  NavTitle.SetStyle('color', 'var(--text-light)');
+  NavTitle.SetStyle('color', 'var(--text-light, #64748b)');
   NavTitle.SetStyle('text-transform', 'uppercase');
   NavTitle.SetStyle('letter-spacing', '0.05em');
 
   var Link1 := JW3Label.Create(Aside);
   Link1.SetText('Paris');
-  Link1.SetStyle('color', 'var(--primary-color)');
+  Link1.SetStyle('color', 'var(--primary-color, #6366f1)');
   Link1.SetStyle('font-size', '0.875rem');
   Link1.SetStyle('cursor', 'pointer');
   Link1.OnClick := procedure(Sender: TObject)
@@ -421,7 +423,7 @@ begin
 
   var Link2 := JW3Label.Create(Aside);
   Link2.SetText('Landmarks');
-  Link2.SetStyle('color', 'var(--text-color)');
+  Link2.SetStyle('color', 'var(--text-color, #1e293b)');
   Link2.SetStyle('font-size', '0.875rem');
   ...
 
@@ -694,7 +696,7 @@ var os   := ReqNodeModule('os');
 
 Everything else is plain Pascal.
 
-Note : NoteTypes.pas will be expanded for additional externals when necessary.
+Note : NodeTypes.pas will be expanded for additional externals when necessary.
 
 ## Entrypoint
 
