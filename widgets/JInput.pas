@@ -1,4 +1,4 @@
-﻿unit JInput;
+unit JInput;
 
 // ═══════════════════════════════════════════════════════════════════════════
 //
@@ -64,7 +64,6 @@ begin
   SetAttribute('type', 'text');
 
   // Wire the 'input' event (fires on every keystroke)
-  //Handle.addEventListener('input', mRef);
   Handle.addEventListener('input', @CBInput);
 end;
 
@@ -91,13 +90,11 @@ end;
 
 function JW3Input.GetPlaceholder: String;
 begin
-  //asm @Result = @self.FElement.placeholder; end;
   Result := GetAttribute('placeholder');
 end;
 
 procedure JW3Input.SetPlaceholder(const V: String);
 begin
-  //asm @self.FElement.placeholder = @V; end;
   SetAttribute('placeholder', V);
 end;
 
@@ -122,8 +119,10 @@ end;
 
 procedure JW3Input.SetReadOnly(V: Boolean);
 begin
-  //asm @self.FElement.readOnly = @V; end;
-  handle.setAttribute('readonly', V);
+  if V then
+    SetAttribute('readonly', '')
+  else
+    RemoveAttribute('readonly');
 end;
 
 end.

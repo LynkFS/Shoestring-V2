@@ -173,7 +173,7 @@ begin
       display: inline-flex;
       align-items: center;
       padding: 2px 8px;
-      background: var(--card-tag-bg, var(--hover-color, #f1f5f9));
+      background: var(--card-tag-bg, var(--border-color, #e2e8f0));
       border-radius: var(--card-tag-radius, 4px);
       font-size: var(--card-tag-font-size, 0.75rem);
       color: var(--text-light, #64748b);
@@ -243,6 +243,7 @@ begin
 
   FImage := TElement.Create('img', Self);
   FImage.AddClass('product-card-img');
+  FImage.SetAttribute('alt', '');
 
   FBody := TElement.Create('div', Self);
   FBody.AddClass('product-card-body');

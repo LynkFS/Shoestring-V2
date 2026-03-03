@@ -37,12 +37,12 @@ type
     procedure dir(obj: Variant; options: Variant); overload;
 
     procedure time; overload;
-    procedure time(label: Variant); overload;
+    procedure time(lbl: Variant); overload;
     procedure timeEnd; overload;
-    procedure timeEnd(label: Variant); overload;
+    procedure timeEnd(lbl: Variant); overload;
 
-    procedure trace(label: Variant); overload;
-    procedure trace(label: array of Variant); overload;
+    procedure trace(lbl: Variant); overload;
+    procedure trace(lbl: array of Variant); overload;
 
     procedure assert(value: Boolean); overload;
     procedure assert(value: Boolean; message: Variant); overload;
@@ -52,7 +52,7 @@ type
   JRequire = class external 'require'
   public
     cache: Variant;
-    procedure resolve;
+    function resolve(id: String): String;
     property extensions: Variant; deprecated;
   end;
 
@@ -71,7 +71,7 @@ var
 var Global external 'global': Variant;
 
 
-// The function 'require' has been replaced by RequireModule because 'require'
+// The function 'require' has been replaced by ReqNodeModule because 'require'
 // is already used by the global 'require'
 function ReqNodeModule(id: string): Variant; external 'require';
 var Require external 'require': JRequire;

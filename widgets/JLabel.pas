@@ -5,7 +5,6 @@
 //  Label
 //
 //  Creates a <label> element. Associates with a field via ForElement.
-//  Uses the field-label class from ThemeStyles.
 //
 //  Usage:
 //

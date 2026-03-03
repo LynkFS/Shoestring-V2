@@ -25,6 +25,7 @@ type
     &type:        String;
     target:       variant;
     key:          String;
+    altKey:       Boolean;
     ctrlKey:      Boolean;
     shiftKey:     Boolean;
     metaKey:      Boolean;

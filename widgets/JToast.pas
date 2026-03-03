@@ -134,13 +134,9 @@ end;
 procedure EnsureContainer;
 begin
   if FContainer then exit;
-
-  asm
-    var c = document.createElement('div');
-    c.className = 'toast-container';
-    document.body.appendChild(c);
-    @FContainer = c;
-  end;
+  FContainer := document.createElement('div');
+  FContainer.className := 'toast-container';
+  document.body.appendChild(FContainer);
 end;
 
 

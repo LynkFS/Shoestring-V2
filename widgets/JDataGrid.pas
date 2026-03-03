@@ -378,6 +378,17 @@ begin
   FTBody.innerHTML := '';
   BuildColGroup(FBodyTable);
 
+  if FView.Count = 0 then
+  begin
+    tr := document.createElement('tr');
+    td := document.createElement('td');
+    td.className := 'dg-empty';
+    td.setAttribute('colspan', IntToStr(FColumns.length));
+    td.textContent := 'No data';
+    tr.appendChild(td);
+    FTBody.appendChild(tr);
+  end;
+
   for var vi := 0 to FView.Count - 1 do
   begin
     var dataIdx := FView[vi];
@@ -717,7 +728,6 @@ begin
 
   dataIdx := FView[ViewIdx];
   field   := FColumns[ColIdx].Field;
-  //asm @currentVal = String((@self.FData[@dataIdx])[@field] || ''); end;
   currentVal := FData[dataIdx][field];
 
   FEditing     := true;
@@ -782,7 +792,6 @@ begin
   input.onblur := procedure
   begin
     if FEditing then
-      //asm setTimeout(function() { @self.CommitEdit(); }, 0); end;
       asm setTimeout(function() { @CommitEdit(); }, 0); end;
   end;
 end;
@@ -807,10 +816,6 @@ begin
   field   := FColumns[FEditCol].Field;
 
   // Dynamic field read/write on JS object
-//  asm
-//    @oldVal = (@self.FData[@dataIdx])[@field];
-//    (@self.FData[@dataIdx])[@field] = @newVal;
-//  end;
 
   oldVal := FData[dataIdx][field];
   FData[dataIdx][field] := newVal;
@@ -844,7 +849,6 @@ begin
   field   := FColumns[FEditCol].Field;
 
   // Dynamic field read on JS object
-  //asm @originalVal = String((@self.FData[@dataIdx])[@field] || ''); end;
   originalVal := FData[dataIdx][field];
 
   td := GetCellElement(FEditViewRow, FEditCol);
@@ -882,6 +886,13 @@ begin
       FResizeStartW := th.offsetWidth
     else
       FResizeStartW := 100;
+  end;
+
+  th := GetHeaderCell(ColIdx);
+  if th then
+  begin
+    var handle: variant := th.querySelector('.dg-resize-handle');
+    if handle then handle.classList.add('dg-resizing');
   end;
 
   body := document.body;
@@ -922,6 +933,13 @@ begin
   FResizing := false;
   body := document.body;
   body.classList.remove('dg-col-resizing');
+
+  var th: variant := GetHeaderCell(FResizeCol);
+  if th then
+  begin
+    var handle: variant := th.querySelector('.dg-resize-handle');
+    if handle then handle.classList.remove('dg-resizing');
+  end;
 end;
 
 

@@ -282,8 +282,19 @@ end;
 //=============================================================================
 
 procedure JW3TabControl.RemoveTab(Index: Integer);
+var
+  prevActive: Integer;
 begin
   if (Index < 0) or (Index >= FButtons.Count) then exit;
+
+  // Deactivate current active before modifying arrays
+  prevActive := FActiveIndex;
+  if (prevActive >= 0) and (prevActive < FButtons.Count) then
+  begin
+    FButtons[prevActive].RemoveClass(csTabsBtnActive);
+    FPanels[prevActive].Visible := false;
+  end;
+  FActiveIndex := -1;
 
   FButtons[Index].Free;
   FPanels[Index].Free;
@@ -294,13 +305,15 @@ begin
   for var i := 0 to FButtons.Count - 1 do
     FButtons[i].Tag := IntToStr(i);
 
-  // Adjust active index
+  // Activate the correct tab in the updated arrays
   if FButtons.Count = 0 then
     FActiveIndex := -1
-  else if FActiveIndex >= FButtons.Count then
-    SetActiveIndex(FButtons.Count - 1)
+  else if Index > prevActive then
+    SetActiveIndex(prevActive)                      // removed tab was after active — no shift
+  else if Index < prevActive then
+    SetActiveIndex(prevActive - 1)                  // removed tab was before active — shift down
   else
-    SetActiveIndex(FActiveIndex);
+    SetActiveIndex(Min(Index, FButtons.Count - 1)); // removed tab was the active one
 end;
 
 

@@ -50,6 +50,8 @@ type
     procedure SetChecked(V: Boolean);
     function  GetCaption: String;
     procedure SetCaption(const V: String);
+    function  GetEnabled: Boolean;
+    procedure SetEnabled(V: Boolean);
 
   public
     constructor Create(Parent: TElement); virtual;
@@ -58,6 +60,7 @@ type
 
     property Checked: Boolean read GetChecked write SetChecked;
     property Caption: String read GetCaption write SetCaption;
+    property Enabled: Boolean read GetEnabled write SetEnabled;
     property OnChange: TCheckboxChangedEvent read FOnChange write FOnChange;
   end;
 
@@ -135,7 +138,7 @@ begin
   wrapper := Self.Handle;
 
   var inp: variant := document.createElement('input');
-  inp.type := 'checkbox';
+  inp.setAttribute('type', 'checkbox');
   inp.id := chkId;
   inp.className := csCheckboxInput;
   wrapper.appendChild(inp);
@@ -173,6 +176,16 @@ end;
 procedure JW3Checkbox.SetCaption(const V: String);
 begin
   FLabel.textContent := V;
+end;
+
+function JW3Checkbox.GetEnabled: Boolean;
+begin
+  Result := not FInput.disabled;
+end;
+
+procedure JW3Checkbox.SetEnabled(V: Boolean);
+begin
+  FInput.disabled := not V;
 end;
 
 procedure JW3Checkbox.SetText(const Value: String);

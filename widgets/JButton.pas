@@ -105,8 +105,7 @@ begin
     }
 
     .btn-primary:hover {
-      background: var(--primary-light, #a5b4fc);
-      color: #ffffff;
+      opacity: 0.85;
     }
 
     .btn-primary:active {

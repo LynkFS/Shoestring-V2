@@ -108,7 +108,11 @@ begin
     else
     begin
       if assigned(OnError) then
-        OnError(xhr.status, xhr.statusText);
+      begin
+        var Msg := String(xhr.statusText);
+        if Msg = '' then Msg := 'Network error';
+        OnError(xhr.status, Msg);
+      end;
     end;
   end;
 

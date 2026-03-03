@@ -145,7 +145,7 @@ begin
 
     .demo-picker {
       appearance: none;
-      background: var(--hover-color, #f1f5f9);
+      background: var(--surface-color, #ffffff);
       border: 1px solid var(--border-color, #e2e8f0);
       border-radius: var(--radius-md, 6px);
       padding: 6px 28px 6px 10px;
@@ -756,7 +756,7 @@ begin
   Block.SetStyle('padding', '0');
 
   Item := TElement.Create('div', Block); Item.AddClass('demo-list-item');
-  Item.SetStyle('background', 'var(--hover-color, #f1f5f9)');
+  Item.SetStyle('background', 'var(--border-color, #e2e8f0)');
   TElement.Create('div', Item).SetText('Alice — Project update ready for review');
 
   Item := TElement.Create('div', Block); Item.AddClass('demo-list-item');

@@ -264,11 +264,21 @@ begin
     CPh.SetText(Client.Phone);
   end;
 
-  if Client.Address <> '' then
+  if (Client.Address <> '') or (Client.City <> '') or (Client.Country <> '') then
   begin
     var CAd := TElement.Create('div', CC);
     CAd.AddClass('detail');
-    CAd.SetText(Client.Address + ', ' + Client.City + ', ' + Client.Country);
+    var AddrParts: array of String;
+    if Client.Address <> '' then AddrParts.Add(Client.Address);
+    if Client.City    <> '' then AddrParts.Add(Client.City);
+    if Client.Country <> '' then AddrParts.Add(Client.Country);
+    var AddrLine := '';
+    for var j := 0 to AddrParts.Count - 1 do
+    begin
+      if AddrLine <> '' then AddrLine := AddrLine + ', ';
+      AddrLine := AddrLine + AddrParts[j];
+    end;
+    CAd.SetText(AddrLine);
   end;
 
   // ── Line items ────────────────────────────────────────────────────

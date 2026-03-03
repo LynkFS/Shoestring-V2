@@ -77,6 +77,9 @@ begin
         FForms[i].Instance.Resize;
       end;
 
+      // Resize in case window dimensions changed while this form was hidden
+      FForms[i].Instance.Resize;
+
       // Show — always, so Show override can refresh data-driven content
       FForms[i].Instance.Visible := true;
       FForms[i].Instance.Show;

@@ -95,7 +95,7 @@ end;
 
 procedure JW3Select.SetSelectedIndex(V: Integer);
 begin
-  self.handle. selectedIndex := V;
+  self.handle.selectedIndex := V;
 end;
 
 // ── Selected text ────────────────────────────────────────────────────────

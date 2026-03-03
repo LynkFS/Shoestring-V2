@@ -245,7 +245,7 @@ begin
     .field[disabled] {
       opacity: 0.5;
       cursor: not-allowed;
-      background: var(--hover-color, #f1f5f9);
+      background: var(--bg-color, #f8fafc);
     }
     .field::placeholder {
       color: var(--text-light, #64748b);
@@ -257,6 +257,8 @@ begin
       padding-bottom: 4px;
     }
     .field-group {
+      display: flex;
+      flex-direction: column;
       gap: 4px;
       margin-bottom: 16px;
     }

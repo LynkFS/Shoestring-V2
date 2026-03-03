@@ -93,6 +93,7 @@ begin
     }
 
     .toolbar-item {
+      display: flex;
       flex-direction: row;
       align-items: center;
       justify-content: center;

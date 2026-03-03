@@ -79,7 +79,7 @@ begin
       user-select: none;
 
       /* Default: neutral */
-      background: var(--hover-color, #f1f5f9);
+      background: var(--border-color, #e2e8f0);
       color: var(--text-color, #334155);
     }
 

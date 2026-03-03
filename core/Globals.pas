@@ -70,7 +70,7 @@ var
   el: variant;
 begin
   el := document.createElement('style');
-  asm (@el).textContent = @CSS; end;
+  el.textContent := CSS;
   document.head.appendChild(el);
 end;
 

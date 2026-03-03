@@ -1,4 +1,4 @@
-﻿unit JTextArea;
+unit JTextArea;
 
 // ═══════════════════════════════════════════════════════════════════════════
 //
@@ -89,13 +89,11 @@ end;
 
 function JW3TextArea.GetPlaceholder: String;
 begin
-  //asm @Result = @self.FElement.placeholder; end;
   Result := handle.getAttribute('placeholder');
 end;
 
 procedure JW3TextArea.SetPlaceholder(const V: String);
 begin
-  //asm @self.FElement.placeholder = @V; end;
   SetAttribute('placeholder', V);
 end;
 
@@ -106,8 +104,7 @@ end;
 
 procedure JW3TextArea.SetRows(V: Integer);
 begin
-  //asm @self.FElement.rows = @V; end;
-  handle.setAttribute('rows', V);
+  SetAttribute('rows', IntToStr(V));
 end;
 
 function JW3TextArea.GetReadOnly: Boolean;
@@ -117,8 +114,10 @@ end;
 
 procedure JW3TextArea.SetReadOnly(V: Boolean);
 begin
-  //asm @self.FElement.readOnly = @V; end;
-  handle.setAttribute('readonly', V);
+  if V then
+    SetAttribute('readonly', '')
+  else
+    RemoveAttribute('readonly');
 end;
 
 end.

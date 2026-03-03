@@ -27,7 +27,7 @@ unit LayoutDashboard;
 //    --dash-nav-z           Nav z-index              default: 100
 //
 //    --dash-side-width      Sidebar width            default: 240px
-//    --dash-side-bg         Sidebar background       default: var(--hover-color, #f1f5f9)
+//    --dash-side-bg         Sidebar background       default: var(--surface-color, #fff)
 //    --dash-side-border     Sidebar border           default: 1px solid var(--border-color, #e2e8f0)
 //    --dash-side-padding    Sidebar padding          default: 12px
 //    --dash-side-gap        Sidebar item gap         default: 4px
@@ -98,7 +98,7 @@ begin
       overflow-y: auto;
       padding: var(--dash-side-padding, 12px);
       gap: var(--dash-side-gap, 4px);
-      background: var(--dash-side-bg, var(--hover-color, #f1f5f9));
+      background: var(--dash-side-bg, var(--surface-color, #ffffff));
       border-right: var(--dash-side-border, 1px solid var(--border-color, #e2e8f0));
     }
 

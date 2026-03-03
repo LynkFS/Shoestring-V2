@@ -25,8 +25,6 @@ type
     FCountBadge:   JW3Badge;
 
     procedure BuildLayout;
-    procedure AddNavItem(Parent: TElement; const Icon, Caption: String;
-      Active: Boolean);
     procedure AddStatCard(Parent: TElement;
       const Caption, Value, Sub: String);
     procedure RefreshStats;
@@ -37,7 +35,6 @@ type
   protected
     procedure InitializeObject; override;
     procedure Show; override;
-    procedure Resize; override;
   end;
 
   procedure SetActiveInvoiceID(ID: Integer);
@@ -109,28 +106,6 @@ begin
   inherited;
   FFilterStatus := '';
   BuildLayout;
-end;
-
-procedure TFormInvoiceList.Resize;
-begin
-  inherited;
-end;
-
-// ── Helper: nav item (class method, no nested proc) ───────────────────────
-
-procedure TFormInvoiceList.AddNavItem(Parent: TElement;
-  const Icon, Caption: String; Active: Boolean);
-var Item: TElement;
-begin
-  Item := TElement.Create('div', Parent);
-  Item.AddClass('inv-nav-item');
-  if Active then Item.AddClass('active');
-  var IEl := TElement.Create('span', Item);
-  IEl.AddClass('inv-nav-icon');
-  IEl.SetText(Icon);
-  var TEl := TElement.Create('span', Item);
-  TEl.SetText(Caption);
-  // Note: click handler is attached by caller if needed
 end;
 
 // ── Helper: stat card ─────────────────────────────────────────────────────
@@ -329,6 +304,7 @@ begin
     Rows.Add(Row);
   end;
 
+  FCountBadge.SetText(IntToStr(Rows.Count));
   GGrid.SetData(Rows);
 end;
 
@@ -336,8 +312,6 @@ end;
 
 procedure TFormInvoiceList.RefreshStats;
 begin
-  FCountBadge.SetText(IntToStr(Store.InvoiceCount));
-
   FStatsRow.Clear;
 
   AddStatCard(FStatsRow,

@@ -129,7 +129,7 @@ begin
       font-family: var(--font-family-mono);
       font-size: 0.85rem;
       padding: 10px 14px;
-      background: var(--hover-color, #f1f5f9);
+      background: var(--border-color, #e2e8f0);
       border-radius: var(--radius-md, 6px);
       color: var(--text-color, #334155);
       white-space: pre-wrap;

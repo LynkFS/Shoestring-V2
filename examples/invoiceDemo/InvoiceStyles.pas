@@ -22,8 +22,6 @@ const
 
   // ── Line item table ───────────────────────────────────────────────
   csLineTable      = 'inv-lines';
-  csLineHead       = 'inv-lines-head';
-  csLineRow        = 'inv-lines-row';
   csLineTotals     = 'inv-totals';
 
   // ── Invoice header block ──────────────────────────────────────────
@@ -56,7 +54,7 @@ begin
     ────────────────────────────────────────────────────────────── */
 
     .badge-secondary {
-      background: var(--hover-color, #f1f5f9);
+      background: var(--border-color, #e2e8f0);
       color: var(--text-light, #64748b);
       border: 1px solid var(--border-color, #e2e8f0);
     }
@@ -147,7 +145,7 @@ begin
     ────────────────────────────────────────────────────────────── */
 
     .inv-client-card {
-      background: var(--hover-color, #f8fafc);
+      background: var(--bg-color, #f8fafc);
       border: 1px solid var(--border-color, #e2e8f0);
       border-radius: var(--radius-lg, 8px);
       padding: 16px 20px;

@@ -57,8 +57,12 @@ implementation
 
 uses Globals;
 
+var FRegistered: Boolean := false;
+
 procedure RegisterDocumentLayout;
 begin
+  if FRegistered then exit;
+  FRegistered := true;
   AddStyleBlock(#'
 
     /* ── Shell: full viewport, vertical stack ─────────────────────── */

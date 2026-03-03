@@ -351,7 +351,7 @@ begin
   BtnRm.SetStyle('font-size', '1rem');
   BtnRm.OnClick := procedure(Sender: TObject)
   begin
-    Row.Handle.remove;
+    Row.Free;
     UpdateRunningTotal;
   end;
 

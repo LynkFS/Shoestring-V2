@@ -54,6 +54,7 @@ const
   csModalBody     = 'modal-body';
   csModalFooter   = 'modal-footer';
   csModalClose    = 'modal-close';
+  csModalTitle    = 'modal-title';
 
 type
   JW3Modal = class(TElement)
@@ -86,7 +87,7 @@ procedure RegisterModalStyles;
 
 implementation
 
-uses Globals;
+uses Globals, Types;
 
 var FRegistered: Boolean := false;
 
@@ -147,7 +148,7 @@ begin
       flex-shrink: 0;
     }
 
-    .modal-header > :first-child {
+    .modal-title {
       font-weight: 600;
       font-size: var(--font-size-md, 1rem);
       color: var(--text-color, #334155);
@@ -205,17 +206,9 @@ begin
   AddClass(csModalBackdrop);
 
   // Close on backdrop click — but not on clicks inside the dialog.
-  // Use a raw listener so we can check event.target directly.
-  var mSelf := Self;
-  var mEl := Handle;
-  asm
-    (@mEl).addEventListener('click', function(e) {
-      if (e.target === @mEl) {
-        var h = @mSelf.Hide;
-        h();
-      }
-    }, false);
-  end;
+  Handle.addEventListener('click', procedure(e: JEvent) begin
+    if e.target = Handle then Hide;
+  end, false);
 
   // Dialog box
   FDialog := JW3Panel.Create(Self);
@@ -226,6 +219,7 @@ begin
   FHeader.AddClass(csModalHeader);
 
   FTitleEl := JW3Panel.Create(FHeader);
+  FTitleEl.AddClass(csModalTitle);
   FTitleEl.SetText('Dialog');
 
   CloseBtn := JW3Panel.Create(FHeader);

@@ -476,8 +476,8 @@ begin
   begin
     NodeEl.AddClass(csTreeFocused);
     // Scroll into view
-    var h := NodeEl.handle;
-    asm NodeEl.scrollIntoView({ block: 'nearest' }); end;
+    var h := NodeEl.Handle;
+    asm (@h).scrollIntoView({ block: 'nearest' }); end;
   end;
 end;
 

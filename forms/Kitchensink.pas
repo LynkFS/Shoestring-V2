@@ -164,12 +164,20 @@ begin
 end;
 
 procedure TKitchensink.ShowComponent(const Name: String);
+var
+  DisplayName: String;
 begin
   FDisplay.Clear;
 
-  // Title
+  // Map key → display caption
+  if      Name = 'textarea'    then DisplayName := 'TextArea'
+  else if Name = 'treeview'    then DisplayName := 'TreeView'
+  else if Name = 'datagrid'    then DisplayName := 'DataGrid'
+  else if Name = 'productcard' then DisplayName := 'Product Card'
+  else DisplayName := UpperCase(Copy(Name, 1, 1)) + Copy(Name, 2, Length(Name));
+
   var Title := JW3Label.Create(FDisplay);
-  Title.SetText(Name);
+  Title.SetText(DisplayName);
   Title.AddClass('text-xl');
   Title.AddClass('font-bold');
 
@@ -417,7 +425,7 @@ begin
     CloseBtn.AddClass(csBtnPrimary);
     CloseBtn.OnClick := procedure(Sender: TObject)
     begin
-      Dlg.Hide;
+      Dlg.Free;
     end;
 
     Dlg.Show;

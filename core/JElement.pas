@@ -41,6 +41,7 @@ type
     FParent:        TElement;
     FChildren:      array of TElement;
     FClickAttached: Boolean;
+    FReadyAttached: Boolean;
 
     FOnClick: TNotifyEvent;
     FOnReady: TNotifyEvent;
@@ -130,6 +131,7 @@ begin
   FHandle.id := TW3Identifiers.GenerateUniqueObjectId;
 
   FClickAttached := false;
+  FReadyAttached := false;
   FParent        := Parent;
 
   if Parent = nil then
@@ -173,8 +175,11 @@ end;
 procedure TElement.SetOnReady(Value: TNotifyEvent);
 begin
   FOnReady := Value;
-  if assigned(Value) then
+  if (not FReadyAttached) and assigned(Value) then
+  begin
+    FReadyAttached := true;
     window.requestAnimationFrame(@ElementReady);
+  end;
 end;
 
 
@@ -281,7 +286,6 @@ end;
 
 function TElement.GetText: String;
 begin
-  Result := '';
   Result := FHandle.textContent;
 end;
 
@@ -340,7 +344,7 @@ begin
   end
   else
   begin
-    SetAttribute('disabled', 'true');
+    SetAttribute('disabled', '');
     SetStyle('opacity', '0.5');
     SetStyle('pointer-events', 'none');
   end;

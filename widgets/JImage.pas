@@ -75,7 +75,7 @@ begin
       max-width: 100%;
       height: auto;
       border-radius: var(--img-radius, 0);
-      background: var(--img-bg, var(--hover-color, #f1f5f9));
+      background: var(--img-bg, var(--border-color, #e2e8f0));
       object-fit: contain;
     }
   ');

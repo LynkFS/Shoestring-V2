@@ -41,6 +41,7 @@ uses JElement, JPanel;
 const
   csCard       = 'card';
   csCardHeader = 'card-header';
+  csCardTitle  = 'card-title';
   csCardBody   = 'card-body';
   csCardFooter = 'card-footer';
 
@@ -96,7 +97,7 @@ begin
       flex-shrink: 0;
     }
 
-    .card-header > :first-child {
+    .card-title {
       font-weight: 600;
       font-size: var(--font-size-sm, 0.875rem);
       color: var(--text-color, #334155);
@@ -132,6 +133,7 @@ begin
   FHeader.Visible := false;  // hidden until Title is set
 
   FTitleEl := JW3Panel.Create(FHeader);
+  FTitleEl.AddClass(csCardTitle);
 
   FBody := JW3Panel.Create(Self);
   FBody.AddClass(csCardBody);

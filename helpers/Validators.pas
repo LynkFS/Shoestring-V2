@@ -153,7 +153,11 @@ end;
 function Matches(const Value, Pattern: String): Boolean;
 begin
   asm
-    @Result = new RegExp(@Pattern).test(@Value);
+    try {
+      @Result = new RegExp(@Pattern).test(@Value);
+    } catch(e) {
+      @Result = false;
+    }
   end;
 end;
 

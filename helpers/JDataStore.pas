@@ -187,6 +187,7 @@ begin
   idx := IndexOfKey(Key);
   if idx < 0 then exit;
   FKeys.Delete(idx);
+  asm delete @FStore[@Key]; end;
 
   if FUpdateCount > 0 then
     RecordChange(Key)
@@ -262,10 +263,12 @@ end;
 // ═════════════════════════════════════════════════════════════════════════
 
 procedure JW3DataStore.Notify(const Key: String; Value: variant);
+var Snap: array of TSubscription;
 begin
-  for var i := 0 to FSubs.Count - 1 do
-    if (FSubs[i].Key = Key) or (FSubs[i].Key = '*') then
-      FSubs[i].Callback(Key, Value);
+  Snap := FSubs;
+  for var i := 0 to Snap.Count - 1 do
+    if (Snap[i].Key = Key) or (Snap[i].Key = '*') then
+      Snap[i].Callback(Key, Value);
 end;
 
 

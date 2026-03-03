@@ -106,8 +106,12 @@ implementation
 
 uses Globals;
 
+var FRegistered: Boolean := false;
+
 procedure RegisterTypographyStyles;
 begin
+  if FRegistered then exit;
+  FRegistered := true;
   AddStyleBlock(#'
 
     /* ── Root: fluid base size ────────────────────────────────────── */

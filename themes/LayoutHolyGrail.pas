@@ -31,7 +31,7 @@ unit LayoutHolyGrail;
 //    --hg-footer-border     Footer border           default: 1px solid var(--border-color, #e2e8f0)
 //
 //    --hg-nav-width         Left nav width          default: 220px
-//    --hg-nav-bg            Nav background          default: var(--hover-color, #f1f5f9)
+//    --hg-nav-bg            Nav background          default: var(--surface-color, #fff)
 //    --hg-nav-border        Nav border              default: 1px solid var(--border-color, #e2e8f0)
 //    --hg-nav-padding       Nav padding             default: 12px
 //
@@ -107,7 +107,7 @@ begin
       overflow-y: auto;
       padding: var(--hg-nav-padding, 12px);
       gap: 4px;
-      background: var(--hg-nav-bg, var(--hover-color, #f1f5f9));
+      background: var(--hg-nav-bg, var(--surface-color, #ffffff));
       border-right: var(--hg-nav-border, 1px solid var(--border-color, #e2e8f0));
     }
 

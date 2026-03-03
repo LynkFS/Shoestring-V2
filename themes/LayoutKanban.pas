@@ -42,7 +42,7 @@ unit LayoutKanban;
 //    --kb-board-gap         Gap between columns     default: 16px
 //
 //    --kb-col-width         Column width            default: 300px
-//    --kb-col-bg            Column background       default: var(--hover-color, #f1f5f9)
+//    --kb-col-bg            Column background       default: var(--surface-color, #fff)
 //    --kb-col-radius        Column border radius    default: var(--radius-lg, 8px)
 //    --kb-col-padding       Column padding          default: 12px
 //    --kb-col-gap           Gap between cards       default: 8px
@@ -126,7 +126,7 @@ begin
     .kb-col {
       flex-shrink: 0;
       width: var(--kb-col-width, 300px);
-      background: var(--kb-col-bg, var(--hover-color, #f1f5f9));
+      background: var(--kb-col-bg, var(--surface-color, #ffffff));
       border-radius: var(--kb-col-radius, var(--radius-lg, 8px));
       padding: var(--kb-col-padding, 12px);
       gap: var(--kb-col-gap, 8px);
@@ -180,7 +180,6 @@ begin
       }
 
       .kb-col-body {
-        overflow-y: visible;
         max-height: 300px;
         overflow-y: auto;
       }

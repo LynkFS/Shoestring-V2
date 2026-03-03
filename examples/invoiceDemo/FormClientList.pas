@@ -29,6 +29,7 @@ type
     procedure ClearDetail;
   protected
     procedure InitializeObject; override;
+    procedure Show; override;
   end;
 
 implementation
@@ -45,6 +46,12 @@ begin
   inherited;
   FSelectedID := 0;
   BuildLayout;
+end;
+
+procedure TFormClientList.Show;
+begin
+  inherited;
+  RefreshList;
 end;
 
 procedure TFormClientList.BuildLayout;
@@ -136,7 +143,7 @@ begin
     Row := TElement.Create('div', FListPanel);
     Row.AddClass('inv-client-row');
     if C.ID = FSelectedID then
-      Row.SetStyle('background', 'var(--hover-color, #f1f5f9)');
+      Row.SetStyle('background', 'var(--border-color, #e2e8f0)');
 
     // Avatar initials
     Avatar := TElement.Create('div', Row);
@@ -158,9 +165,7 @@ begin
     Row.Handle.setAttribute('data-cid', IntToStr(CID));
     Row.Handle.addEventListener('click', procedure(E: variant)
     begin
-      var Val: String;
-      asm @Val = (@E).currentTarget.getAttribute('data-cid'); end;
-      SelectClient(StrToInt(Val));
+      SelectClient(StrToInt(E.currentTarget.getAttribute('data-cid')));
     end);
   end;
 end;
@@ -234,7 +239,10 @@ begin
   var HCity := TElement.Create('div', HInfo);
   HCity.SetStyle('font-size', '0.8rem');
   HCity.SetStyle('color', 'var(--text-light, #64748b)');
-  HCity.SetText(C.City + ', ' + C.Country);
+  var Location := C.City;
+  if (Location <> '') and (C.Country <> '') then Location := Location + ', ';
+  Location := Location + C.Country;
+  HCity.SetText(Location);
 
   var BtnEdit := JW3Button.Create(HRow);
   BtnEdit.Caption := 'Edit';
