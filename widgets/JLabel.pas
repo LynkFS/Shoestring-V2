@@ -38,7 +38,6 @@ implementation
 constructor JW3Label.Create(Parent: TElement);
 begin
   inherited Create('label', Parent);
-  AddClass('field-label');
 end;
 
 function JW3Label.GetCaption: String;

@@ -148,9 +148,13 @@ procedure RemoveToast(el: variant);
 begin
   asm
     (@el).classList.add('toast-removing');
+    var raw = getComputedStyle(document.documentElement)
+                .getPropertyValue('--toast-duration').trim();
+    var dur = parseFloat(raw) * (raw.endsWith('ms') ? 1 : 1000);
+    if (!dur || isNaN(dur)) dur = 300;
     setTimeout(function() {
       if ((@el).parentNode) (@el).parentNode.removeChild(@el);
-    }, 300);
+    }, dur);
   end;
 end;
 

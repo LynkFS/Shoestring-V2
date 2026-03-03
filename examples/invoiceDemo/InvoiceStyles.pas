@@ -377,7 +377,7 @@ begin
       align-items: center;
       gap: 10px;
       padding: 9px 14px;
-      border-radius: var(--radius, 6px);
+      border-radius: var(--radius-md, 6px);
       font-size: 0.875rem;
       cursor: pointer;
       color: var(--text-color, #334155);

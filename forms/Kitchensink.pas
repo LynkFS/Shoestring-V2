@@ -27,7 +27,7 @@ type
     procedure HandleComponentsClick(Sender: TObject);
     procedure HandleLayoutsClick(Sender: TObject);
     procedure HandleNonVisualClick(Sender: TObject);
-    procedure HandleListSelect(Sender: TObject);
+    procedure HandleListSelect(Sender: TObject; Value: String);
     procedure HandleInvoiceDemoClick(Sender: TObject);
     procedure ShowComponent(const Name: String);
 
@@ -61,8 +61,7 @@ uses
   ThemeStyles, TypographyStyles,
   JButton, JLabel, JInput, JTextArea, JSelect, JCheckbox,
   JBadge, JCard, JImage, JTabs, JModal, JToast,
-  JTreeView, JDataGrid, JProductCard,
-  FormLayoutDemo;
+  JTreeView, JDataGrid, JProductCard;
 
 
 procedure TKitchensink.InitializeObject;
@@ -88,13 +87,12 @@ begin
   FBody.SetGrow(1);
   FBody.SetStyle('flex-direction', 'row');
 
-  // ── Listbox — hidden by default ────────────────────────────────────
+  // ── Listbox ────────────────────────────────────────────────────────────────
 
   FListBox := JW3ListBox.Create(FBody);
   FListBox.SetStyle('width', '200px');
   FListBox.SetStyle('flex-shrink', '0');
   FListBox.SetStyle('border-right', '1px solid var(--border-color, #e2e8f0)');
-  FListBox.Visible := true;
 
   FListBox.AddItem('button',     'Button');
   FListBox.AddItem('label',      'Label');
@@ -114,7 +112,7 @@ begin
   FListBox.AddItem('datagrid',   'DataGrid');
   FListBox.AddItem('productcard','Product Card');
 
-  FListBox.OnClick := HandleListSelect;
+  FListBox.OnSelect := HandleListSelect;
 
   // ── Display panel — where the selected component appears ───────────
 
@@ -160,9 +158,9 @@ end;
 // Listbox selection — display the chosen component
 // ═════════════════════════════════════════════════════════════════════════
 
-procedure TKitchensink.HandleListSelect(Sender: TObject);
+procedure TKitchensink.HandleListSelect(Sender: TObject; Value: String);
 begin
-  ShowComponent(FListBox.SelectedValue);
+  ShowComponent(Value);
 end;
 
 procedure TKitchensink.ShowComponent(const Name: String);
@@ -419,7 +417,7 @@ begin
     CloseBtn.AddClass(csBtnPrimary);
     CloseBtn.OnClick := procedure(Sender: TObject)
     begin
-      Dlg.Hide;;
+      Dlg.Hide;
     end;
 
     Dlg.Show;

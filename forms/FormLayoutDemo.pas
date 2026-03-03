@@ -98,7 +98,7 @@ begin
 
     .demo-nav-item {
       padding: 8px 12px;
-      border-radius: var(--radius, 6px);
+      border-radius: var(--radius-md, 6px);
       font-size: 0.875rem;
       cursor: pointer;
       color: var(--text-color, #1e293b);
@@ -117,7 +117,7 @@ begin
     .demo-kb-card {
       background: var(--surface-color, #fff);
       border: 1px solid var(--border-color, #e2e8f0);
-      border-radius: var(--radius, 6px);
+      border-radius: var(--radius-md, 6px);
       padding: 12px;
       display: flex;
       flex-direction: column;
@@ -147,7 +147,7 @@ begin
       appearance: none;
       background: var(--hover-color, #f1f5f9);
       border: 1px solid var(--border-color, #e2e8f0);
-      border-radius: var(--radius, 6px);
+      border-radius: var(--radius-md, 6px);
       padding: 6px 28px 6px 10px;
       font-size: 12px;
       font-weight: 600;
@@ -499,18 +499,18 @@ begin
   NavT.SetText('On this page');
   NavT.SetStyle('font-weight', '600');
   NavT.SetStyle('font-size', '0.8rem');
-  NavT.SetStyle('color', 'var(--text-light)');
+  NavT.SetStyle('color', 'var(--text-light, #64748b)');
   NavT.SetStyle('text-transform', 'uppercase');
   NavT.SetStyle('letter-spacing', '0.05em');
 
   var L1 := JW3Label.Create(Aside);
   L1.SetText('The Container Query Pattern');
-  L1.SetStyle('color', 'var(--primary-color)');
+  L1.SetStyle('color', 'var(--primary-color, #6366f1)');
   L1.SetStyle('font-size', '0.875rem');
 
   var L2 := JW3Label.Create(Aside);
   L2.SetText('When to Use');
-  L2.SetStyle('color', 'var(--text-color)');
+  L2.SetStyle('color', 'var(--text-color, #1e293b)');
   L2.SetStyle('font-size', '0.875rem');
 end;
 
@@ -604,22 +604,22 @@ begin
   AT.SetText('Related');
   AT.SetStyle('font-weight', '600');
   AT.SetStyle('font-size', '0.8rem');
-  AT.SetStyle('color', 'var(--text-light)');
+  AT.SetStyle('color', 'var(--text-light, #64748b)');
   AT.SetStyle('text-transform', 'uppercase');
 
   var R1 := JW3Label.Create(Aside);
   R1.SetText('Dashboard Layout');
-  R1.SetStyle('color', 'var(--primary-color)');
+  R1.SetStyle('color', 'var(--primary-color, #6366f1)');
   R1.SetStyle('font-size', '0.875rem');
 
   var R2 := JW3Label.Create(Aside);
   R2.SetText('Document Layout');
-  R2.SetStyle('color', 'var(--text-color)');
+  R2.SetStyle('color', 'var(--text-color, #1e293b)');
   R2.SetStyle('font-size', '0.875rem');
 
   var R3 := JW3Label.Create(Aside);
   R3.SetText('Split Layout');
-  R3.SetStyle('color', 'var(--text-color)');
+  R3.SetStyle('color', 'var(--text-color, #1e293b)');
   R3.SetStyle('font-size', '0.875rem');
 
   // ── Footer ──

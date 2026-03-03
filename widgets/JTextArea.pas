@@ -54,8 +54,6 @@ uses Globals;
 { JW3TextArea }
 
 constructor JW3TextArea.Create(Parent: TElement);
-var
-  mRef: TEventListener;
 begin
   inherited Create('textarea', Parent);
   AddClass('field');
@@ -70,7 +68,6 @@ begin
 
   SetAttribute('rows', '3');
 
-  mRef := @CBInput;
   Handle.addEventListener('input', @CBInput, false);
 end;
 
@@ -82,14 +79,12 @@ end;
 
 function JW3TextArea.GetValue: String;
 begin
-  //asm @Result = @self.FElement.value; end;
-  Result := handle.getAttribute('value');
+  Result := String(Handle.value);
 end;
 
 procedure JW3TextArea.SetValue(const V: String);
 begin
-  //asm @self.FElement.value = @V; end;
-  SetAttribute('value', V);
+  Handle.value := V;
 end;
 
 function JW3TextArea.GetPlaceholder: String;
@@ -106,8 +101,7 @@ end;
 
 function JW3TextArea.GetRows: Integer;
 begin
-  //asm @Result = @self.FElement.rows; end;
-  Result := handle.getAttribute('rows');
+  Result := Integer(Handle.rows);
 end;
 
 procedure JW3TextArea.SetRows(V: Integer);
@@ -118,8 +112,7 @@ end;
 
 function JW3TextArea.GetReadOnly: Boolean;
 begin
-  //asm @Result = @self.FElement.readOnly; end;
-  Result := handle.getAttribute('readonly');
+  Result := Handle.hasAttribute('readonly');
 end;
 
 procedure JW3TextArea.SetReadOnly(V: Boolean);

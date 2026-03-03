@@ -78,14 +78,13 @@ end;
 
 function JW3Input.GetValue: String;
 begin
-  //asm @Result = @self.FElement.value; end;
-  Result := GetAttribute('value');
+  Result := String(Handle.value);
 end;
 
 procedure JW3Input.SetValue(const V: String);
 begin
-  //asm @self.FElement.value = @V; end;
-  SetAttribute('value', V);
+  Handle.value := V;
+  SetAttribute('value', V);  // keep default-value attribute in sync
 end;
 
 // ── Placeholder ──────────────────────────────────────────────────────────
@@ -118,8 +117,7 @@ end;
 
 function JW3Input.GetReadOnly: Boolean;
 begin
-  //asm @Result = @self.FElement.readOnly; end;
-  Result := handle.getAttribute('readonly');
+  Result := handle.hasAttribute('readonly');
 end;
 
 procedure JW3Input.SetReadOnly(V: Boolean);

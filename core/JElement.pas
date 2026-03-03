@@ -46,6 +46,7 @@ type
     FOnReady: TNotifyEvent;
 
     procedure SetOnClick(Value: TNotifyEvent);
+    procedure SetOnReady(Value: TNotifyEvent);
 
   protected
     procedure ElementReady; virtual;
@@ -70,8 +71,8 @@ type
     // ── CSS class management ─────────────────────────────────────────
     procedure AddClass(const Name: String);
     procedure RemoveClass(const Name: String);
-    //procedure ToggleClass(const Name: String);
-    //function  HasClass(const Name: String): Boolean;
+    procedure ToggleClass(const Name: String);
+    function  HasClass(const Name: String): Boolean;
 
     // ── Attributes ───────────────────────────────────────────────────
     procedure SetAttribute(const Name, Value: String);
@@ -107,7 +108,7 @@ type
 
     // ── Events ───────────────────────────────────────────────────────
     property  OnClick: TNotifyEvent read FOnClick write SetOnClick;
-    property  OnReady: TNotifyEvent read FOnReady write FOnReady;
+    property  OnReady: TNotifyEvent read FOnReady write SetOnReady;
     procedure CBClick(EventObj: JEvent); virtual;
 
     // ── Identity ─────────────────────────────────────────────────────
@@ -127,7 +128,6 @@ begin
 
   FHandle := document.createElement(TagName);
   FHandle.id := TW3Identifiers.GenerateUniqueObjectId;
-  FHandle.style.setProperty('box-sizing', 'border-box');
 
   FClickAttached := false;
   FParent        := Parent;
@@ -139,8 +139,6 @@ begin
     Parent.FHandle.appendChild(FHandle);
     Parent.FChildren.Add(Self);
   end;
-
-  window.requestAnimationFrame(@ElementReady);
 end;
 
 
@@ -170,6 +168,13 @@ procedure TElement.ElementReady;
 begin
   if assigned(FOnReady) then
     FOnReady(Self);
+end;
+
+procedure TElement.SetOnReady(Value: TNotifyEvent);
+begin
+  FOnReady := Value;
+  if assigned(Value) then
+    window.requestAnimationFrame(@ElementReady);
 end;
 
 
@@ -229,15 +234,15 @@ begin
   FHandle.classList.remove(Name);
 end;
 
-//procedure TElement.ToggleClass(const Name: String);
-//begin
-//  FHandle.classList.toggle(Name);
-//end;
+procedure TElement.ToggleClass(const Name: String);
+begin
+  FHandle.classList.toggle(Name);
+end;
 
-//function TElement.HasClass(const Name: String): Boolean;
-//begin
-//  Result := FHandle.classList.contains(Name);
-//end;
+function TElement.HasClass(const Name: String): Boolean;
+begin
+  Result := FHandle.classList.contains(Name);
+end;
 
 
 procedure TElement.SetAttribute(const Name, Value: String);

@@ -85,6 +85,7 @@ type
 
   public
     constructor Create;
+    destructor  Destroy; override;
 
     // ── Data access ──────────────────────────────────────────────────
     procedure Put(const Key: String; Value: variant);
@@ -120,6 +121,14 @@ begin
   FUpdateCount := 0;
 end;
 
+destructor JW3DataStore.Destroy;
+begin
+  FSubs.Clear;
+  FKeys.Clear;
+  FChanged.Clear;
+  inherited;
+end;
+
 
 // ═════════════════════════════════════════════════════════════════════════
 // Key tracking
@@ -146,9 +155,10 @@ end;
 
 procedure JW3DataStore.Put(const Key: String; Value: variant);
 begin
+  var isNew := not Has(Key);
   FStore[Key] := Value;
 
-  if IndexOfKey(Key) < 0 then
+  if isNew then
     FKeys.Add(Key);
 
   if FUpdateCount > 0 then
@@ -159,7 +169,7 @@ end;
 
 function JW3DataStore.Get(const Key: String): variant;
 begin
-  if IndexOfKey(Key) >= 0 then
+  if Has(Key) then
     Result := FStore[Key]
   else
     Result := nil;
@@ -167,7 +177,7 @@ end;
 
 function JW3DataStore.Has(const Key: String): Boolean;
 begin
-  Result := IndexOfKey(Key) >= 0;
+  Result := Boolean(FStore.hasOwnProperty(Key));
 end;
 
 procedure JW3DataStore.Delete(const Key: String);
@@ -185,10 +195,14 @@ begin
 end;
 
 procedure JW3DataStore.Clear;
+var
+  snapshot: array of String;
 begin
-  FStore := variant(TObject.Create);
+  snapshot := FKeys;
+  FStore   := variant(TObject.Create);
   FKeys.Clear;
-  Notify('*', nil);
+  for var i := 0 to snapshot.Count - 1 do
+    Notify(snapshot[i], nil);
 end;
 
 function JW3DataStore.Keys: array of String;

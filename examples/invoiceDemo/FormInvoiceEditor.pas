@@ -42,6 +42,7 @@ type
     FTotalLabel: JW3Label;
   protected
     procedure InitializeObject; override;
+    procedure Show; override;
   end;
 
 implementation
@@ -58,12 +59,15 @@ uses
 procedure TFormInvoiceEditor.InitializeObject;
 begin
   inherited;
+end;
 
+procedure TFormInvoiceEditor.Show;
+begin
+  Self.Clear;
   if ActiveInvoiceID > 0 then
     FInvoice := Store.FindInvoice(ActiveInvoiceID)
   else
     FInvoice := Store.NewBlankInvoice;
-
   BuildForm;
 end;
 
@@ -230,7 +234,7 @@ begin
   TotRow.SetStyle('display', 'flex');
   TotRow.SetStyle('justify-content', 'flex-end');
   TotRow.SetStyle('padding-top', '8px');
-  TotRow.SetStyle('border-top', '1px solid var(--border-color)');
+  TotRow.SetStyle('border-top', '1px solid var(--border-color, #e2e8f0)');
 
   var TotInner := TElement.Create('div', TotRow);
   TotInner.SetStyle('display', 'flex');

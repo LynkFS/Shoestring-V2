@@ -129,6 +129,7 @@ begin
 
   FHeader := JW3Panel.Create(Self);
   FHeader.AddClass(csCardHeader);
+  FHeader.Visible := false;  // hidden until Title is set
 
   FTitleEl := JW3Panel.Create(FHeader);
 

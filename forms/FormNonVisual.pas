@@ -15,7 +15,7 @@
 interface
 
 uses
-  JElement, JForm, JPanel, JToolbar, JListBox, JLabel, Types;
+  JElement, JForm, JPanel, JToolbar, JListBox, JLabel, JDatastore, Types;
 
 type
 
@@ -59,13 +59,14 @@ type
 
   TFormNonVisual = class(TW3Form)
   private
-    FToolbar: JW3Toolbar;
-    FBody:    JW3Panel;
-    FNav:     JW3ListBox;
-    FDisplay: JW3Panel;
-    FSession: TSessionService;
+    FToolbar:   JW3Toolbar;
+    FBody:      JW3Panel;
+    FNav:       JW3ListBox;
+    FDisplay:   JW3Panel;
+    FSession:   TSessionService;
+    FDataStore: JW3DataStore;
 
-    procedure HandleNavSelect(Sender: TObject);
+    procedure HandleNavSelect(Sender: TObject; Value: String);
     procedure ShowDemo(const Name: String);
 
     procedure ShowServices;
@@ -89,7 +90,7 @@ implementation
 uses
   Globals, ThemeStyles, TypographyStyles,
   JButton, JLabel, JInput, JBadge,
-  JDataStore, HttpClient, Validators;
+  HttpClient, Validators;
 
 
 // Local styles
@@ -243,6 +244,7 @@ end;
 
 destructor TFormNonVisual.Destroy;
 begin
+  FDataStore.Free;
   FSession.Free;
   inherited;
 end;
@@ -284,7 +286,7 @@ begin
   FNav.AddItem('models',     'Models');
   FNav.AddItem('adapters',   'Adapters');
 
-  FNav.OnClick := HandleNavSelect;
+  FNav.OnSelect := HandleNavSelect;
 
   // Display panel
   FDisplay := JW3Panel.Create(FBody);
@@ -300,9 +302,9 @@ begin
 end;
 
 
-procedure TFormNonVisual.HandleNavSelect(Sender: TObject);
+procedure TFormNonVisual.HandleNavSelect(Sender: TObject; Value: String);
 begin
-  ShowDemo(FNav.SelectedValue);
+  ShowDemo(Value);
 end;
 
 procedure TFormNonVisual.ShowDemo(const Name: String);
@@ -470,7 +472,9 @@ begin
       begin
         Btn1.Enabled := true;
         var result := '';
-        for var i := 0 to 4 do  // first 5 entries
+        var count: Integer;
+        asm @count = Math.min(5, (@Data).length); end;
+        for var i := 0 to count - 1 do
         begin
           var item: variant;
           asm @item = @Data[@i]; end;
@@ -737,7 +741,9 @@ begin
     'BeginUpdate/EndUpdate batches multiple changes into a single notification round.');
   Desc.AddClass('text-prose');
 
-  var Store := JW3DataStore.Create;
+  FDataStore.Free;
+  FDataStore := JW3DataStore.Create;
+  var Store := FDataStore;
 
   // Subscribe / Put demo
 
@@ -905,19 +911,7 @@ begin
     var Valid := (O.Customer <> '') and (O.Amount > 0) and (O.Lines > 0);
 
     var Sec := AddSection(O.OrderID);
-/*
-    procedure AddRow(const Key, Val: String);
-    begin
-      var Row := TElement.Create('div', Sec);
-      Row.AddClass('nv-detail-row');
-      var K := TElement.Create('div', Row);
-      K.AddClass('nv-detail-key');
-      K.SetText(Key);
-      var V := TElement.Create('div', Row);
-      V.AddClass('nv-detail-val');
-      V.SetText(Val);
-    end;
-*/
+
     AddRow(Sec, 'Customer', O.Customer);
     AddRow(Sec, 'Amount',   '$' + FloatToStr(O.Amount));
     AddRow(Sec, 'Lines',    IntToStr(O.Lines));

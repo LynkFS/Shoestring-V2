@@ -116,7 +116,7 @@ begin
   // Show placeholder
   var PH := JW3Label.Create(FDetailPanel);
   PH.SetText('Select a client to view details, or create a new one.');
-  PH.SetStyle('color', 'var(--text-light)');
+  PH.SetStyle('color', 'var(--text-light, #64748b)');
 end;
 
 procedure TFormClientList.RefreshList;
@@ -136,7 +136,7 @@ begin
     Row := TElement.Create('div', FListPanel);
     Row.AddClass('inv-client-row');
     if C.ID = FSelectedID then
-      Row.SetStyle('background', 'var(--hover-color)');
+      Row.SetStyle('background', 'var(--hover-color, #f1f5f9)');
 
     // Avatar initials
     Avatar := TElement.Create('div', Row);
@@ -229,11 +229,11 @@ begin
   var HName := TElement.Create('div', HInfo);
   HName.SetStyle('font-size', '1.1rem');
   HName.SetStyle('font-weight', '700');
-  HName.SetStyle('color', 'var(--text-color)');
+  HName.SetStyle('color', 'var(--text-color, #1e293b)');
   HName.SetText(C.Name);
   var HCity := TElement.Create('div', HInfo);
   HCity.SetStyle('font-size', '0.8rem');
-  HCity.SetStyle('color', 'var(--text-light)');
+  HCity.SetStyle('color', 'var(--text-light, #64748b)');
   HCity.SetText(C.City + ', ' + C.Country);
 
   var BtnEdit := JW3Button.Create(HRow);
@@ -353,7 +353,7 @@ begin
   Sec.AddClass('inv-section');
 
   procedure MakeField(const Label, PlaceHolder, Value: String;
-    Inp: JW3Input);
+    var Inp: JW3Input);
   begin
     var G := TElement.Create('div', Sec);
     G.AddClass('inv-form-group');
@@ -408,7 +408,7 @@ begin
       ClearDetail;
       var PH := JW3Label.Create(FDetailPanel);
       PH.SetText('Select a client or create a new one.');
-      PH.SetStyle('color', 'var(--text-light)');
+      PH.SetStyle('color', 'var(--text-light, #64748b)');
     end
     else
       ShowDetailView(ID);

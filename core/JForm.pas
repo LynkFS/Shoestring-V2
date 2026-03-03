@@ -12,7 +12,8 @@
 //    1. JApplication creates the form via TFormClass.Create
 //    2. InitializeObject is called — descendants create components here
 //    3. Resize is called — descendants do any manual layout here
-//    4. On return visits, Visible is set to true and Resize fires again
+//    4. On every visit (including first), Show is called after Visible := true
+//       Override Show to refresh data-driven content on each navigation
 //
 //  ~50 lines.
 //
@@ -28,6 +29,7 @@ type
   public
     constructor Create(Parent: TElement); virtual;
     procedure InitializeObject; virtual;
+    procedure Show; virtual;
     procedure Resize; virtual;
     procedure CBResize(EventObj: JEvent);
   end;
@@ -55,9 +57,6 @@ begin
   // Default background — overridable via CSS variable
   SetStyle('background-color', 'var(--bg-color, #f8fafc)');
 
-  // GPU compositing layer
-  SetStyle('will-change', 'transform');
-
   // Only forms listen for resize — TElement does not
   window.addEventListener('resize', @CBResize, false);
 end;
@@ -66,12 +65,18 @@ procedure TW3Form.CBResize(EventObj: JEvent);
 begin
   ScreenWidth  := window.innerWidth;
   ScreenHeight := window.innerHeight;
-  Resize;
+  if Visible then
+    Resize;
 end;
 
 procedure TW3Form.InitializeObject;
 begin
   // Override in descendants to create components
+end;
+
+procedure TW3Form.Show;
+begin
+  // Override in descendants to refresh data-driven content on each visit
 end;
 
 procedure TW3Form.Resize;

@@ -77,8 +77,9 @@ begin
         FForms[i].Instance.Resize;
       end;
 
-      // Show
+      // Show — always, so Show override can refresh data-driven content
       FForms[i].Instance.Visible := true;
+      FForms[i].Instance.Show;
     end
     else
     begin

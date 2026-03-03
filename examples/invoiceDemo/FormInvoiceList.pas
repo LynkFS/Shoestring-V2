@@ -15,24 +15,28 @@
 
 interface
 
-uses JElement, JForm, JPanel;
+uses JElement, JForm, JPanel, JBadge;
 
 type
   TFormInvoiceList = class(TW3Form)
   private
     FFilterStatus: String;
+    FStatsRow:     TElement;
+    FCountBadge:   JW3Badge;
 
     procedure BuildLayout;
     procedure AddNavItem(Parent: TElement; const Icon, Caption: String;
       Active: Boolean);
     procedure AddStatCard(Parent: TElement;
       const Caption, Value, Sub: String);
+    procedure RefreshStats;
     procedure RefreshGrid;
 
     procedure NavNewInvoice(Sender: TObject);
 
   protected
     procedure InitializeObject; override;
+    procedure Show; override;
     procedure Resize; override;
   end;
 
@@ -208,7 +212,7 @@ begin
   FiltHead.SetStyle('font-weight', '600');
   FiltHead.SetStyle('text-transform', 'uppercase');
   FiltHead.SetStyle('letter-spacing', '0.07em');
-  FiltHead.SetStyle('color', 'var(--text-light)');
+  FiltHead.SetStyle('color', 'var(--text-light, #64748b)');
   FiltHead.SetStyle('padding', '8px 14px 4px');
   FiltHead.SetText('Filter by status');
 
@@ -249,32 +253,11 @@ begin
   TitleLbl.AddClass(csText2xl);
   TitleLbl.AddClass(csFontBold);
 
-  var CountBadge := JW3Badge.Create(TitleRow);
-  CountBadge.SetText(IntToStr(Store.InvoiceCount));
+  FCountBadge := JW3Badge.Create(TitleRow);
 
-  // Stat cards row — plain TElement (no JW3Panel cast)
-  var StatsRow := TElement.Create('div', Main);
-  StatsRow.AddClass('inv-stats-row');
-
-  AddStatCard(StatsRow,
-    'Total Invoices',
-    IntToStr(Store.InvoiceCount),
-    IntToStr(Store.CountByStatus(isDraft)) + ' drafts');
-
-  AddStatCard(StatsRow,
-    'Outstanding',
-    Store.FormatMoney(Store.TotalOutstanding),
-    IntToStr(Store.CountByStatus(isSent) + Store.CountByStatus(isOverdue)) + ' unpaid');
-
-  AddStatCard(StatsRow,
-    'Paid',
-    Store.FormatMoney(Store.TotalPaid),
-    IntToStr(Store.CountByStatus(isPaid)) + ' invoices');
-
-  AddStatCard(StatsRow,
-    'Overdue',
-    IntToStr(Store.CountByStatus(isOverdue)),
-    'require attention');
+  // Stat cards row — populated via RefreshStats on each Show
+  FStatsRow := TElement.Create('div', Main);
+  FStatsRow.AddClass('inv-stats-row');
 
   // DataGrid wrapper
   var GridWrap := JW3Panel.Create(Main);
@@ -303,8 +286,6 @@ begin
     SetActiveInvoiceID(InvID);
     Application.GoToForm('InvoiceDetail');
   end;
-
-  RefreshGrid;
 end;
 
 // ── RefreshGrid ───────────────────────────────────────────────────────────
@@ -349,6 +330,44 @@ begin
   end;
 
   GGrid.SetData(Rows);
+end;
+
+// ── RefreshStats ──────────────────────────────────────────────────────────
+
+procedure TFormInvoiceList.RefreshStats;
+begin
+  FCountBadge.SetText(IntToStr(Store.InvoiceCount));
+
+  FStatsRow.Clear;
+
+  AddStatCard(FStatsRow,
+    'Total Invoices',
+    IntToStr(Store.InvoiceCount),
+    IntToStr(Store.CountByStatus(isDraft)) + ' drafts');
+
+  AddStatCard(FStatsRow,
+    'Outstanding',
+    Store.FormatMoney(Store.TotalOutstanding),
+    IntToStr(Store.CountByStatus(isSent) + Store.CountByStatus(isOverdue)) + ' unpaid');
+
+  AddStatCard(FStatsRow,
+    'Paid',
+    Store.FormatMoney(Store.TotalPaid),
+    IntToStr(Store.CountByStatus(isPaid)) + ' invoices');
+
+  AddStatCard(FStatsRow,
+    'Overdue',
+    IntToStr(Store.CountByStatus(isOverdue)),
+    'require attention');
+end;
+
+// ── Show — refresh stats and grid on every navigation visit ───────────────
+
+procedure TFormInvoiceList.Show;
+begin
+  inherited;
+  RefreshStats;
+  RefreshGrid;
 end;
 
 // ── Nav handlers ──────────────────────────────────────────────────────────

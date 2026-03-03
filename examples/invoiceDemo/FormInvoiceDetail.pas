@@ -18,6 +18,7 @@ type
   TFormInvoiceDetail = class(TW3Form)
   protected
     procedure InitializeObject; override;
+    procedure Show; override;
   end;
 
 implementation
@@ -30,6 +31,11 @@ uses
   InvoiceData, FormInvoiceList;
 
 procedure TFormInvoiceDetail.InitializeObject;
+begin
+  inherited;
+end;
+
+procedure TFormInvoiceDetail.Show;
 var
   Inv:    TInvoice;
   Client: TClient;
@@ -50,9 +56,12 @@ var
   end;
 
 begin
-  inherited;
+  Self.Clear;
+  if ActiveInvoiceID = 0 then exit;
 
-  Inv    := Store.FindInvoice(ActiveInvoiceID);
+  Inv := Store.FindInvoice(ActiveInvoiceID);
+  if Inv.ID = 0 then exit;
+
   Client := Store.FindClient(Inv.ClientID);
 
   // ── Top action bar ────────────────────────────────────────────────
@@ -347,7 +356,7 @@ begin
     var NText := TElement.Create('div', NotesSec);
     NText.SetText(Inv.Notes);
     NText.SetStyle('font-size', '0.875rem');
-    NText.SetStyle('color', 'var(--text-color)');
+    NText.SetStyle('color', 'var(--text-color, #1e293b)');
     NText.SetStyle('line-height', '1.6');
   end;
 end;
