@@ -8,7 +8,7 @@ Web and Node development framework
 
 ShoeString-V1 began as a thin, typed layer over the browser — not a competitor to QTX or Smart Mobile Studio, which give Pascal developers a full component model with designers, property editors, and a runtime library that abstracts the browser entirely.
 
-ShoeString had a different objective: expose browser APIs directly, without reimplementing, wrapping, or abstracting them. Every Pascal method maps one-to-one to a CSS property, DOM method, or browser API. If the browser provides it, ShoeString does not reimplement it.
+Instead ShoeString had the objective to expose browser APIs directly, without reimplementing, wrapping, or abstracting them. Every Pascal method maps one-to-one to a CSS property, DOM method, or browser API. If the browser provides it, ShoeString does not reimplement it.
 
 
 ## ShoeString-V2
