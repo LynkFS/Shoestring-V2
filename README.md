@@ -1,18 +1,29 @@
 # Shoestring-V2
+
 Web and Node development framework
 
 *A Minimalist Web Framework in Object Pascal*
 
-About five years ago, I started building a web framework. Not because the world needed another one, but because I could. At least that's what I thought at the time.
+## Design Goal
 
-I was working with Smart Mobile Studio, a compiler that translates Object Pascal to JavaScript. SMS is now defunct but was a capable system with a rich component library and, in its later incarnations, a visual designer. It worked. I built real applications with it, as did many other developers. Its successor, QTX (Quartex Pascal), carries that tradition forward with modern tooling and an active development community.
+ShoeString-V1 began as a thin, typed layer over the browser — not a competitor to QTX or Smart Mobile Studio, which give Pascal developers a full component model with designers, property editors, and a runtime library that abstracts the browser entirely.
 
-But part of my motivation was also to build something minimal — as lean as it gets. Both the browser and Node.js environments expose an enormous amount of well-designed, well-tested, functioning APIs and I wanted to use as much of that as possible.
+ShoeString had a different objective: expose browser APIs directly, without reimplementing, wrapping, or abstracting them. Every Pascal method maps one-to-one to a CSS property, DOM method, or browser API. If the browser provides it, ShoeString does not reimplement it.
 
-So I started Shoestring. Not as a competitor to SMS or QTX but with a different goal: to provide the thinnest possible typed layer over the browser itself. Every line of Pascal should map to something the browser does. If the browser already provides a capability, Shoestring exposes it. It does not reimplement it, wrap it, abstract it, or improve upon it.
 
-Nothing during the development gave me more satisfaction than deleting chunks of code which were not absolutely necessary.
+## ShoeString-V2
 
-This is the upgraded and enhanced version of the original framework.
+Five years of use identified areas for improvement :
+
+- Simpler async readiness model
+- A layout system (six pre-built patterns)
+- Improved styling: CSS variables, dark mode, three styling mechanisms
+- Improved typography
+- Rewritten visual and non-visual components
+- Positioning flexibility
+- Container queries for component-level responsiveness
+
+
+ShoeString-V2 is the upgraded and enhanced version of the original framework.
 
 To get a feel for it, see ShoeString-V2 in action : [a comprehensive kitchensink demo.](https://lynkfs.com/docs/ss-v2), and follow [this link](https://lynkfs.com/docs/ss-v2/booklet) for explanations, architectural choices and documentation.
