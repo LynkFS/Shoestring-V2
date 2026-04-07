@@ -1,0 +1,131 @@
+{
+  "project": {
+    "name": "Home Assist Secure",
+    "id": "IDEA_IDE_V1",
+    "version": "v0.0.1"
+  },
+  "values": ["Safety", "Privacy", "Inclusivity", "Cost", "Speed"],
+  "nodes": [
+
+    {
+      "key": "overview",
+      "depth": 0,
+      "type": "html",
+      "content": ""
+    },
+
+    {
+      "key": "summary",
+      "depth": 1,
+      "type": "html",
+      "content": "<p>Home Assist Secure coordinates two Queensland government-funded senior support programs. The system manages <span class=\"zoom-phrase\" data-zoom=\"eligibility\">customer eligibility</span> assessment, <span class=\"zoom-phrase\" data-zoom=\"quoting\">contractor quoting</span> and service delivery, and <span class=\"zoom-phrase\" data-zoom=\"batches\">batch payment processing</span> for approved providers.</p><p><span class=\"zoom-phrase\" data-zoom=\"roles\">Six roles</span> interact across 32 business events. Eligibility decisions, quote approvals, and payment batches each require distinct authorisation. Three policy rules currently carry open-values warnings &mdash; two relating to the Privacy value, one to Inclusivity.</p>"
+    },
+
+    {
+      "key": "eligibility",
+      "depth": 2,
+      "type": "html",
+      "content": "<p>Eligibility is assessed on two axes: <span class=\"zoom-phrase\" data-zoom=\"income-threshold\">income band</span> and <span class=\"zoom-phrase\" data-zoom=\"residence-zone\">residence zone</span>. Customers below a defined threshold who reside within a qualifying postcode cluster are eligible for one or both programs depending on their assessed need level.</p><p>The eligibility record is created by an <span class=\"zoom-phrase\" data-zoom=\"assessment-officer\">Assessment Officer</span> during an in-person or telephone interview. Records must be reviewed every 12 months or on material change of circumstances.</p><p>A separate pathway exists for <span class=\"zoom-phrase\" data-zoom=\"emergency-path\">emergency applications</span> &mdash; a fast-track process that bypasses the standard 14-day review window when a clinician confirms acute risk in writing.</p>"
+    },
+
+    {
+      "key": "quoting",
+      "depth": 2,
+      "type": "html",
+      "content": "<p>Approved contractors submit quotes against a service catalogue of activities. Each quote is linked to a specific customer and program, and must fall within the <span class=\"zoom-phrase\" data-zoom=\"unit-price\">unit price envelope</span> for the nominated activity. Quotes are reviewed by an Approval Officer before being sent to the customer for acceptance.</p><p>The quoting workflow enforces a <span class=\"zoom-phrase\" data-zoom=\"three-quote\">three-quote rule</span> for any single service engagement above $500, ensuring competitive pricing. Exceptions require documented justification from a Program Manager.</p><p>Contractors may withdraw a quote before acceptance with no penalty. Once a customer accepts, the quote locks and triggers a work order in the contractor's delivery view.</p>"
+    },
+
+    {
+      "key": "roles",
+      "depth": 2,
+      "type": "html",
+      "content": "<p><span class=\"zoom-phrase\" data-zoom=\"assessment-officer\">Assessment Officer</span> &mdash; conducts eligibility interviews and creates customer records. Cannot approve quotes or payments.</p><p><strong>Approval Officer</strong> &mdash; reviews contractor quotes and payment batches. Cannot modify eligibility records.</p><p><strong>Program Manager</strong> &mdash; handles exceptions, policy overrides, and escalations. Has read access to all records across both programs.</p><p><strong>Contractor</strong> &mdash; submits quotes and updates service delivery status. Sees only their own customers and quotes.</p><p><strong>Customer</strong> &mdash; views approved services and accepts or declines quotes. Read-only access to their own eligibility record.</p><p><strong>Administrator</strong> &mdash; manages the service catalogue and user accounts. No access to customer or payment data.</p><p>Role boundaries are enforced at the event level, not the screen level. A user assigned multiple roles sees a unified view, but each action is recorded against the specific role that authorises it.</p>"
+    },
+
+    {
+      "key": "batches",
+      "depth": 2,
+      "type": "html",
+      "content": "<p>Approved payments are grouped into weekly payment batches automatically. Each batch covers a 7-day service period and locks for submission on the following Monday. An Approval Officer reviews the batch summary before it is marked for transmission to the payment gateway.</p><p>Individual line items within a batch can be held or reversed after submission if a dispute is raised within the 14-day dispute window. Held items remain suspended until the dispute is resolved or escalated to a Program Manager.</p><p>The current batch cycle produces an average of 340 line items per week across both programs. Reversal rate is 1.4%. No batch has been recalled in full since the system went live.</p>"
+    },
+
+    {
+      "key": "income-threshold",
+      "depth": 3,
+      "type": "text",
+      "content": "<p>The income threshold is set by the Department of Seniors annually and expressed as a percentage of the Henderson Poverty Line. The current threshold is 120% HPL for single-person households and 160% HPL for couples, applied to gross assessable income.</p><p>Self-employed customers are assessed on taxable income from the prior financial year, with an option to provide a statutory declaration if circumstances have materially changed since lodgement.</p><p>Exclusions: superannuation drawdowns, NDIS plan-managed funds, compensation payments, and rental income from a principal residence rented during a temporary care placement (excluded for up to 12 months).</p><p><strong>Open values warning &mdash; Privacy.</strong> Income data is retained for 7 years with no current anonymisation or expiry pathway. The <span class=\"zoom-phrase\" data-zoom=\"threshold-code\">120% HPL threshold</span> has also not been reviewed since policy authorship. <span class=\"zoom-phrase\" data-zoom=\"flag-concern\">Flag this concern</span> for the next policy cycle.</p>"
+    },
+
+    {
+      "key": "residence-zone",
+      "depth": 3,
+      "type": "html",
+      "content": "<p>Residence zone eligibility is based on postcode cluster mapping maintained by the Department. Clusters are defined by Local Government Area and updated annually to reflect population movement and service availability data.</p><p>Customers in regional or remote clusters (ARIA+ score &ge; 3) receive an automatic 15% uplift on all quoted service rates to reflect higher delivery costs. This uplift is applied at the unit price level, not at the quote level.</p><p><strong>Open values warning &mdash; Inclusivity.</strong> Customers in border postcodes that span two LGA boundaries are currently excluded from both cluster mappings and cannot enrol unless the postcode is manually assigned. Estimated impact: 340 households. Remediation is planned for the next catalogue update.</p>"
+    },
+
+    {
+      "key": "emergency-path",
+      "depth": 3,
+      "type": "html",
+      "content": "<p>The emergency pathway allows same-day eligibility confirmation when a registered health professional certifies acute risk in writing. The normal 14-day administrative review window is suspended.</p><p>The Assessment Officer must still complete a full eligibility record within 5 business days. Any inconsistency between the emergency approval and the completed record triggers an automatic alert to the Program Manager.</p><p>Emergency approvals account for approximately 4% of all new enrolments and carry a higher average service cost than standard enrolments, reflecting the urgency of the presenting need. The 5-day completion rate is currently 91%.</p>"
+    },
+
+    {
+      "key": "unit-price",
+      "depth": 3,
+      "type": "html",
+      "content": "<p>The unit price envelope is the maximum allowable rate for a given activity in the service catalogue. It is set per activity, per program, and per region tier. Contractors may quote at or below the envelope; quotes above are automatically rejected.</p><p>Envelopes are reviewed annually by the Department. Mid-cycle adjustments are permitted only for activities where CPI movement exceeds 5% or where a market analysis demonstrates sustained provider exit.</p><p>The current catalogue contains 84 active activities across 6 service categories. 12 activities have envelope values that have not been reviewed in more than 3 years.</p>"
+    },
+
+    {
+      "key": "three-quote",
+      "depth": 3,
+      "type": "html",
+      "content": "<p>For any single service engagement valued above $500, the system requires three quotes from different approved contractors before an Approval Officer can accept any of them. The rule applies per engagement, not per customer or per period.</p><p>If fewer than three approved contractors offer the required activity in the customer's region, the Program Manager may grant a documented exception. The exception is recorded against the work order and included in the monthly compliance report.</p><p>Exception rate is currently 6.2% of engagements above the threshold. The most common reason is contractor unavailability in remote clusters.</p>"
+    },
+
+    {
+      "key": "assessment-officer",
+      "depth": 3,
+      "type": "text",
+      "content": "<p>Assessment Officers are typically Centrelink-trained social workers or allied health professionals contracted to the Department. They conduct eligibility interviews via telephone or home visit, create the customer record, and assign initial program eligibility.</p><p>An Assessment Officer may reassess an existing customer if circumstances change, but cannot reverse a previous eligibility decision without co-signature from a Program Manager. This two-person integrity rule applies to all eligibility reversals regardless of reason.</p><p>Officers do not see contractor, quote, or payment data. Their view is scoped to eligibility records and the customer profile only.</p>"
+    },
+
+    {
+      "key": "threshold-code",
+      "depth": 4,
+      "type": "code",
+      "content": "// Henderson Poverty Line thresholds (annual gross assessable income)\nconst SINGLE_HPL_MULTIPLIER = 1.20;  // 120% HPL\nconst COUPLE_HPL_MULTIPLIER = 1.60;  // 160% HPL\n\nfunction IsEligible(income: Currency; isCouple: Boolean): Boolean;\nvar threshold: Currency;\nbegin\n  threshold := CurrentHPL *\n    IfThen(isCouple, COUPLE_HPL_MULTIPLIER, SINGLE_HPL_MULTIPLIER);\n  Result := income <= threshold;\nend;\n\n// Last reviewed: 2022-07-01  |  Next review due: 2025-07-01\n// Open values warning \u2014 Privacy: income retained 7 years, no expiry"
+    },
+
+    {
+      "key": "flag-concern",
+      "depth": 4,
+      "type": "form",
+      "fields": [
+        {
+          "name": "concern",
+          "label": "Concern area",
+          "type": "select",
+          "options": "Privacy,Inclusivity,Safety,Cost,Speed",
+          "required": true
+        },
+        {
+          "name": "detail",
+          "label": "Details",
+          "type": "textarea",
+          "placeholder": "Describe the issue\u2026",
+          "required": true
+        },
+        {
+          "name": "urgent",
+          "label": "Urgent",
+          "type": "checkbox",
+          "placeholder": "Flag for immediate review",
+          "required": false
+        }
+      ]
+    }
+
+  ]
+}

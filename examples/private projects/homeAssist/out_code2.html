@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Assist Secure — Management System</title>
+<style>
+/* ─── Reset & Variables ─── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f2f5;--panel:#fff;--panel-alt:#f4f6f8;--input-bg:#fafbfc;
+  --border:#dce3ea;--border-focus:#0d9488;
+  --accent:#0d9488;--accent-dim:#0f766e;--accent-light:rgba(13,148,136,.1);
+  --text:#1e293b;--text2:#475569;--text3:#94a3b8;
+  --red:#dc2626;--red-bg:#fef2f2;--red-border:#fecaca;
+  --green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;
+  --amber:#d97706;--amber-bg:#fffbeb;--amber-border:#fde68a;
+  --blue:#2563eb;--blue-bg:#eff6ff;
+  --font:'Segoe UI',system-ui,sans-serif;--mono:'SF Mono','Consolas',monospace;
+  --r:8px;--r2:12px;--t:180ms ease;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.5}
+
+/* ─── Layout ─── */
+.app{display:grid;grid-template-columns:240px 1fr;grid-template-rows:56px 1fr;min-height:100vh}
+.topbar{grid-column:1/-1;background:var(--accent-dim);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;gap:12px}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.topbar-logo{font-size:18px;font-weight:700;letter-spacing:-0.5px}
+.topbar-logo span{opacity:.7;font-weight:400}
+.topbar-role{background:rgba(255,255,255,.15);padding:4px 12px;border-radius:20px;font-size:12px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.btn-logout{background:rgba(255,255,255,.15);border:none;color:#fff;padding:6px 14px;border-radius:var(--r);cursor:pointer;font-size:13px}
+.btn-logout:hover{background:rgba(255,255,255,.25)}
+
+/* ─── Sidebar ─── */
+.sidebar{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:12px 10px}
+.nav-section{margin-bottom:16px}
+.nav-section-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);padding:0 10px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);cursor:pointer;color:var(--text2);font-size:13px;transition:background var(--t),color var(--t);white-space:nowrap}
+.nav-item:hover{background:var(--accent-light);color:var(--accent)}
+.nav-item.active{background:var(--accent-light);color:var(--accent);font-weight:600}
+.nav-icon{width:18px;text-align:center;font-size:15px}
+
+/* ─── Main ─── */
+.main{overflow-y:auto;padding:24px}
+.page{display:none}.page.active{display:block}
+
+/* ─── Cards & Headers ─── */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.page-header h1{font-size:20px;font-weight:600}
+.page-header .sub{font-size:13px;color:var(--text3);margin-top:2px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:var(--font);transition:opacity .15s,transform 80ms}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(13,148,136,.25)}
+.btn-primary:hover{background:var(--accent-dim)}
+.btn-secondary{background:var(--panel-alt);color:var(--text2);border:1px solid var(--border)}
+.btn-secondary:hover{background:#eef0f3}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{opacity:.85}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-sm{padding:5px 10px;font-size:12px}
+
+/* ─── KPI Cards ─── */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:24px}
+.kpi-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r2);padding:16px}
+.kpi-card .label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.kpi-card .value{font-size:24px;font-weight:700;color:var(--text)}
+.kpi-card .value.green{color:var(--green)}.kpi-card .value.red{color:var(--red)}.kpi-card .value.amber{color:var(--amber)}
+.kpi-card .hint{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* ─── Tables ─── */
+.table-wrap{background:var(--panel);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.table-toolbar{padding:12px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--border);background:var(--panel-alt)}
+.table-toolbar input{flex:1;min-width:160px;max-width:280px;padding:6px 10px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;outline:none}
+.table-toolbar input:focus{border-color:var(--border-focus)}
+.table-toolbar select{padding:6px 10px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;outline:none;background:#fff}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 14px;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);border-bottom:2px solid var(--border);background:var(--panel-alt);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--border);font-size:12px;color:var(--text3)}
+
+/* ─── Status Badges ─── */
+.badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.badge-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.badge-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.badge-blue{background:var(--blue-bg);color:var(--blue);border:1px solid #bfdbfe}
+.badge-grey{background:var(--panel-alt);color:var(--text2);border:1px solid var(--border)}
+
+/* ─── Forms / Modals ─── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:var(--r2);width:90%;max-width:600px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.modal-header{padding:20px 24px 0;display:flex;justify-content:space-between;align-items:center}
+.modal-header h2{font-size:17px;font-weight:600}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text3);line-height:1}
+.modal-body{padding:20px 24px}
+.modal-footer{padding:12px 24px 20px;display:flex;justify-content:flex-end;gap:10px}
+
+.form-row{display:flex;gap:12px;margin-bottom:14px}
+.form-row .form-group{flex:1}
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.form-group label{font-size:12px;font-weight:600;color:var(--text2)}
+.form-group label .req{color:var(--red)}
+.form-group input,.form-group select,.form-group textarea{padding:8px 10px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;font-family:var(--font);outline:none;transition:border-color var(--t)}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--border-focus);box-shadow:0 0 0 3px var(--accent-light)}
+.form-group input.error,.form-group select.error,.form-group textarea.error{border-color:var(--red)}
+.form-group .err-msg{font-size:11px;color:var(--red);margin-top:2px;min-height:16px}
+.form-group textarea{resize:vertical;min-height:60px}
+
+/* ─── Login ─── */
+.login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--accent-dim),#0d9488 60%,#14b8a6)}
+.login-card{background:#fff;border-radius:16px;padding:40px;width:360px;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.login-card h1{font-size:22px;font-weight:700;margin-bottom:4px}
+.login-card .sub{font-size:13px;color:var(--text3);margin-bottom:28px}
+.login-card .form-group{margin-bottom:20px}
+.login-card .btn{width:100%;justify-content:center;padding:10px}
+
+/* ─── Toast ─── */
+.toast-container{position:fixed;top:16px;right:16px;z-index:200;display:flex;flex-direction:column;gap:10px;max-width:340px}
+.toast{background:#fff;border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;box-shadow:0 4px 20px rgba(0,0,0,.1);animation:slideIn .25s ease}
+.toast.info{border-left:4px solid var(--blue)}
+.toast.success{border-left:4px solid var(--green)}
+.toast.warning{border-left:4px solid var(--amber)}
+.toast.error{border-left:4px solid var(--red)}
+.toast-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.toast-msg{font-size:12px;color:var(--text2)}
+@keyframes slideIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* ─── Detail View ─── */
+.detail-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r2);padding:24px;margin-bottom:20px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 28px}
+.detail-item .dl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.detail-item .dv{font-size:14px;font-weight:500}
+.detail-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
+
+/* ─── Scrollbars ─── */
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#94a3b8}
+
+/* ─── Responsive helpers ─── */
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+
+/* ─── Login screen vs app ─── */
+#loginScreen{display:flex}.loginHidden{display:none!important}
+#appShell{display:none}.appVisible{display:grid!important}
+</style>
+</head>
+<body>
+
+<!-- ═══ TOAST CONTAINER ═══ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <h1>🏠 Home Assist Secure</h1>
+    <p class="sub">Far North Queensland — Senior Home Security Programs</p>
+    <div class="form-group">
+      <label>Select Your Role</label>
+      <select id="loginRoleSelect">
+        <option value="">— choose a role —</option>
+        <option value="Administrator">Administrator</option>
+        <option value="Assessor">Assessor</option>
+        <option value="CSO">Customer Service Officer</option>
+        <option value="PaymentOfficer">Payment Officer</option>
+        <option value="Contractor">Contractor Portal</option>
+        <option value="Customer">Customer (Self-Service)</option>
+      </select>
+      <div class="err-msg" id="loginErr"></div>
+    </div>
+    <div class="form-group" id="loginNameGroup">
+      <label>Your Name (for demo)</label>
+      <input type="text" id="loginNameInput" placeholder="e.g. Margaret Thornton">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">Log In</button>
+  </div>
+</div>
+
+<!-- ═══ APP SHELL ═══ -->
+<div class="app" id="appShell">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">🏠 Home Assist <span>Secure</span></div>
+      <div class="topbar-role" id="topbarRole">—</div>
+    </div>
+    <div class="topbar-right">
+      <span id="topbarName" style="font-size:13px;opacity:.8"></span>
+      <button class="btn-logout" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar"></nav>
+
+  <!-- Main -->
+  <main class="main" id="mainContent"></main>
+</div>
+
+<!-- ═══ MODAL ═══ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header"><h2 id="modalTitle">—</h2><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<!-- ═══ SQL.JS ═══ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// HOME ASSIST SECURE — FULL SPA
+// ═══════════════════════════════════════════════════════════════════════
+
+let db = null;
+let currentRole = null;
+let currentUser = null;
+let currentContractorId = null; // set if role = Contractor
+let currentCustomerId = null;   // set if role = Customer
+
+// ─── PERMISSIONS ──────────────────────────────────────────────────────
+const PERMISSIONS = {
+  Administrator:     { canRegisterCustomer:true, canAssess:true, canEnroll:true, canManageContractors:true, canManageCatalogue:true, canRequestQuote:false, canSubmitQuote:false, canAcceptQuote:false, canAssessQuote:true, canCreateBatch:true, canSendBatch:true, canMakePayment:true, canVerifyWork:false, canDisputeWork:false, canResolveDispute:true, canView:'ALL' },
+  Assessor:          { canRegisterCustomer:false, canAssess:true, canEnroll:true, canManageContractors:false, canManageCatalogue:false, canRequestQuote:false, canSubmitQuote:false, canAcceptQuote:false, canAssessQuote:true, canCreateBatch:false, canSendBatch:false, canMakePayment:false, canVerifyWork:false, canDisputeWork:false, canResolveDispute:true, canView:'ALL' },
+  CSO:               { canRegisterCustomer:true, canAssess:false, canEnroll:false, canManageContractors:false, canManageCatalogue:false, canRequestQuote:true, canSubmitQuote:false, canAcceptQuote:false, canAssessQuote:false, canCreateBatch:false, canSendBatch:false, canMakePayment:false, canVerifyWork:false, canDisputeWork:false, canResolveDispute:false, canView:'ALL' },
+  PaymentOfficer:    { canRegisterCustomer:false, canAssess:false, canEnroll:false, canManageContractors:false, canManageCatalogue:false, canRequestQuote:false, canSubmitQuote:false, canAcceptQuote:false, canAssessQuote:false, canCreateBatch:true, canSendBatch:true, canMakePayment:true, canVerifyWork:false, canDisputeWork:false, canResolveDispute:false, canView:'ALL' },
+  Contractor:        { canRegisterCustomer:false, canAssess:false, canEnroll:false, canManageContractors:false, canManageCatalogue:false, canRequestQuote:false, canSubmitQuote:true, canAcceptQuote:false, canAssessQuote:false, canCreateBatch:false, canSendBatch:false, canMakePayment:false, canVerifyWork:false, canDisputeWork:false, canResolveDispute:false, canView:'OWN' },
+  Customer:          { canRegisterCustomer:false, canAssess:false, canEnroll:false, canManageContractors:false, canManageCatalogue:false, canRequestQuote:true, canSubmitQuote:false, canAcceptQuote:true, canAssessQuote:false, canCreateBatch:false, canSendBatch:false, canMakePayment:false, canVerifyWork:true, canDisputeWork:true, canResolveDispute:false, canView:'OWN' },
+};
+
+// ─── REGIONS & CATEGORIES ─────────────────────────────────────────────
+const REGIONS = ['Cairns North','Cairns South','Kuranda','Tablelands','Atherton','Mareeba','Trinity Beach','Palm Cove','Smithfield'];
+const CATEGORIES_HSSH = ['Locks','Fences','Security Doors','Cameras','Roller Doors','Security Glass'];
+const CATEGORIES_HAS  = ['Smoke Alarms','Lawn Mowing','Solar Panel Cleaning','Gutter Cleaning','Garden Maintenance'];
+const ALL_CATEGORIES  = [...new Set([...CATEGORIES_HSSH,...CATEGORIES_HAS])];
+
+// ─── DB INIT ──────────────────────────────────────────────────────────
+async function initDB() {
+  const SQL = await window.initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${f}` });
+  const saved = localStorage.getItem('has_db_v1');
+  if (saved) {
+    db = new SQL.Database(Uint8Array.from(atob(saved), c => c.charCodeAt(0)));
+  } else {
+    db = new SQL.Database();
+    createSchema();
+    seedData();
+    persistDB();
+  }
+}
+
+function persistDB() {
+  localStorage.setItem('has_db_v1', btoa(String.fromCharCode.apply(null, new Uint8Array(db.export()))));
+}
+
+function createSchema() {
+  db.run(`CREATE TABLE IF NOT EXISTS customers (
+    id TEXT PRIMARY KEY, first_name TEXT, last_name TEXT, dob TEXT,
+    street TEXT, suburb TEXT, postcode TEXT, region TEXT,
+    phone TEXT, email TEXT, emergency_contact TEXT, emergency_phone TEXT,
+    status TEXT DEFAULT 'Registered', created_at TEXT DEFAULT CURRENT_TIMESTAMP
+  )`);
+  db.run(`CREATE TABLE IF NOT EXISTS enrollments (
+    id TEXT PRIMARY KEY, customer_id TEXT, program TEXT, program_label TEXT,
+    budget_allocated REAL, budget_spent REAL, status TEXT DEFAULT 'Active',
+    enrolled_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(customer_id) REFERENCES customers(id)
+  )`);
+  db.run(`CREATE TABLE IF NOT EXISTS contractors (
+    id TEXT PRIMARY KEY, business_name TEXT, contact_name TEXT,
+    phone TEXT, email TEXT, abn TEXT, licence TEXT, licence_expiry TEXT,
+    categories TEXT, regions TEXT, status TEXT DEFAULT 'Active',
+    registered_at TEXT DEFAULT CURRENT_TIMESTAMP
+  )`);
+  db.run(`CREATE TABLE IF NOT EXISTS activities (
+    id TEXT PRIMARY KEY, name TEXT, category TEXT, program TEXT,
+    max_subsidy REAL, description TEXT
+  )`);
+  db.run(`CREATE TABLE IF NOT EXISTS quotes (
+    id TEXT PRIMARY KEY, customer_id TEXT, contractor_id TEXT,
+    enrollment_id TEXT, activity_id TEXT,
+    status TEXT DEFAULT 'Requested',
+    line_items TEXT, subtotal REAL, gst REAL, total REAL,
+    deposit_required REAL DEFAULT 0, subsidy_amount REAL DEFAULT 0,
+    customer_excess REAL DEFAULT 0, deposit_received REAL DEFAULT 0,
+    notes TEXT, requested_at TEXT, submitted_at TEXT,
+    assessed_by TEXT, assessed_at TEXT, assessment_notes TEXT,
+    completed_at TEXT, verified_at TEXT, disputed_at TEXT, dispute_reason TEXT,
+    dispute_resolved_at TEXT, dispute_outcome TEXT
+  )`);
+  db.run(`CREATE TABLE IF NOT EXISTS batches (
+    id TEXT PRIMARY KEY, contractor_id TEXT, quote_ids TEXT,
+    status TEXT DEFAULT 'Pending', created_at TEXT, sent_at TEXT
+  )`);
+  db.run(`CREATE TABLE IF NOT EXISTS payments (
+    id TEXT PRIMARY KEY, quote_id TEXT, batch_id TEXT, type TEXT,
+    amount REAL, status TEXT DEFAULT 'Pending',
+    invoice_number TEXT, paid_at TEXT, payment_ref TEXT
+  )`);
+  db.run(`CREATE TABLE IF NOT EXISTS audit_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, event_type TEXT,
+    entity_type TEXT, entity_id TEXT, actor TEXT,
+    details TEXT, logged_at TEXT DEFAULT CURRENT_TIMESTAMP
+  )`);
+}
+
+function seedData() {
+  // Customers
+  const customers = [
+    ['CUST-001','Margaret','Thornton','1958-03-15','14 Hibiscus Lane','Holloways Beach','4878','Cairns North','07 4051 1234','margaret@email.com','Susan Thornton','04xx111111'],
+    ['CUST-002','Harold','Patel','1955-07-22','8 Mango Street','Kuranda','4881','Kuranda','07 4093 5678','harold@email.com','Priya Patel','04xx222222'],
+    ['CUST-003','Jean','McKenzie','1961-11-08','22 Coral Ave','Palm Cove','4879','Cairns North','07 4051 9012','jean@email.com','Tom McKenzie','04xx333333'],
+  ];
+  customers.forEach(c => db.run('INSERT OR IGNORE INTO customers VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,datetime("now"))', c.concat(['Enrolled'])));
+
+  // Enrollments
+  db.run('INSERT OR IGNORE INTO enrollments VALUES(?,?,?,?,?,?,?,datetime("now"))',['ENR-001','CUST-001','HSSH','Helping Seniors Secure Their Home',9000,250,'Active']);
+  db.run('INSERT OR IGNORE INTO enrollments VALUES(?,?,?,?,?,?,?,datetime("now"))',['ENR-002','CUST-001','HAS','Home Assist / Secure',500,0,'Active']);
+  db.run('INSERT OR IGNORE INTO enrollments VALUES(?,?,?,?,?,?,?,datetime("now"))',['ENR-003','CUST-002','HSSH','Helping Seniors Secure Their Home',9000,0,'Active']);
+  db.run('INSERT OR IGNORE INTO enrollments VALUES(?,?,?,?,?,?,?,datetime("now"))',['ENR-004','CUST-003','HSSH','Helping Seniors Secure Their Home',9000,150,'Active']);
+  db.run('INSERT OR IGNORE INTO enrollments VALUES(?,?,?,?,?,?,?,datetime("now"))',['ENR-005','CUST-003','HAS','Home Assist / Secure',500,75,'Active']);
+
+  // Contractors
+  const contractors = [
+    ['CONT-001','Cairns Security Solutions','David Nguyen','07 4055 1234','david@cairnssec.com','12345678901','QLD-SEC-44521','2025-12-31','Locks,Security Doors,Cameras','Cairns North,Kuranda','Active'],
+    ['CONT-002','Tropical Fencing Co','Sarah Kim','07 4055 5678','sarah@tropfence.com','98765432101','QLD-FEN-33210','2025-09-30','Fences,Roller Doors','Cairns North,Cairns South,Palm Cove','Active'],
+    ['CONT-003','FNQ Maintenance','Bob Walker','07 4055 9999','bob@fnqmaint.com','11223344556','QLD-MNT-55001','2026-03-15','Smoke Alarms,Lawn Mowing,Solar Panel Cleaning,Gutter Cleaning','Cairns North,Cairns South,Kuranda,Tablelands','Active'],
+    ['CONT-004','Security Glass Specialists','Mei Chen','07 4056 0001','mei@secglass.com','44556677889','QLD-GLZ-22100','2025-06-30','Security Glass','Cairns South','Suspended'],
+  ];
+  contractors.forEach(c => db.run('INSERT OR IGNORE INTO contractors VALUES(?,?,?,?,?,?,?,?,?,?,?,datetime("now"))', c));
+
+  // Activities
+  const activities = [
+    ['ACT-001','Deadbolt Replacement','Locks','HSSH',250,'Replace existing deadbolt with high-security model'],
+    ['ACT-002','Fence Repair','Fences','HSSH',400,'Repair damaged fence sections'],
+    ['ACT-003','Security Door Installation','Security Doors','HSSH',800,'Install a security screen door'],
+    ['ACT-004','CCTV Camera System','Cameras','HSSH',600,'Install and wire a 4-camera CCTV system'],
+    ['ACT-005','Roller Door Replacement','Roller Doors','HSSH',900,'Replace garage roller door with security model'],
+    ['ACT-006','Security Glass Upgrade','Security Glass','HSSH',1200,'Replace window glass with laminated security glass'],
+    ['ACT-007','Smoke Alarm Check','Smoke Alarms','HAS',80,'Annual smoke alarm inspection and battery replacement'],
+    ['ACT-008','Lawn Mowing','Lawn Mowing','HAS',60,'Fortnightly lawn mowing service'],
+    ['ACT-009','Solar Panel Cleaning','Solar Panel Cleaning','HAS',120,'Annual solar panel cleaning'],
+    ['ACT-010','Gutter Cleaning','Gutter Cleaning','HAS',90,'Annual gutter and downpipe cleaning'],
+  ];
+  activities.forEach(a => db.run('INSERT OR IGNORE INTO activities VALUES(?,?,?,?,?,?)', a));
+
+  // Sample quotes
+  db.run(`INSERT OR IGNORE INTO quotes(id,customer_id,contractor_id,enrollment_id,activity_id,status,line_items,subtotal,gst,total,deposit_required,subsidy_amount,customer_excess,notes,requested_at,submitted_at,assessed_by,assessed_at,assessment_notes,completed_at,verified_at)
+    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+    ['QUO-001','CUST-001','CONT-001','ENR-001','ACT-001','Completed',
+    JSON.stringify([{desc:'High-security deadbolt',qty:1,price:180},{desc:'Labour',qty:1,price:95}]),
+    275,27.50,302.50, 0, 250, 52.50,
+    'Front door only',
+    '2024-08-20','2024-08-22','STAFF-004','2024-08-24','Approved — excess $52.50',
+    '2024-09-02','2024-09-03']);
+
+  db.run(`INSERT OR IGNORE INTO quotes(id,customer_id,contractor_id,enrollment_id,activity_id,status,line_items,subtotal,gst,total,deposit_required,subsidy_amount,customer_excess,notes,requested_at,submitted_at)
+    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+    ['QUO-002','CUST-002','CONT-001','ENR-003','ACT-004','Submitted',
+    JSON.stringify([{desc:'4-cam CCTV system',qty:1,price:480},{desc:'Installation labour',qty:1,price:140}]),
+    620,62,682, 0, 0, 0,
+    'Front and back coverage','2024-09-01','2024-09-05']);
+
+  db.run(`INSERT OR IGNORE INTO quotes(id,customer_id,contractor_id,enrollment_id,activity_id,status,notes,requested_at)
+    VALUES(?,?,?,?,?,?,?,?)`,
+    ['QUO-003','CUST-003','CONT-002','ENR-004','ACT-002','Requested','Backyard fence','2024-09-10']);
+
+  // Batch for QUO-001
+  db.run('INSERT OR IGNORE INTO batches VALUES(?,?,?,?,?,?)',['BATCH-001','CONT-001','["QUO-001"]','Completed','2024-08-30','2024-08-30']);
+
+  // Payments
+  db.run('INSERT OR IGNORE INTO payments VALUES(?,?,?,?,?,?,?,?,?)',['PAY-001','QUO-001','BATCH-001','SubsidyPayment',250,'Paid','INV-2024-001','2024-09-05','TXN-PAY-88221']);
+  db.run('INSERT OR IGNORE INTO payments VALUES(?,?,?,?,?,?,?,?,?)',['PAY-002','QUO-001',null,'CustomerExcess',52.50,'Paid','INV-EXC-001','2024-09-04','TXN-EXC-99103']);
+}
+
+// ─── AUDIT LOG ────────────────────────────────────────────────────────
+function logEvent(eventType, entityType, entityId, details) {
+  db.run('INSERT INTO audit_log(event_type,entity_type,entity_id,actor,details) VALUES(?,?,?,?,?)',
+    [eventType, entityType, entityId, currentRole, typeof details === 'string' ? details : JSON.stringify(details)]);
+  persistDB();
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────
+function toast(title, msg, type='info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = `<div class="toast-title">${title}</div><div class="toast-msg">${msg}</div>`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4500);
+}
+
+// ─── LOGIN / LOGOUT ───────────────────────────────────────────────────
+function doLogin() {
+  const role = document.getElementById('loginRoleSelect').value;
+  const name = document.getElementById('loginNameInput').value.trim();
+  if (!role) { document.getElementById('loginErr').textContent = 'Please select a role.'; return; }
+  if (!name) { document.getElementById('loginErr').textContent = 'Please enter your name.'; return; }
+  document.getElementById('loginErr').textContent = '';
+
+  currentRole = role;
+  currentUser = name;
+
+  // For demo: if Customer, assign first customer; if Contractor, assign first active contractor
+  if (role === 'Customer') {
+    currentCustomerId = 'CUST-001'; // demo: Margaret
+  } else if (role === 'Contractor') {
+    currentContractorId = 'CONT-001'; // demo: Cairns Security Solutions
+  }
+
+  document.getElementById('loginScreen').classList.add('loginHidden');
+  document.getElementById('appShell').classList.add('appVisible');
+  document.getElementById('topbarRole').textContent = role;
+  document.getElementById('topbarName').textContent = name;
+
+  buildSidebar();
+  navigateTo('dashboard');
+  logEvent('UserLoggedIn','System',currentUser, `Role: ${role}`);
+  runOverdueChecks();
+}
+
+function doLogout() {
+  currentRole = null; currentUser = null; currentCustomerId = null; currentContractorId = null;
+  document.getElementById('loginScreen').classList.remove('loginHidden');
+  document.getElementById('appShell').classList.remove('appVisible');
+  document.getElementById('loginRoleSelect').value = '';
+  document.getElementById('loginNameInput').value = '';
+}
+
+// ─── SIDEBAR ──────────────────────────────────────────────────────────
+const NAV = {
+  Administrator: [
+    { section:'Overview', items:[{id:'dashboard',label:'Dashboard',icon:'📊'}] },
+    { section:'Customers', items:[{id:'customers',label:'Customers',icon:'👤'},{id:'enrollments',label:'Enrollments',icon:'📋'}] },
+    { section:'Contractors', items:[{id:'contractors',label:'Contractors',icon:'🔧'},{id:'catalogue',label:'Activity Catalogue',icon:'📖'}] },
+    { section:'Operations', items:[{id:'quotes',label:'All Quotes',icon:'📝'},{id:'batches',label:'Batches',icon:'📦'},{id:'payments',label:'Payments',icon:'💰'},{id:'disputes',label:'Disputes',icon:'⚠️'}] },
+    { section:'Reports', items:[{id:'reports',label:'Reports & Export',icon:'📈'},{id:'auditlog',label:'Audit Log',icon:'🔍'}] },
+  ],
+  Assessor: [
+    { section:'Overview', items:[{id:'dashboard',label:'Dashboard',icon:'📊'}] },
+    { section:'Assessment', items:[{id:'quotes',label:'Quote Queue',icon:'📝'},{id:'disputes',label:'Disputes',icon:'⚠️'}] },
+    { section:'Reference', items:[{id:'customers',label:'Customers',icon:'👤'},{id:'contractors',label:'Contractors',icon:'🔧'}] },
+  ],
+  CSO: [
+    { section:'Overview', items:[{id:'dashboard',label:'Dashboard',icon:'📊'}] },
+    { section:'Customers', items:[{id:'customers',label:'Customers',icon:'👤'},{id:'enrollments',label:'Enrollments',icon:'📋'}] },
+    { section:'Quotes', items:[{id:'quotes',label:'Quotes',icon:'📝'}] },
+    { section:'Payments', items:[{id:'payments',label:'Customer Invoices',icon:'💰'}] },
+  ],
+  PaymentOfficer: [
+    { section:'Overview', items:[{id:'dashboard',label:'Dashboard',icon:'📊'}] },
+    { section:'Operations', items:[{id:'batches',label:'Batch Management',icon:'📦'},{id:'payments',label:'Payments',icon:'💰'}] },
+    { section:'Reference', items:[{id:'quotes',label:'Quotes',icon:'📝'},{id:'contractors',label:'Contractors',icon:'🔧'}] },
+  ],
+  Contractor: [
+    { section:'Overview', items:[{id:'dashboard',label:'Dashboard',icon:'📊'}] },
+    { section:'My Work', items:[{id:'quotes',label:'My Quotes',icon:'📝'},{id:'batches',label:'My Batches',icon:'📦'},{id:'payments',label:'My Payments',icon:'💰'}] },
+  ],
+  Customer: [
+    { section:'Overview', items:[{id:'dashboard',label:'Dashboard',icon:'📊'}] },
+    { section:'My Programs', items:[{id:'quotes',label:'My Quotes',icon:'📝'},{id:'payments',label:'My Invoices',icon:'💰'}] },
+  ],
+};
+
+function buildSidebar() {
+  const nav = NAV[currentRole] || [];
+  document.getElementById('sidebar').innerHTML = nav.map(sec =>
+    `<div class="nav-section"><div class="nav-section-label">${sec.section}</div>${sec.items.map(item =>
+      `<div class="nav-item" id="nav-${item.id}" onclick="navigateTo('${item.id}')">${'<span class="nav-icon">'+item.icon+'</span>'}${item.label}</div>`
+    ).join('')}</div>`
+  ).join('');
+}
+
+function navigateTo(page) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navItem = document.getElementById('nav-'+page);
+  if (navItem) navItem.classList.add('active');
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-'+page);
+  if (target) { target.classList.add('active'); return; }
+  // Render on demand
+  const renderer = PAGES[page];
+  if (renderer) {
+    const div = document.createElement('div');
+    div.className = 'page active';
+    div.id = 'page-'+page;
+    div.innerHTML = renderer();
+    document.getElementById('mainContent').appendChild(div);
+    if (PAGES_INIT && PAGES_INIT[page]) PAGES_INIT[page]();
+  }
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────────
+function uid(prefix) { return prefix + '-' + Date.now().toString(36).slice(-5).toUpperCase(); }
+function now() { return new Date().toISOString(); }
+function fmtDate(d) { return d ? new Date(d).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) : '—'; }
+function fmtCur(n) { return n != null ? '$'+Number(n).toFixed(2) : '—'; }
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function statusBadge(status) {
+  const map = { 'Active':'badge-green','Enrolled':'badge-green','Completed':'badge-green','Paid':'badge-green','Verified':'badge-green',
+    'Requested':'badge-blue','Submitted':'badge-blue','Pending':'badge-blue','AcceptedByCustomer':'badge-blue','ReadyForBatch':'badge-blue','Sent':'badge-blue',
+    'Suspended':'badge-red','Rejected':'badge-red','RejectedByStaff':'badge-red','Cancelled':'badge-red','Overdue':'badge-red',
+    'Assessed':'badge-amber','Disputed':'badge-amber','Awaiting Excess Confirmation':'badge-amber' };
+  return `<span class="badge ${map[status]||'badge-grey'}">${escHtml(status)}</span>`;
+}
+
+// Paginate
+function paginate(items, page, perPage) {
+  const start = (page-1)*perPage;
+  return { items: items.slice(start, start+perPage), total: items.length, page, pages: Math.max(1,Math.ceil(items.length/perPage)) };
+}
+
+function paginationHtml(p, setPageExpr) {
+  // setPageExpr e.g. "setCustPage" — a function name
+  return `<div class="pagination"><span>Showing ${Math.min((p.page-1)*25+1,p.total)}–${Math.min(p.page*25,p.total)} of ${p.total}</span>
+    <div><button class="btn btn-sm btn-secondary" onclick="${setPageExpr}(${p.page-1})" ${p.page<=1?'disabled':''}>← Prev</button>
+    <span style="margin:0 8px">${p.page}/${p.pages}</span>
+    <button class="btn btn-sm btn-secondary" onclick="${setPageExpr}(${p.page+1})" ${p.page>=p.pages?'disabled':''}>Next →</button></div></div>`;
+}
+function setCustPage(n){ custPage=n; renderCustTable(); }
+function setContrPage(n){ contrPage=n; renderContrTable(); }
+function setQuotePage(n){ quotePage=n; renderQuoteTable(); }
+
+// ─── MODAL ────────────────────────────────────────────────────────────
+function openModal(title, bodyHtml, footerHtml) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = bodyHtml;
+  document.getElementById('modalFooter').innerHTML = footerHtml || '';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+document.getElementById('modalOverlay').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+
+// ─── OVERDUE CHECKS (runs on login) ───────────────────────────────────
+function runOverdueChecks() {
+  // In a real app these would run on a schedule. Here we run once on login.
+  // Mark quotes that have timed out (simplified: we just check status-based logic)
+  // For demo purposes we don't auto-cancel — we just flag visually.
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// PAGE RENDERERS
+// ═══════════════════════════════════════════════════════════════════════
+const PAGES = {};
+const PAGES_INIT = {};
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────
+PAGES.dashboard = function() {
+  const perms = PERMISSIONS[currentRole];
+  let kpis = [];
+
+  if (currentRole === 'Administrator' || currentRole === 'Assessor' || currentRole === 'CSO') {
+    const custCount = db.exec('SELECT COUNT(*) as c FROM customers')[0].values[0][0];
+    const totalAlloc = db.exec('SELECT COALESCE(SUM(budget_allocated),0) as s FROM enrollments')[0].values[0][0];
+    const totalSpent = db.exec('SELECT COALESCE(SUM(budget_spent),0) as s FROM enrollments')[0].values[0][0];
+    const activeContr = db.exec("SELECT COUNT(*) as c FROM contractors WHERE status='Active'")[0].values[0][0];
+    const openQuotes = db.exec("SELECT COUNT(*) as c FROM quotes WHERE status IN ('Requested','Submitted','AcceptedByCustomer')")[0].values[0][0];
+    const disputes = db.exec("SELECT COUNT(*) as c FROM quotes WHERE status='Disputed'")[0].values[0][0];
+    kpis = [
+      {label:'Total Customers',value:custCount,hint:'Enrolled seniors'},
+      {label:'Budget Allocated',value:fmtCur(totalAlloc),hint:'Across all programs'},
+      {label:'Budget Spent',value:fmtCur(totalSpent),hint:((totalAlloc?((totalSpent/totalAlloc)*100).toFixed(1):0))+'% utilised'},
+      {label:'Active Contractors',value:activeContr,hint:'Available for quoting'},
+      {label:'Open Quotes',value:openQuotes,hint:'Awaiting action',cls:'amber'},
+      {label:'Open Disputes',value:disputes,hint:'Require resolution',cls:'red'},
+    ];
+  } else if (currentRole === 'PaymentOfficer') {
+    const batchesPending = db.exec("SELECT COUNT(*) as c FROM batches WHERE status='Pending'")[0].values[0][0];
+    const payPending = db.exec("SELECT COUNT(*) as c FROM payments WHERE status='Pending'")[0].values[0][0];
+    const paidMonth = db.exec("SELECT COALESCE(SUM(amount),0) as s FROM payments WHERE status='Paid' AND type='SubsidyPayment'")[0].values[0][0];
+    kpis = [
+      {label:'Batches Ready',value:batchesPending,hint:'Pending send'},
+      {label:'Payments Due',value:payPending,hint:'Invoices awaiting payment'},
+      {label:'Paid This Period',value:fmtCur(paidMonth),hint:'Subsidy payments'},
+    ];
+  } else if (currentRole === 'Customer') {
+    const rows = db.exec('SELECT * FROM enrollments WHERE customer_id=?', [currentCustomerId]);
+    rows.forEach(r => {
+      const e = {}; r.columns.forEach((c,i)=>e[c]=r.values[0][i]);
+      kpis.push({label:e.program_label,value:fmtCur(e.budget_allocated - e.budget_spent),hint:'Remaining balance',cls:'green'});
+    });
+    const oq = db.exec("SELECT COUNT(*) as c FROM quotes WHERE customer_id=? AND status NOT IN ('Completed','Cancelled')",[currentCustomerId])[0].values[0][0];
+    kpis.push({label:'Active Quotes',value:oq,hint:'In progress'});
+  } else if (currentRole === 'Contractor') {
+    const oq = db.exec("SELECT COUNT(*) as c FROM quotes WHERE contractor_id=? AND status IN ('Requested')",[currentContractorId])[0].values[0][0];
+    const ab = db.exec("SELECT COUNT(*) as c FROM batches WHERE contractor_id=? AND status='Sent'",[currentContractorId])[0].values[0][0];
+    kpis.push({label:'Quote Requests',value:oq,hint:'Awaiting your quote'});
+    kpis.push({label:'Active Batches',value:ab,hint:'Work in progress'});
+  }
+
+  return `<div class="page-header"><h1>Dashboard</h1><div class="sub">Welcome, ${escHtml(currentUser)}</div></div>
+    <div class="kpi-row">${kpis.map(k=>`<div class="kpi-card"><div class="label">${k.label}</div><div class="value ${k.cls||''}">${k.value}</div><div class="hint">${k.hint}</div></div>`).join('')}</div>
+    <div class="page-header" style="margin-top:24px"><h1 style="font-size:16px">Recent Activity</h1></div>
+    <div class="table-wrap"><table><thead><tr><th>Event</th><th>Entity</th><th>Details</th><th>When</th></tr></thead><tbody id="auditRecent"></tbody></table></div>`;
+};
+PAGES_INIT.dashboard = function() {
+  const rows = db.exec('SELECT * FROM audit_log ORDER BY id DESC LIMIT 10');
+  let html = '';
+  if (rows.length) rows[0].values.forEach(v => {
+    html += `<tr><td>${escHtml(v[1])}</td><td>${escHtml(v[2]+': '+v[3])}</td><td>${escHtml(v[4])}</td><td style="color:var(--text3);font-size:12px">${fmtDate(v[5])}</td></tr>`;
+  });
+  if (!html) html = '<tr><td colspan="4" style="color:var(--text3);text-align:center;padding:20px">No audit events yet.</td></tr>';
+  document.getElementById('auditRecent').innerHTML = html;
+};
+
+// ─── CUSTOMERS ────────────────────────────────────────────────────────
+let custPage = 1, custSearch = '', custRegion = '';
+PAGES.customers = function() {
+  const canReg = PERMISSIONS[currentRole].canRegisterCustomer;
+  return `<div class="page-header"><h1>Customers</h1>${canReg?'<button class="btn btn-primary" onclick="openCustomerForm()">+ Register Customer</button>':''}</div>
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <input type="text" placeholder="Search name, suburb…" oninput="custSearch=this.value;renderCustTable()" id="custSearchInput">
+        <select onchange="custRegion=this.value;renderCustTable()">
+          <option value="">All Regions</option>${REGIONS.map(r=>`<option value="${r}">${r}</option>`).join('')}
+        </select>
+      </div>
+      <table><thead><tr><th>ID</th><th>Name</th><th>Suburb</th><th>Region</th><th>Phone</th><th>Status</th><th></th></tr></thead><tbody id="custTableBody"></tbody></table>
+      <div id="custPagination"></div>
+    </div>`;
+};
+PAGES_INIT.customers = function() { custPage=1; renderCustTable(); };
+
+function renderCustTable() {
+  let rows = db.exec('SELECT * FROM customers');
+  let items = rows.length ? rows[0].values.map(v=>{ const o={}; rows[0].columns.forEach((c,i)=>o[c]=v[i]); return o; }) : [];
+  if (custSearch) { const s=custSearch.toLowerCase(); items=items.filter(c=>(`${c.first_name} ${c.last_name} ${c.suburb}`).toLowerCase().includes(s)); }
+  if (custRegion) items=items.filter(c=>c.region===custRegion);
+  if (currentRole==='Customer') items=items.filter(c=>c.id===currentCustomerId);
+  const p = paginate(items, custPage, 25);
+  document.getElementById('custTableBody').innerHTML = p.items.map(c=>
+    `<tr><td style="color:var(--text3);font-size:12px">${c.id}</td><td><strong>${escHtml(c.first_name)} ${escHtml(c.last_name)}</strong></td><td>${escHtml(c.suburb)}</td><td>${escHtml(c.region)}</td><td>${escHtml(c.phone)}</td><td>${statusBadge(c.status)}</td><td><button class="btn btn-sm btn-secondary" onclick="viewCustomer('${c.id}')">View</button></td></tr>`
+  ).join('');
+  document.getElementById('custPagination').innerHTML = paginationHtml(p, 'setCustPage');
+}
+
+function viewCustomer(id) {
+  const rows = db.exec('SELECT * FROM customers WHERE id=?',[id]);
+  if (!rows.length) return;
+  const c={}; rows[0].columns.forEach((col,i)=>c[col]=rows[0].values[0][i]);
+  const enrs = db.exec('SELECT * FROM enrollments WHERE customer_id=?',[id]);
+  let enrHtml = '<table style="width:100%;margin-top:8px"><thead><tr><th>Program</th><th>Allocated</th><th>Spent</th><th>Remaining</th><th>Status</th></tr></thead><tbody>';
+  if (enrs.length) enrs[0].values.forEach(v => {
+    enrHtml += `<tr><td>${escHtml(v[3])}</td><td>${fmtCur(v[4])}</td><td>${fmtCur(v[5])}</td><td>${fmtCur(v[4]-v[5])}</td><td>${statusBadge(v[6])}</td></tr>`;
+  });
+  enrHtml += '</tbody></table>';
+
+  openModal(`Customer: ${c.first_name} ${c.last_name}`, `
+    <div class="detail-grid">
+      <div class="detail-item"><div class="dl">Customer ID</div><div class="dv">${c.id}</div></div>
+      <div class="detail-item"><div class="dl">Date of Birth</div><div class="dv">${fmtDate(c.dob)}</div></div>
+      <div class="detail-item"><div class="dl">Address</div><div class="dv">${escHtml(c.street)}, ${escHtml(c.suburb)} ${c.postcode}</div></div>
+      <div class="detail-item"><div class="dl">Region</div><div class="dv">${escHtml(c.region)}</div></div>
+      <div class="detail-item"><div class="dl">Phone</div><div class="dv">${escHtml(c.phone)}</div></div>
+      <div class="detail-item"><div class="dl">Email</div><div class="dv">${escHtml(c.email||'—')}</div></div>
+      <div class="detail-item"><div class="dl">Emergency Contact</div><div class="dv">${escHtml(c.emergency_contact)} — ${escHtml(c.emergency_phone)}</div></div>
+      <div class="detail-item"><div class="dl">Status</div><div class="dv">${statusBadge(c.status)}</div></div>
+    </div>
+    <h3 style="margin-top:18px;font-size:14px;margin-bottom:6px">Program Enrollments</h3>
+    ${enrHtml}
+  `);
+}
+
+function openCustomerForm(existing) {
+  const c = existing || {};
+  openModal(existing ? 'Edit Customer' : 'Register New Customer', `
+    <div class="form-row">
+      <div class="form-group"><label>First Name <span class="req">*</span></label><input type="text" id="cf-first" value="${escHtml(c.first_name||'')}"><div class="err-msg" id="err-first"></div></div>
+      <div class="form-group"><label>Last Name <span class="req">*</span></label><input type="text" id="cf-last" value="${escHtml(c.last_name||'')}"><div class="err-msg" id="err-last"></div></div>
+    </div>
+    <div class="form-group"><label>Date of Birth <span class="req">*</span> (must be age 60+)</label><input type="date" id="cf-dob" value="${c.dob||''}"><div class="err-msg" id="err-dob"></div></div>
+    <div class="form-row">
+      <div class="form-group"><label>Street Address <span class="req">*</span></label><input type="text" id="cf-street" value="${escHtml(c.street||'')}"><div class="err-msg" id="err-street"></div></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Suburb <span class="req">*</span></label><input type="text" id="cf-suburb" value="${escHtml(c.suburb||'')}"></div>
+      <div class="form-group"><label>Postcode <span class="req">*</span></label><input type="text" id="cf-postcode" value="${escHtml(c.postcode||'')}" maxlength="4"><div class="err-msg" id="err-postcode"></div></div>
+    </div>
+    <div class="form-group"><label>Region <span class="req">*</span></label><select id="cf-region">${REGIONS.map(r=>`<option value="${r}" ${c.region===r?'selected':''}>${r}</option>`).join('')}</select></div>
+    <div class="form-row">
+      <div class="form-group"><label>Phone <span class="req">*</span></label><input type="text" id="cf-phone" value="${escHtml(c.phone||'')}"><div class="err-msg" id="err-phone"></div></div>
+      <div class="form-group"><label>Email</label><input type="email" id="cf-email" value="${escHtml(c.email||'')}"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Emergency Contact Name</label><input type="text" id="cf-ecname" value="${escHtml(c.emergency_contact||'')}"></div>
+      <div class="form-group"><label>Emergency Contact Phone</label><input type="text" id="cf-ecphone" value="${escHtml(c.emergency_phone||'')}"></div>
+    </div>
+  `, `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveCustomer('${c.id||''}')">Save</button>`);
+}
+
+function saveCustomer(existingId) {
+  let valid = true;
+  function chk(id, errId, test, msg) { const el=document.getElementById(id); const e=document.getElementById(errId); if(e&&!test(el.value)){ el.classList.add('error'); e.textContent=msg; valid=false; } else { if(el)el.classList.remove('error'); if(e)e.textContent=''; } }
+  chk('cf-first','err-first', v=>v.trim().length>0, 'First name is required.');
+  chk('cf-last','err-last', v=>v.trim().length>0, 'Last name is required.');
+  chk('cf-dob','err-dob', v=>{ if(!v) return false; const age=(new Date()-new Date(v))/(365.25*24*3600*1000); return age>=60; }, 'Customer must be 60 years or older.');
+  chk('cf-street','err-street', v=>v.trim().length>0, 'Street address is required.');
+  chk('cf-postcode','err-postcode', v=>{ const n=parseInt(v); return /^\d{4}$/.test(v) && n>=4000 && n<=4999; }, 'Valid Queensland postcode required (4000–4999).');
+  chk('cf-phone','err-phone', v=>v.trim().length>0, 'Phone number is required.');
+
+  if (!valid) return;
+  const g = id => document.getElementById(id).value.trim();
+  if (existingId) {
+    db.run('UPDATE customers SET first_name=?,last_name=?,dob=?,street=?,suburb=?,postcode=?,region=?,phone=?,email=?,emergency_contact=?,emergency_phone=? WHERE id=?',
+      [g('cf-first'),g('cf-last'),g('cf-dob'),g('cf-street'),g('cf-suburb'),g('cf-postcode'),g('cf-region'),g('cf-phone'),g('cf-email'),g('cf-ecname'),g('cf-ecphone'),existingId]);
+    logEvent('CustomerUpdated','Customer',existingId,'Updated via form');
+  } else {
+    const id = uid('CUST');
+    db.run('INSERT INTO customers VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,datetime("now"))',
+      [id, g('cf-first'),g('cf-last'),g('cf-dob'),g('cf-street'),g('cf-suburb'),g('cf-postcode'),g('cf-region'),g('cf-phone'),g('cf-email'),g('cf-ecname'),g('cf-ecphone'),'Registered']);
+    logEvent('CustomerRegistered','Customer',id,'New customer registered');
+    toast('Customer Registered', `${g('cf-first')} ${g('cf-last')} has been registered.`, 'success');
+  }
+  persistDB();
+  closeModal();
+  // Refresh table if visible
+  if (document.getElementById('page-customers')&&document.getElementById('page-customers').classList.contains('active')) renderCustTable();
+}
+
+// ─── CONTRACTORS ──────────────────────────────────────────────────────
+let contrPage=1, contrSearch='', contrStatus='', contrCat='';
+PAGES.contractors = function() {
+  const canManage = PERMISSIONS[currentRole].canManageContractors;
+  return `<div class="page-header"><h1>Contractors</h1>${canManage?'<button class="btn btn-primary" onclick="openContractorForm()">+ Register Contractor</button>':''}</div>
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <input type="text" placeholder="Search business, contact…" oninput="contrSearch=this.value;renderContrTable()">
+        <select onchange="contrStatus=this.value;renderContrTable()"><option value="">All Statuses</option><option value="Active">Active</option><option value="Suspended">Suspended</option></select>
+        <select onchange="contrCat=this.value;renderContrTable()"><option value="">All Categories</option>${ALL_CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>
+      </div>
+      <table><thead><tr><th>ID</th><th>Business</th><th>Contact</th><th>Categories</th><th>Regions</th><th>Status</th><th></th></tr></thead><tbody id="contrTableBody"></tbody></table>
+      <div id="contrPagination"></div>
+    </div>`;
+};
+PAGES_INIT.contractors = function() { contrPage=1; renderContrTable(); };
+
+function renderContrTable() {
+  let rows = db.exec('SELECT * FROM contractors');
+  let items = rows.length ? rows[0].values.map(v=>{ const o={}; rows[0].columns.forEach((c,i)=>o[c]=v[i]); return o; }) : [];
+  if (contrSearch) { const s=contrSearch.toLowerCase(); items=items.filter(c=>`${c.business_name} ${c.contact_name}`.toLowerCase().includes(s)); }
+  if (contrStatus) items=items.filter(c=>c.status===contrStatus);
+  if (contrCat) items=items.filter(c=>(c.categories||'').split(',').some(x=>x.trim()===contrCat));
+  if (currentRole==='Contractor') items=items.filter(c=>c.id===currentContractorId);
+  const p=paginate(items,contrPage,25);
+  document.getElementById('contrTableBody').innerHTML = p.items.map(c=>
+    `<tr><td style="color:var(--text3);font-size:12px">${c.id}</td><td><strong>${escHtml(c.business_name)}</strong></td><td>${escHtml(c.contact_name)}</td><td style="font-size:12px">${escHtml(c.categories)}</td><td style="font-size:12px">${escHtml(c.regions)}</td><td>${statusBadge(c.status)}</td><td><button class="btn btn-sm btn-secondary" onclick="viewContractor('${c.id}')">View</button></td></tr>`
+  ).join('');
+  document.getElementById('contrPagination').innerHTML = paginationHtml(p,'setContrPage');
+}
+
+function viewContractor(id) {
+  const rows=db.exec('SELECT * FROM contractors WHERE id=?',[id]);
+  if(!rows.length) return;
+  const c={}; rows[0].columns.forEach((col,i)=>c[col]=rows[0].values[0][i]);
+  const canManage = PERMISSIONS[currentRole].canManageContractors;
+  openModal(`Contractor: ${c.business_name}`, `
+    <div class="detail-grid">
+      <div class="detail-item"><div class="dl">ID</div><div class="dv">${c.id}</div></div>
+      <div class="detail-item"><div class="dl">Contact</div><div class="dv">${escHtml(c.contact_name)}</div></div>
+      <div class="detail-item"><div class="dl">Phone</div><div class="dv">${escHtml(c.phone)}</div></div>
+      <div class="detail-item"><div class="dl">Email</div><div class="dv">${escHtml(c.email)}</div></div>
+      <div class="detail-item"><div class="dl">ABN</div><div class="dv">${escHtml(c.abn)}</div></div>
+      <div class="detail-item"><div class="dl">Licence</div><div class="dv">${escHtml(c.licence)} (expires ${fmtDate(c.licence_expiry)})</div></div>
+      <div class="detail-item"><div class="dl">Categories</div><div class="dv">${escHtml(c.categories)}</div></div>
+      <div class="detail-item"><div class="dl">Regions</div><div class="dv">${escHtml(c.regions)}</div></div>
+      <div class="detail-item"><div class="dl">Status</div><div class="dv">${statusBadge(c.status)}</div></div>
+    </div>
+    ${canManage?`<div class="detail-actions">
+      <button class="btn btn-secondary btn-sm" onclick="toggleContractorStatus('${c.id}','${c.status==='Active'?'Suspended':'Active'}')">${c.status==='Active'?'Suspend':'Reactivate'} Contractor</button>
+    </div>`:''}`);
+}
+
+function toggleContractorStatus(id, newStatus) {
+  db.run('UPDATE contractors SET status=? WHERE id=?', [newStatus, id]);
+  logEvent('ContractorStatusUpdated','Contractor',id, `Status changed to ${newStatus}`);
+  persistDB();
+  toast('Contractor Updated', `Status changed to ${newStatus}.`, newStatus==='Active'?'success':'warning');
+  closeModal();
+  renderContrTable();
+}
+
+function openContractorForm() {
+  openModal('Register New Contractor', `
+    <div class="form-row">
+      <div class="form-group"><label>Business Name <span class="req">*</span></label><input type="text" id="ctf-biz"><div class="err-msg" id="err-biz"></div></div>
+      <div class="form-group"><label>Contact Name <span class="req">*</span></label><input type="text" id="ctf-contact"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Phone <span class="req">*</span></label><input type="text" id="ctf-phone"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="ctf-email"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>ABN <span class="req">*</span></label><input type="text" id="ctf-abn" placeholder="e.g. 12 345 678 901"><div class="err-msg" id="err-abn"></div></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Licence Number <span class="req">*</span></label><input type="text" id="ctf-licence"></div>
+      <div class="form-group"><label>Licence Expiry <span class="req">*</span></label><input type="date" id="ctf-expiry"><div class="err-msg" id="err-expiry"></div></div>
+    </div>
+    <div class="form-group"><label>Service Categories <span class="req">*</span> (select multiple)</label>
+      <select id="ctf-cats" multiple style="height:100px">${ALL_CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>
+      <div class="err-msg" id="err-cats"></div>
+    </div>
+    <div class="form-group"><label>Service Regions <span class="req">*</span> (select multiple)</label>
+      <select id="ctf-regs" multiple style="height:90px">${REGIONS.map(r=>`<option value="${r}">${r}</option>`).join('')}</select>
+      <div class="err-msg" id="err-regs"></div>
+    </div>
+  `, `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveContractor()">Register</button>`);
+}
+
+function saveContractor() {
+  let valid=true;
+  function chk(id,errId,test,msg){const el=document.getElementById(id);const e=document.getElementById(errId);if(e&&!test(el.value)){el.classList.add('error');e.textContent=msg;valid=false;}else{if(el)el.classList.remove('error');if(e)e.textContent='';}}
+  chk('ctf-biz','err-biz',v=>v.trim().length>0,'Business name is required.');
+  chk('ctf-abn','err-abn',v=>/^\d{11}$/.test(v.replace(/\s/g,'')),'Please enter a valid 11-digit ABN.');
+  chk('ctf-expiry','err-expiry',v=>v&&new Date(v)>new Date(),'Licence expiry must be a future date.');
+  // categories
+  const cats=[...document.getElementById('ctf-cats').selectedOptions].map(o=>o.value);
+  if(!cats.length){document.getElementById('err-cats').textContent='Select at least one category.';valid=false;}else{document.getElementById('err-cats').textContent='';}
+  const regs=[...document.getElementById('ctf-regs').selectedOptions].map(o=>o.value);
+  if(!regs.length){document.getElementById('err-regs').textContent='Select at least one region.';valid=false;}else{document.getElementById('err-regs').textContent='';}
+  if(!valid) return;
+  const g=id=>document.getElementById(id).value.trim();
+  const id=uid('CONT');
+  db.run('INSERT INTO contractors VALUES(?,?,?,?,?,?,?,?,?,?,?,datetime("now"))',
+    [id,g('ctf-biz'),g('ctf-contact'),g('ctf-phone'),g('ctf-email'),g('ctf-abn').replace(/\s/g,''),g('ctf-licence'),g('ctf-expiry'),cats.join(','),regs.join(','),'Active']);
+  logEvent('ContractorRegistered','Contractor',id,'New contractor registered');
+  persistDB();
+  toast('Contractor Registered',`${g('ctf-biz')} is now active.`,'success');
+  closeModal();
+  if(document.getElementById('page-contractors')&&document.getElementById('page-contractors').classList.contains('active')) renderContrTable();
+}
+
+// ─── ACTIVITY CATALOGUE ───────────────────────────────────────────────
+PAGES.catalogue = function() {
+  const canManage = PERMISSIONS[currentRole].canManageCatalogue;
+  let rows=db.exec('SELECT * FROM activities');
+  let items = rows.length ? rows[0].values.map(v=>{const o={};rows[0].columns.forEach((c,i)=>o[c]=v[i]);return o;}) : [];
+  return `<div class="page-header"><h1>Activity Catalogue</h1>${canManage?'<button class="btn btn-primary" onclick="openActivityForm()">+ Add Activity</button>':''}</div>
+    <div class="table-wrap"><table><thead><tr><th>ID</th><th>Activity</th><th>Category</th><th>Program</th><th>Max Subsidy</th><th>Description</th></tr></thead><tbody>
+    ${items.map(a=>`<tr><td style="color:var(--text3);font-size:12px">${a.id}</td><td><strong>${escHtml(a.name)}</strong></td><td>${escHtml(a.category)}</td><td><span class="badge ${a.program==='HSSH'?'badge-blue':'badge-green'}">${a.program==='HSSH'?'HSSH':'HAS'}</span></td><td>${fmtCur(a.max_subsidy)}</td><td style="color:var(--text2);font-size:12px">${escHtml(a.description)}</td></tr>`).join('')}
+    </tbody></table></div>`;
+};
+
+function openActivityForm() {
+  openModal('Add Activity', `
+    <div class="form-group"><label>Activity Name <span class="req">*</span></label><input type="text" id="af-name"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Category <span class="req">*</span></label><select id="af-cat">${ALL_CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Program <span class="req">*</span></label><select id="af-prog"><option value="HSSH">HSSH — Security</option><option value="HAS">HAS — Maintenance</option></select></div>
+    </div>
+    <div class="form-group"><label>Max Subsidy ($) <span class="req">*</span></label><input type="number" id="af-subsidy" min="1" step="0.01"></div>
+    <div class="form-group"><label>Description</label><textarea id="af-desc"></textarea></div>
+  `, `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveActivity()">Add</button>`);
+}
+function saveActivity() {
+  const g=id=>document.getElementById(id).value.trim();
+  if(!g('af-name')||!g('af-subsidy')){toast('Validation Error','Name and max subsidy are required.','error');return;}
+  const id=uid('ACT');
+  db.run('INSERT INTO activities VALUES(?,?,?,?,?,?)',[id,g('af-name'),g('af-cat'),g('af-prog'),parseFloat(g('af-subsidy')),g('af-desc')]);
+  logEvent('ActivityCatalogueUpdated','Activity',id,'New activity added');
+  persistDB();
+  toast('Activity Added',`${g('af-name')} added to catalogue.`,'success');
+  closeModal();
+  // Re-render catalogue
+  const p=document.getElementById('page-catalogue');if(p)p.remove();
+  navigateTo('catalogue');
+}
+
+// ─── ENROLLMENTS ──────────────────────────────────────────────────────
+PAGES.enrollments = function() {
+  const canEnroll = PERMISSIONS[currentRole].canEnroll;
+  let rows=db.exec('SELECT e.*, c.first_name, c.last_name FROM enrollments e JOIN customers c ON e.customer_id=c.id');
+  let items = rows.length ? rows[0].values.map(v=>{const o={};rows[0].columns.forEach((c,i)=>o[c]=v[i]);return o;}) : [];
+  if(currentRole==='Customer') items=items.filter(e=>e.customer_id===currentCustomerId);
+  return `<div class="page-header"><h1>Enrollments</h1>${canEnroll?'<button class="btn btn-primary" onclick="openEnrollForm()">+ Enroll Customer</button>':''}</div>
+    <div class="table-wrap"><table><thead><tr><th>ID</th><th>Customer</th><th>Program</th><th>Allocated</th><th>Spent</th><th>Remaining</th><th>Status</th></tr></thead><tbody>
+    ${items.map(e=>`<tr><td style="color:var(--text3);font-size:12px">${e.id}</td><td>${escHtml(e.first_name)} ${escHtml(e.last_name)}</td><td>${escHtml(e.program_label)}</td><td>${fmtCur(e.budget_allocated)}</td><td>${fmtCur(e.budget_spent)}</td><td><strong>${fmtCur(e.budget_allocated-e.budget_spent)}</strong></td><td>${statusBadge(e.status)}</td></tr>`).join('')}
+    </tbody></table></div>`;
+};
+
+function openEnrollForm() {
+  const custs = db.exec('SELECT id,first_name,last_name FROM customers');
+  const custOpts = custs.length ? custs[0].values.map(v=>`<option value="${v[0]}">${v[1]} ${v[2]}</option>`).join('') : '';
+  openModal('Enroll Customer', `
+    <div class="form-group"><label>Customer <span class="req">*</span></label><select id="ef-cust"><option value="">— select —</option>${custOpts}</select></div>
+    <div class="form-group"><label>Program <span class="req">*</span></label>
+      <select id="ef-prog">
+        <option value="HSSH">Helping Seniors Secure Their Home ($9,000 one-off)</option>
+        <option value="HAS">Home Assist / Secure ($500/year)</option>
+      </select>
+    </div>
+  `, `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveEnrollment()">Enroll</button>`);
+}
+function saveEnrollment() {
+  const custId=document.getElementById('ef-cust').value;
+  const prog=document.getElementById('ef-prog').value;
+  if(!custId){toast('Validation','Please select a customer.','error');return;}
+  // Check not already enrolled in this program
+  const existing=db.exec('SELECT id FROM enrollments WHERE customer_id=? AND program=?',[custId,prog]);
+  if(existing.length){toast('Already Enrolled','This customer is already enrolled in this program.','warning');return;}
+  const id=uid('ENR');
+  const budget=prog==='HSSH'?9000:500;
+  const label=prog==='HSSH'?'Helping Seniors Secure Their Home':'Home Assist / Secure';
+  db.run('INSERT INTO enrollments VALUES(?,?,?,?,?,?,?,datetime("now"))',[id,custId,prog,label,budget,0,'Active']);
+  // Update customer status
+  db.run("UPDATE customers SET status='Enrolled' WHERE id=?",[custId]);
+  logEvent('CustomerEnrolled','Enrollment',id,`Enrolled in ${label}`);
+  persistDB();
+  toast('Customer Enrolled',`Enrollment created with $${budget} budget.`,'success');
+  closeModal();
+  const p=document.getElementById('page-enrollments');if(p)p.remove();
+  navigateTo('enrollments');
+}
+
+// ─── QUOTES ───────────────────────────────────────────────────────────
+let quotePage=1, quoteSearch='', quoteStatus='';
+PAGES.quotes = function() {
+  const canReq = PERMISSIONS[currentRole].canRequestQuote;
+  const title = currentRole==='Assessor'?'Quote Assessment Queue':(currentRole==='Contractor'?'My Quote Requests':currentRole==='Customer'?'My Quotes':'All Quotes');
+  return `<div class="page-header"><h1>${title}</h1>${canReq&&currentRole==='Customer'?'<button class="btn btn-primary" onclick="openQuoteRequestForm()">+ Request Quote</button>':''}</div>
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <input type="text" placeholder="Search quote ID, names…" oninput="quoteSearch=this.value;renderQuoteTable()">
+        <select onchange="quoteStatus=this.value;renderQuoteTable()">
+          <option value="">All Statuses</option>
+          <option value="Requested">Requested</option><option value="Submitted">Submitted</option>
+          <option value="AcceptedByCustomer">Accepted</option><option value="Assessed">Assessed</option>
+          <option value="ReadyForBatch">Ready</option><option value="Completed">Completed</option>
+          <option value="Disputed">Disputed</option><option value="Cancelled">Cancelled</option>
+        </select>
+      </div>
+      <table><thead><tr><th>Quote ID</th><th>Customer</th><th>Contractor</th><th>Activity</th><th>Total</th><th>Subsidy</th><th>Status</th><th></th></tr></thead><tbody id="quoteTableBody"></tbody></table>
+      <div id="quotePagination"></div>
+    </div>`;
+};
+PAGES_INIT.quotes = function(){ quotePage=1; renderQuoteTable(); };
+
+function renderQuoteTable() {
+  let rows=db.exec(`SELECT q.*, c.first_name, c.last_name, ct.business_name, a.name as act_name
+    FROM quotes q LEFT JOIN customers c ON q.customer_id=c.id LEFT JOIN contractors ct ON q.contractor_id=ct.id LEFT JOIN activities a ON q.activity_id=a.id`);
+  let items = rows.length ? rows[0].values.map(v=>{const o={};rows[0].columns.forEach((c,i)=>o[c]=v[i]);return o;}) : [];
+  if(quoteSearch){const s=quoteSearch.toLowerCase();items=items.filter(q=>`${q.id} ${q.first_name} ${q.last_name} ${q.business_name} ${q.act_name}`.toLowerCase().includes(s));}
+  if(quoteStatus) items=items.filter(q=>q.status===quoteStatus);
+  if(currentRole==='Customer') items=items.filter(q=>q.customer_id===currentCustomerId);
+  if(currentRole==='Contractor') items=items.filter(q=>q.contractor_id===currentContractorId);
+  if(currentRole==='Assessor') { /* show all for assessor queue */ }
+  const p=paginate(items,quotePage,25);
+  document.getElementById('quoteTableBody').innerHTML=p.items.map(q=>
+    `<tr><td style="color:var(--text3);font-size:12px">${q.id}</td><td>${escHtml(q.first_name)} ${escHtml(q.last_name)}</td><td>${escHtml(q.business_name)}</td><td>${escHtml(q.act_name)}</td><td>${fmtCur(q.total)}</td><td>${fmtCur(q.subsidy_amount)}</td><td>${statusBadge(q.status)}</td><td><button class="btn btn-sm btn-secondary" onclick="viewQuote('${q.id}')">View</button></td></tr>`
+  ).join('');
+  document.getElementById('quotePagination').innerHTML=paginationHtml(p,'setQuotePage');
+}
+
+function viewQuote(id) {
+  const rows=db.exec('SELECT * FROM quotes WHERE id=?',[id]);
+  if(!rows.length) return;
+  const q={}; rows[0].columns.forEach((c,i)=>q[c]=rows[0].values[0][i]);
+  // Lookup names
+  const cust=db.exec('SELECT first_name,last_name FROM customers WHERE id=?',[q.customer_id]);
+  const contr=db.exec('SELECT business_name FROM contractors WHERE id=?',[q.contractor_id]);
+  const act=db.exec('SELECT name,max_subsidy,category FROM activities WHERE id=?',[q.activity_id]);
+  const custName=cust.length?`${cust[0].values[0][0]} ${cust[0].values[0][1]}`:'—';
+  const contrName=contr.length?contr[0].values[0][0]:'—';
+  const actName=act.length?act[0].values[0][0]:'—';
+
+  // Line items
+  let liHtml='';
+  if(q.line_items){try{const li=JSON.parse(q.line_items);liHtml=`<table style="width:100%;margin:10px 0;font-size:13px"><thead><tr><th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Item</th><th style="text-align:right;padding:6px;border-bottom:1px solid var(--border)">Qty</th><th style="text-align:right;padding:6px;border-bottom:1px solid var(--border)">Unit Price</th><th style="text-align:right;padding:6px;border-bottom:1px solid var(--border)">Total</th></tr></thead><tbody>${li.map(i=>`<tr><td style="padding:6px">${escHtml(i.desc)}</td><td style="text-align:right;padding:6px">${i.qty}</td><td style="text-align:right;padding:6px">${fmtCur(i.price)}</td><td style="text-align:right;padding:6px">${fmtCur(i.price*i.qty)}</td></tr>`).join('')}</tbody></table>`;}catch(e){}}
+
+  // Action buttons based on role + status
+  let actions='';
+  if(currentRole==='Contractor'&&q.status==='Requested') actions+=`<button class="btn btn-primary btn-sm" onclick="openSubmitQuoteForm('${id}')">Submit Quote</button>`;
+  if(currentRole==='Customer'&&q.status==='Submitted') actions+=`<button class="btn btn-primary btn-sm" onclick="customerAction('${id}','accept')">Accept</button><button class="btn btn-danger btn-sm" onclick="customerAction('${id}','reject')">Reject</button>`;
+  if((currentRole==='Assessor'||currentRole==='Administrator')&&q.status==='AcceptedByCustomer') actions+=`<button class="btn btn-primary btn-sm" onclick="openAssessQuoteForm('${id}')">Assess</button>`;
+  if(currentRole==='Customer'&&q.status==='Assessed'&&q.customer_excess>0) actions+=`<button class="btn btn-primary btn-sm" onclick="confirmExcess('${id}')">Confirm Excess</button>`;
+  if(currentRole==='Customer'&&q.status==='Completed'&&!q.verified_at) actions+=`<button class="btn btn-primary btn-sm" onclick="verifyWork('${id}')">Verify Work</button><button class="btn btn-danger btn-sm" onclick="openDisputeForm('${id}')">Dispute</button>`;
+  if(currentRole==='Contractor'&&q.status==='ReadyForBatch') actions+=`<button class="btn btn-primary btn-sm" onclick="reportWorkStatus('${id}','commenced')">Report Commenced</button>`;
+  if(currentRole==='Contractor'&&q.status==='WorkCommenced') actions+=`<button class="btn btn-primary btn-sm" onclick="reportWorkStatus('${id}','completed')">Report Completed</button>`;
+  if((currentRole==='Assessor'||currentRole==='Administrator')&&q.status==='Disputed') actions+=`<button class="btn btn-primary btn-sm" onclick="openResolveDisputeForm('${id}')">Resolve Dispute</button>`;
+
+  openModal(`Quote ${q.id}`, `
+    <div class="detail-grid">
+      <div class="detail-item"><div class="dl">Status</div><div class="dv">${statusBadge(q.status)}</div></div>
+      <div class="detail-item"><div class="dl">Customer</div><div class="dv">${escHtml(custName)}</div></div>
+      <div class="detail-item"><div class="dl">Contractor</div><div class="dv">${escHtml(contrName)}</div></div>
+      <div class="detail-item"><div class="dl">Activity</div><div class="dv">${escHtml(actName)}</div></div>
+      <div class="detail-item"><div class="dl">Requested</div><div class="dv">${fmtDate(q.requested_at)}</div></div>
+      <div class="detail-item"><div class="dl">Submitted</div><div class="dv">${fmtDate(q.submitted_at)}</div></div>
+    </div>
+    ${liHtml?`<h3 style="margin-top:16px;font-size:14px">Line Items</h3>${liHtml}`:''}
+    <div class="detail-grid" style="margin-top:14px">
+      <div class="detail-item"><div class="dl">Subtotal</div><div class="dv">${fmtCur(q.subtotal)}</div></div>
+      <div class="detail-item"><div class="dl">GST</div><div class="dv">${fmtCur(q.gst)}</div></div>
+      <div class="detail-item"><div class="dl">Total</div><div class="dv" style="font-size:18px;color:var(--accent)">${fmtCur(q.total)}</div></div>
+      <div class="detail-item"><div class="dl">Max Subsidy (activity)</div><div class="dv">${act.length?fmtCur(act[0].values[0][1]):'—'}</div></div>
+      <div class="detail-item"><div class="dl">Subsidy Amount</div><div class="dv" style="color:var(--green)">${fmtCur(q.subsidy_amount)}</div></div>
+      <div class="detail-item"><div class="dl">Customer Excess</div><div class="dv" style="color:var(--red)">${fmtCur(q.customer_excess)}</div></div>
+      <div class="detail-item"><div class="dl">Deposit Required</div><div class="dv">${fmtCur(q.deposit_required)}</div></div>
+      <div class="detail-item"><div class="dl">Deposit Received</div><div class="dv">${fmtCur(q.deposit_received)}</div></div>
+    </div>
+    ${q.notes?`<div style="margin-top:12px;padding:10px;background:var(--panel-alt);border-radius:var(--r);font-size:13px"><strong>Notes:</strong> ${escHtml(q.notes)}</div>`:''}
+    ${q.assessment_notes?`<div style="margin-top:8px;padding:10px;background:var(--amber-bg);border-radius:var(--r);font-size:13px"><strong>Assessment:</strong> ${escHtml(q.assessment_notes)}</div>`:''}
+    ${q.dispute_reason?`<div style="margin-top:8px;padding:10px;background:var(--red-bg);border-radius:var(--r);font-size:13px"><strong>Dispute:</strong> ${escHtml(q.dispute_reason)} ${q.dispute_outcome?'— Outcome: '+escHtml(q.dispute_outcome):''}</div>`:''}
+    ${actions?`<div class="detail-actions">${actions}</div>`:''}`);
+}
+
+// Quote Request
+function openQuoteRequestForm() {
+  // Check open quotes limit
+  const open=db.exec("SELECT COUNT(*) as c FROM quotes WHERE customer_id=? AND status IN ('Requested','Submitted','AcceptedByCustomer')",[currentCustomerId])[0].values[0][0];
+  if(open>=5){toast('Limit Reached','You have 5 open quotes. Wait for one to complete or be cancelled.','warning');return;}
+  // Get enrollments with remaining budget
+  const enrs=db.exec('SELECT * FROM enrollments WHERE customer_id=? AND budget_allocated > budget_spent',[currentCustomerId]);
+  if(!enrs.length){toast('No Budget','You have no remaining budget in any program.','warning');return;}
+  const enrOpts=enrs[0].values.map(v=>`<option value="${v[0]}" data-program="${v[2]}">${v[3]} — ${fmtCur(v[4]-v[5])} remaining</option>`).join('');
+
+  openModal('Request a Quote', `
+    <div class="form-group"><label>Program / Budget <span class="req">*</span></label><select id="qr-enr" onchange="updateActivityOptions()">${enrOpts}</select></div>
+    <div class="form-group"><label>Activity <span class="req">*</span></label><select id="qr-act" onchange="updateContractorOptions()"></select></div>
+    <div class="form-group"><label>Contractor <span class="req">*</span></label><select id="qr-contr"></select></div>
+    <div class="form-group"><label>Notes</label><textarea id="qr-notes" placeholder="Any specific requirements…"></textarea></div>
+  `, `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="submitQuoteRequest()">Request Quote</button>`);
+  updateActivityOptions();
+}
+
+function updateActivityOptions() {
+  const enrEl=document.getElementById('qr-enr');if(!enrEl)return;
+  const prog=enrEl.selectedOptions[0]?.dataset?.program;
+  const acts=db.exec('SELECT * FROM activities WHERE program=?',[prog]);
+  document.getElementById('qr-act').innerHTML=acts.length?acts[0].values.map(v=>`<option value="${v[0]}">${v[1]} (max subsidy: ${fmtCur(v[4])})</option>`).join(''):'<option>No activities available</option>';
+  updateContractorOptions();
+}
+function updateContractorOptions() {
+  const actId=document.getElementById('qr-act')?.value;
+  if(!actId) return;
+  const act=db.exec('SELECT category FROM activities WHERE id=?',[actId]);
+  if(!act.length) return;
+  const cat=act[0].values[0][0];
+  // Get customer region
+  const cust=db.exec('SELECT region FROM customers WHERE id=?',[currentCustomerId]);
+  if(!cust.length) return;
+  const region=cust[0].values[0][0];
+  const contrs=db.exec("SELECT * FROM contractors WHERE status='Active'");
+  let options=[];
+  if(contrs.length) contrs[0].values.forEach(v=>{
+    const o={}; contrs[0].columns.forEach((c,i)=>o[c]=v[i]);
+    if((o.categories||'').split(',').some(x=>x.trim()===cat) && (o.regions||'').split(',').some(x=>x.trim()===region))
+      options.push(`<option value="${o.id}">${o.business_name} — ${o.contact_name}</option>`);
+  });
+  document.getElementById('qr-contr').innerHTML=options.length?options.join(''):'<option>No contractors available for this activity in your area</option>';
+}
+
+function submitQuoteRequest() {
+  const enrId=document.getElementById('qr-enr').value;
+  const actId=document.getElementById('qr-act').value;
+  const contrId=document.getElementById('qr-contr').value;
+  if(!enrId||!actId||!contrId){toast('Validation','Please complete all required fields.','error');return;}
+  // Get enrollment to find customer_id (already known)
+  const id=uid('QUO');
+  db.run('INSERT INTO quotes(id,customer_id,contractor_id,enrollment_id,activity_id,status,notes,requested_at) VALUES(?,?,?,?,?,?,?,?)',
+    [id,currentCustomerId,contrId,enrId,actId,'Requested',document.getElementById('qr-notes').value.trim(),now()]);
+  logEvent('QuoteRequested','Quote',id,'Customer requested quote');
+  persistDB();
+  toast('Quote Requested',`Quote ${id} has been sent to the contractor.`,'success');
+  closeModal();
+  const p=document.getElementById('page-quotes');if(p)p.remove();
+  navigateTo('quotes');
+}
+
+// Submit Quote (Contractor)
+function openSubmitQuoteForm(quoteId) {
+  openModal('Submit Quote', `
+    <p style="margin-bottom:16px;color:var(--text2);font-size:13px">Enter the pricing for this quote. GST will be calculated automatically.</p>
+    <div id="lineItemsContainer"><div class="line-item" style="display:flex;gap:8px;align-items:flex-end;margin-bottom:10px">
+      <div class="form-group" style="flex:2;margin-bottom:0"><label>Description</label><input type="text" class="li-desc" placeholder="e.g. Security deadbolt"></div>
+      <div class="form-group" style="width:60px;margin-bottom:0"><label>Qty</label><input type="number" class="li-qty" value="1" min="1"></div>
+      <div class="form-group" style="width:100px;margin-bottom:0"><label>Unit Price ($)</label><input type="number" class="li-price" min="0" step="0.01" oninput="calcQuoteTotals()"></div>
+      <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.line-item').remove();calcQuoteTotals()">×</button>
+    </div></div>
+    <button class="btn btn-sm btn-secondary" onclick="addLineItem()" style="margin-bottom:14px">+ Add Item</button>
+    <div style="text-align:right;font-size:14px;padding:10px 0;border-top:1px solid var(--border);margin-top:10px" id="quoteTotals">
+      <div>Subtotal: <strong id="lt-subtotal">$0.00</strong></div>
+      <div>GST (10%): <strong id="lt-gst">$0.00</strong></div>
+      <div style="font-size:16px;margin-top:4px">Total: <strong id="lt-total" style="color:var(--accent)">$0.00</strong></div>
+    </div>
+    <div class="form-group" style="margin-top:14px"><label>Deposit Required ($) — max 30% of subtotal</label><input type="number" id="sq-deposit" value="0" min="0" step="0.01"><div class="err-msg" id="err-deposit"></div></div>
+    <div class="form-group"><label>Notes</label><textarea id="sq-notes"></textarea></div>
+  `, `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveSubmittedQuote('${quoteId}')">Submit Quote</button>`);
+}
+function addLineItem() {
+  document.getElementById('lineItemsContainer').innerHTML+=`<div class="line-item" style="display:flex;gap:8px;align-items:flex-end;margin-bottom:10px">
+    <div class="form-group" style="flex:2;margin-bottom:0"><label>Description</label><input type="text" class="li-desc" placeholder="…"></div>
+    <div class="form-group" style="width:60px;margin-bottom:0"><label>Qty</label><input type="number" class="li-qty" value="1" min="1"></div>
+    <div class="form-group" style="width:100px;margin-bottom:0"><label>Unit Price ($)</label><input type="number" class="li-price" min="0" step="0.01" oninput="calcQuoteTotals()"></div>
+    <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.line-item').remove();calcQuoteTotals()">×</button></div>`;
+}
+function calcQuoteTotals() {
+  let sub=0;
+  document.querySelectorAll('.line-item').forEach(li=>{
+    const q=parseFloat(li.querySelector('.li-qty')?.value||0);
+    const p=parseFloat(li.querySelector('.li-price')?.value||0);
+    sub+=q*p;
+  });
+  const gst=sub*0.1;
+  document.getElementById('lt-subtotal').textContent=fmtCur(sub);
+  document.getElementById('lt-gst').textContent=fmtCur(gst);
+  document.getElementById('lt-total').textContent=fmtCur(sub+gst);
+}
+function saveSubmittedQuote(quoteId) {
+  const items=[];
+  document.querySelectorAll('.line-item').forEach(li=>{
+    const desc=li.querySelector('.li-desc')?.value.trim();
+    const qty=parseInt(li.querySelector('.li-qty')?.value||0);
+    const price=parseFloat(li.querySelector('.li-price')?.value||0);
+    if(desc) items.push({desc,qty,price});
+  });
+  if(!items.length){toast('Validation','Add at least one line item.','error');return;}
+  const sub=items.reduce((s,i)=>s+i.qty*i.price,0);
+  const gst=Math.round(sub*0.1*100)/100;
+  const total=Math.round((sub+gst)*100)/100;
+  const deposit=parseFloat(document.getElementById('sq-deposit').value||0);
+  if(deposit>sub*0.3){document.getElementById('err-deposit').textContent=`Deposit cannot exceed 30% of subtotal (max ${fmtCur(sub*0.3)}).`;return;}
+  document.getElementById('err-deposit').textContent='';
+  db.run('UPDATE quotes SET status=?,line_items=?,subtotal=?,gst=?,total=?,deposit_required=?,notes=?,submitted_at=? WHERE id=?',
+    ['Submitted',JSON.stringify(items),sub,gst,total,deposit,document.getElementById('sq-notes').value.trim(),now(),quoteId]);
+  logEvent('QuoteSubmitted','Quote',quoteId,'Contractor submitted quote');
+  persistDB();
+  toast('Quote Submitted','Your quote has been sent to the customer.','success');
+  closeModal();
+  viewQuote(quoteId);
+}
+
+// Customer accept/reject
+function customerAction(quoteId, action) {
+  if(action==='accept'){
+    db.run('UPDATE quotes SET status=? WHERE id=?',['AcceptedByCustomer',quoteId]);
+    logEvent('QuoteAcceptedByCustomer','Quote',quoteId,'Customer accepted');
+    toast('Quote Accepted','Your quote is now being assessed by Home Assist.','success');
+  } else {
+    db.run('UPDATE quotes SET status=? WHERE id=?',['Cancelled',quoteId]);
+    logEvent('QuoteRejectedByCustomer','Quote',quoteId,'Customer rejected');
+    toast('Quote Rejected','The quote has been rejected.','info');
+  }
+  persistDB();
+  closeModal();
+  const p=document.getElementById('page-quotes');if(p)p.remove();
+  navigateTo('quotes');
+}
+
+// Assess quote (Assessor / Admin)
+function openAssessQuoteForm(quoteId) {
+  const q=db.exec('SELECT * FROM quotes WHERE id=?',[quoteId]);
+  if(!q.length) return;
+  const quote={}; q[0].columns.forEach((c,i)=>quote[c]=q[0].values[0][i]);
+  // Get activity max subsidy
+  const act=db.exec('SELECT max_subsidy FROM activities WHERE id=?',[quote.activity_id]);
+  const maxSub=act.length?act[0].values[0][0]:0;
+  // Get enrollment remaining budget
+  const enr=db.exec('SELECT budget_allocated,budget_spent FROM enrollments WHERE id=?',[quote.enrollment_id]);
+  const remaining=enr.length?(enr[0].values[0][0]-enr[0].values[0][1]):0;
+  // Calculate subsidy
+  const subsidy=Math.min(maxSub, quote.total, remaining);
+  const excess=Math.max(0, quote.total-subsidy);
+
+  openModal('Assess Quote', `
+    <div style="padding:12px;background:var(--panel-alt);border-radius:var(--r);margin-bottom:16px;font-size:13px">
+      <div><strong>Quote Total:</strong> ${fmtCur(quote.total)} | <strong>Activity Max Subsidy:</strong> ${fmtCur(maxSub)} | <strong>Budget Remaining:</strong> ${fmtCur(remaining)}</div>
+      <div style="margin-top:6px"><strong>Calculated Subsidy:</strong> <span style="color:var(--green);font-weight:700">${fmtCur(subsidy)}</span> | <strong>Customer Excess:</strong> <span style="color:var(--red);font-weight:700">${fmtCur(excess)}</span></div>
+    </div>
+    <div class="form-group"><label>Decision</label>
+      <select id="aq-decision"><option value="Approved">Approve</option><option value="Rejected">Reject</option></select>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="aq-notes" placeholder="Assessment notes…"></textarea></div>
+  `, `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveAssessment('${quoteId}',${subsidy},${excess})">Save Assessment</button>`);
+}
+function saveAssessment(quoteId, subsidy, excess) {
+  const decision=document.getElementById('aq-decision').value;
+  const notes=document.getElementById('aq-notes').value.trim();
+  if(decision==='Approved'){
+    const newStatus = excess>0 ? 'Assessed' : 'ReadyForBatch'; // If no excess, go straight to ready
+    db.run('UPDATE quotes SET status=?,subsidy_amount=?,customer_excess=?,assessed_by=?,assessed_at=?,assessment_notes=? WHERE id=?',
+      [newStatus, subsidy, excess, currentUser, now(), notes||`Approved. Subsidy: ${fmtCur(subsidy)}, Excess: ${fmtCur(excess)}`, quoteId]);
+    logEvent('QuoteAssessedByStaff','Quote',quoteId,`Approved. Subsidy=${fmtCur(subsidy)}, Excess=${fmtCur(excess)}`);
+    toast('Quote Approved', excess>0?`Customer must confirm excess of ${fmtCur(excess)}.`:'Quote is ready for batching.', 'success');
+  } else {
+    db.run('UPDATE quotes SET status=?,assessed_by=?,assessed_at=?,assessment_notes=? WHERE id=?',['Cancelled',currentUser,now(),notes||'Rejected by assessor',quoteId]);
+    logEvent('QuoteRejectedByStaff','Quote',quoteId,`Rejected: ${notes}`);
+    toast('Quote Rejected','The quote has been rejected.','warning');
+  }
+  persistDB();
+  closeModal();
+  const p=document.getElementById('page-quotes');if(p)p.remove();
+  navigateTo('quotes');
+}
+
+// Confirm excess
+function confirmExcess(quoteId) {
+  db.run('UPDATE quotes SET status=? WHERE id=?',['ReadyForBatch',quoteId]);
+  logEvent('QuoteExcessConfirmedByCustomer','Quote',quoteId,'Customer confirmed excess');
+  persistDB();
+  toast('Excess Confirmed','Your quote is now ready for processing.','success');
+  closeModal();
+  const p=document.getElementById('page-quotes');if(p)p.remove();
+  navigateTo('quotes');
+}
+
+// Work reporting (Contractor)
+function reportWorkStatus(quoteId, action) {
+  if(action==='commenced'){
+    db.run("UPDATE quotes SET status='WorkCommenced' WHERE id=?",[quoteId]);
+    logEvent('WorkCommenced','Quote',quoteId,'Contractor commenced work');
+    toast('Work Commenced','Work has been started.','success');
+  } else {
+    db.run("UPDATE quotes SET status='Completed',completed_at=? WHERE id=?",[now(),quoteId]);
+    logEvent('WorkCompleted','Quote',quoteId,'Contractor reported completion');
+    toast('Work Completed','The customer will now verify the work.','success');
+  }
+  persistDB();
+  closeModal();
+  const p=document.getElementById('page-quotes');if(p)p.remove();
+  navigateTo('quotes');
+}
+
+// Verify work (Customer)
+function verifyWork(quoteId) {
+  db.run("UPDATE quotes SET status='Verified',verified_at=? WHERE id=?",[now(),quoteId]);
+  // Generate payment
+  const q=db.exec('SELECT * FROM quotes WHERE id=?',[quoteId]);
+  if(q.length){
+    const quote={}; q[0].columns.forEach((c,i)=>quote[c]=q[0].values[0][i]);
+    const netPay=quote.subsidy_amount - quote.deposit_received;
+    const payId=uid('PAY');
+    db.run('INSERT INTO payments VALUES(?,?,?,?,?,?,?,?,?)',[payId,quoteId,null,'SubsidyPayment',netPay,'Pending',uid('INV'),null,null]);
+    // Update enrollment budget
+    db.run('UPDATE enrollments SET budget_spent=budget_spent+? WHERE id=?',[quote.subsidy_amount,quote.enrollment_id]);
+    if(quote.customer_excess>0){
+      const exPay=uid('PAY');
+      db.run('INSERT INTO payments VALUES(?,?,?,?,?,?,?,?,?)',[exPay,quoteId,null,'CustomerExcess',quote.customer_excess,'Pending',uid('INV'),null,null]);
+    }
+    logEvent('WorkVerifiedByCustomer','Quote',quoteId,'Customer verified. Payment invoice generated.');
+  }
+  persistDB();
+  toast('Work Verified','Payment has been scheduled.','success');
+  closeModal();
+  const p=document.getElementById('page-quotes');if(p)p.remove();
+  navigateTo('quotes');
+}
+
+// Dispute
+function openDisputeForm(quoteId) {
+  openModal('Raise Dispute', `
+    <div class="form-group"><label>Reason for Dispute <span class="req">*</span></label><textarea id="df-reason" placeholder="Describe the issue…"></textarea></div>
+  `, `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="submitDispute('${quoteId}')">Raise Dispute</button>`);
+}
+function submitDispute(quoteId) {
+  const reason=document.getElementById('df-reason').value.trim();
+  if(!reason){toast('Validation','Please describe the issue.','error');return;}
+  db.run("UPDATE quotes SET status='Disputed',disputed_at=?,dispute_reason=? WHERE id=?",[now(),reason,quoteId]);
+  logEvent('WorkDisputedByCustomer','Quote',quoteId,`Dispute: ${reason}`);
+  persistDB();
+  toast('Dispute Raised','Home Assist will investigate.','warning');
+  closeModal();
+  const p=document.getElementById('page-quotes');if(p)p.remove();
+  navigateTo('quotes');
+}
+
+function openResolveDisputeForm(quoteId) {
+  openModal('Resolve Dispute', `
+    <div class="form-group"><label>Outcome</label>
+      <select id="rd-outcome">
+        <option value="ContractorToRework">Contractor to Rework</option>
+        <option value="PaymentWithReduction">Payment with Reduction</option>
+        <option value="QuoteCancelled">Quote Cancelled</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="rd-notes"></textarea></div>
+  `, `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveDisputeResolution('${quoteId}')">Resolve</button>`);
+}
+function saveDisputeResolution(quoteId) {
+  const outcome=document.getElementById('rd-outcome').value;
+  const notes=document.getElementById('rd-notes').value.trim();
+  const newStatus=outcome==='QuoteCancelled'?'Cancelled':(outcome==='ContractorToRework'?'WorkCommenced':'Verified');
+  db.run('UPDATE quotes SET status=?,dispute_resolved_at=?,dispute_outcome=? WHERE id=?',[newStatus,now(),outcome,quoteId]);
+  logEvent('DisputeResolved','Quote',quoteId,`Outcome: ${outcome}. ${notes}`);
+  persistDB();
+  toast('Dispute Resolved',`Outcome: ${outcome}.`,'success');
+  closeModal();
+  const p=document.getElementById('page-quotes');if(p)p.remove();
+  navigateTo('quotes');
+}
+
+// ─── BATCHES ──────────────────────────────────────────────────────────
+PAGES.batches = function() {
+  const canCreate=PERMISSIONS[currentRole].canCreateBatch;
+  let rows=db.exec('SELECT b.*, ct.business_name FROM batches b LEFT JOIN contractors ct ON b.contractor_id=ct.id');
+  let items = rows.length ? rows[0].values.map(v=>{const o={};rows[0].columns.forEach((c,i)=>o[c]=v[i]);return o;}) : [];
+  if(currentRole==='Contractor') items=items.filter(b=>b.contractor_id===currentContractorId);
+  return `<div class="page-header"><h1>Batches</h1>${canCreate?'<button class="btn btn-primary" onclick="openBatchForm()">+ Create Batch</button>':''}</div>
+    <div class="table-wrap"><table><thead><tr><th>Batch ID</th><th>Contractor</th><th>Quotes</th><th>Status</th><th>Created</th><th>Sent</th><th></th></tr></thead><tbody>
+    ${items.map(b=>{
+      const qids=JSON.parse(b.quote_ids||'[]');
+      return `<tr><td style="color:var(--text3);font-size:12px">${b.id}</td><td>${escHtml(b.business_name)}</td><td style="font-size:12px">${qids.join(', ')}</td><td>${statusBadge(b.status)}</td><td>${fmtDate(b.created_at)}</td><td>${fmtDate(b.sent_at)}</td><td>
+        ${b.status==='Pending'&&PERMISSIONS[currentRole].canSendBatch?`<button class="btn btn-sm btn-primary" onclick="sendBatch('${b.id}')">Send</button>`:''}
+        <button class="btn btn-sm btn-secondary" onclick="viewBatch('${b.id}')">View</button></td></tr>`;
+    }).join('')}
+    </tbody></table></div>`;
+};
+
+function viewBatch(id) {
+  const rows=db.exec('SELECT * FROM batches WHERE id=?',[id]);
+  if(!rows.length) return;
+  const b={}; rows[0].columns.forEach((c,i)=>b[c]=rows[0].values[0][i]);
+  const contr=db.exec('SELECT business_name FROM contractors WHERE id=?',[b.contractor_id]);
+  const qids=JSON.parse(b.quote_ids||'[]');
+  let qHtml='<table style="width:100%;margin-top:8px"><thead><tr><th>Quote</th><th>Activity</th><th>Total</th><th>Status</th></tr></thead><tbody>';
+  qids.forEach(qid=>{
+    const qr=db.exec('SELECT q.id,a.name,q.total,q.status FROM quotes q LEFT JOIN activities a ON q.activity_id=a.id WHERE q.id=?',[qid]);
+    if(qr.length) qHtml+=`<tr><td>${qr[0].values[0][0]}</td><td>${escHtml(qr[0].values[0][1])}</td><td>${fmtCur(qr[0].values[0][2])}</td><td>${statusBadge(qr[0].values[0][3])}</td></tr>`;
+  });
+  qHtml+='</tbody></table>';
+  openModal(`Batch ${b.id}`, `
+    <div class="detail-grid">
+      <div class="detail-item"><div class="dl">Contractor</div><div class="dv">${contr.length?escHtml(contr[0].values[0][0]):'—'}</div></div>
+      <div class="detail-item"><div class="dl">Status</div><div class="dv">${statusBadge(b.status)}</div></div>
+      <div class="detail-item"><div class="dl">Created</div><div class="dv">${fmtDate(b.created_at)}</div></div>
+      <div class="detail-item"><div class="dl">Sent</div><div class="dv">${fmtDate(b.sent_at)}</div></div>
+    </div>
+    <h3 style="margin-top:16px;font-size:14px">Quotes in Batch</h3>${qHtml}`);
+}
+
+function openBatchForm() {
+  // Show ReadyForBatch quotes grouped by contractor
+  const ready=db.exec("SELECT q.id,q.contractor_id,ct.business_name,a.name,q.total FROM quotes q JOIN contractors ct ON q.contractor_id=ct.id JOIN activities a ON q.activity_id=a.id WHERE q.status='ReadyForBatch'");
+  if(!ready.length){toast('No Quotes Ready','No quotes are in "Ready for Batch" status.','warning');return;}
+  // Group by contractor
+  const grouped={};
+  ready[0].values.forEach(v=>{
+    const key=v[1]; if(!grouped[key])grouped[key]={name:v[2],quotes:[]};
+    grouped[key].quotes.push({id:v[0],act:v[3],total:v[4]});
+  });
+  let html='<div class="form-group"><label>Select Contractor</label><select id="bf-contr" onchange="updateBatchQuotes()">';
+  Object.entries(grouped).forEach(([id,g])=>html+=`<option value="${id}">${g.name} (${g.quotes.length} quote(s))</option>`);
+  html+='</select></div><div id="bf-quotes"></div>';
+  openModal('Create Batch', html, `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveBatch()">Create Batch</button>`);
+  updateBatchQuotes();
+}
+function updateBatchQuotes() {
+  const contrId=document.getElementById('bf-contr')?.value;if(!contrId)return;
+  const ready=db.exec("SELECT q.id,a.name,q.total FROM quotes q JOIN activities a ON q.activity_id=a.id WHERE q.status='ReadyForBatch' AND q.contractor_id=?",[contrId]);
+  let html='';
+  if(ready.length) ready[0].values.forEach(v=>{
+    html+=`<label style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px"><input type="checkbox" class="bf-qcheck" value="${v[0]}" checked>${v[0]} — ${escHtml(v[1])} — ${fmtCur(v[2])}</label>`;
+  });
+  document.getElementById('bf-quotes').innerHTML=html;
+}
+function saveBatch() {
+  const contrId=document.getElementById('bf-contr').value;
+  const checks=document.querySelectorAll('.bf-qcheck:checked');
+  const qids=[...checks].map(c=>c.value);
+  if(!qids.length){toast('Validation','Select at least one quote.','error');return;}
+  const id=uid('BATCH');
+  db.run('INSERT INTO batches VALUES(?,?,?,?,?,?)',[id,contrId,JSON.stringify(qids),'Pending',now(),null]);
+  logEvent('BatchCreated','Batch',id,`Quotes: ${qids.join(',')}`);
+  persistDB();
+  toast('Batch Created',`Batch ${id} with ${qids.length} quote(s).`,'success');
+  closeModal();
+  const p=document.getElementById('page-batches');if(p)p.remove();
+  navigateTo('batches');
+}
+function sendBatch(batchId) {
+  // Check all quotes in batch are ReadyForBatch
+  const b=db.exec('SELECT quote_ids FROM batches WHERE id=?',[batchId]);
+  if(!b.length)return;
+  const qids=JSON.parse(b[0].values[0][0]);
+  const notReady=qids.filter(qid=>{const s=db.exec('SELECT status FROM quotes WHERE id=?',[qid]);return s.length&&s[0].values[0][0]!=='ReadyForBatch';});
+  if(notReady.length){toast('Cannot Send',`Quotes not ready: ${notReady.join(', ')}.`,'error');return;}
+  db.run('UPDATE batches SET status=?,sent_at=? WHERE id=?',['Sent',now(),batchId]);
+  logEvent('BatchSentToContractor','Batch',batchId,'Batch sent');
+  persistDB();
+  toast('Batch Sent','The contractor has been notified.','success');
+  const p=document.getElementById('page-batches');if(p)p.remove();
+  navigateTo('batches');
+}
+
+// ─── PAYMENTS ─────────────────────────────────────────────────────────
+PAGES.payments = function() {
+  let rows=db.exec('SELECT p.*,q.customer_id,c.first_name,c.last_name,ct.business_name FROM payments p LEFT JOIN quotes q ON p.quote_id=q.id LEFT JOIN customers c ON q.customer_id=c.id LEFT JOIN contractors ct ON q.contractor_id=ct.id');
+  let items = rows.length ? rows[0].values.map(v=>{const o={};rows[0].columns.forEach((c,i)=>o[c]=v[i]);return o;}) : [];
+  if(currentRole==='Customer') items=items.filter(p=>p.customer_id===currentCustomerId);
+  if(currentRole==='Contractor') {
+    const myQuotes=db.exec('SELECT id FROM quotes WHERE contractor_id=?',[currentContractorId]);
+    const myQids=myQuotes.length?myQuotes[0].values.map(v=>v[0]):[];
+    items=items.filter(p=>myQids.includes(p.quote_id));
+  }
+  return `<div class="page-header"><h1>Payments</h1></div>
+    <div class="table-wrap"><table><thead><tr><th>Payment ID</th><th>Quote</th><th>Type</th><th>Customer</th><th>Contractor</th><th>Amount</th><th>Invoice</th><th>Status</th><th></th></tr></thead><tbody>
+    ${items.map(p=>`<tr><td style="color:var(--text3);font-size:12px">${p.id}</td><td>${p.quote_id}</td><td><span class="badge badge-blue">${escHtml(p.type)}</span></td><td>${escHtml((p.first_name||'')+' '+(p.last_name||''))}</td><td>${escHtml(p.business_name||'—')}</td><td><strong>${fmtCur(p.amount)}</strong></td><td style="font-size:12px">${escHtml(p.invoice_number||'—')}</td><td>${statusBadge(p.status)}</td><td>${p.status==='Pending'&&PERMISSIONS[currentRole].canMakePayment?`<button class="btn btn-sm btn-primary" onclick="markPaymentPaid('${p.id}')">Mark Paid</button>`:''}</td></tr>`).join('')}
+    </tbody></table></div>`;
+};
+function markPaymentPaid(payId) {
+  const ref='TXN-'+uid('REF');
+  db.run('UPDATE payments SET status=?,paid_at=?,payment_ref=? WHERE id=?',['Paid',now(),ref,payId]);
+  logEvent('PaymentMadeToContractor','Payment',payId,`Paid. Ref: ${ref}`);
+  persistDB();
+  toast('Payment Marked Paid',`Reference: ${ref}`,'success');
+  const p=document.getElementById('page-payments');if(p)p.remove();
+  navigateTo('payments');
+}
+
+// ─── DISPUTES ─────────────────────────────────────────────────────────
+PAGES.disputes = function() {
+  const rows=db.exec("SELECT q.*,c.first_name,c.last_name,ct.business_name,a.name as act_name FROM quotes q JOIN customers c ON q.customer_id=c.id JOIN contractors ct ON q.contractor_id=ct.id JOIN activities a ON q.activity_id=a.id WHERE q.status IN ('Disputed')");
+  const items=rows.length?rows[0].values.map(v=>{const o={};rows[0].columns.forEach((c,i)=>o[c]=v[i]);return o;}).sort((a,b)=>new Date(b.disputed_at)-new Date(a.disputed_at)):[];
+  return `<div class="page-header"><h1>Open Disputes</h1></div>
+    <div class="table-wrap"><table><thead><tr><th>Quote</th><th>Customer</th><th>Contractor</th><th>Activity</th><th>Reason</th><th>Raised</th><th></th></tr></thead><tbody>
+    ${items.length?items.map(d=>`<tr><td>${d.id}</td><td>${escHtml(d.first_name)} ${escHtml(d.last_name)}</td><td>${escHtml(d.business_name)}</td><td>${escHtml(d.act_name)}</td><td style="font-size:12px;color:var(--red)">${escHtml(d.dispute_reason)}</td><td>${fmtDate(d.disputed_at)}</td><td><button class="btn btn-sm btn-primary" onclick="openResolveDisputeForm('${d.id}')">Resolve</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:24px">No open disputes.</td></tr>'}
+    </tbody></table></div>`;
+};
+
+// ─── REPORTS ──────────────────────────────────────────────────────────
+PAGES.reports = function() {
+  // Summary stats
+  const totalCust=db.exec('SELECT COUNT(*) as c FROM customers')[0].values[0][0];
+  const totalAlloc=db.exec('SELECT COALESCE(SUM(budget_allocated),0) as s FROM enrollments')[0].values[0][0];
+  const totalSpent=db.exec('SELECT COALESCE(SUM(budget_spent),0) as s FROM enrollments')[0].values[0][0];
+  const totalPaid=db.exec("SELECT COALESCE(SUM(amount),0) as s FROM payments WHERE status='Paid'")[0].values[0][0];
+  const byRegion=db.exec('SELECT region, COUNT(*) as c FROM customers GROUP BY region');
+  let regionRows='';
+  if(byRegion.length) byRegion[0].values.forEach(v=>regionRows+=`<tr><td>${escHtml(v[0])}</td><td>${v[1]}</td></tr>`);
+
+  return `<div class="page-header"><h1>Reports & Export</h1></div>
+    <div class="kpi-row">
+      <div class="kpi-card"><div class="label">Total Customers</div><div class="value">${totalCust}</div></div>
+      <div class="kpi-card"><div class="label">Total Allocated</div><div class="value">${fmtCur(totalAlloc)}</div></div>
+      <div class="kpi-card"><div class="label">Total Spent</div><div class="value green">${fmtCur(totalSpent)}</div></div>
+      <div class="kpi-card"><div class="label">Total Paid Out</div><div class="value green">${fmtCur(totalPaid)}</div></div>
+      <div class="kpi-card"><div class="label">Utilisation</div><div class="value">${totalAlloc?((totalSpent/totalAlloc)*100).toFixed(1):'0'}%</div><div class="hint">Budget spent / allocated</div></div>
+    </div>
+    <div class="table-wrap"><div class="table-toolbar"><strong>Customers by Region</strong></div>
+      <table><thead><tr><th>Region</th><th>Customers</th></tr></thead><tbody>${regionRows||'<tr><td colspan="2" style="text-align:center;color:var(--text3)">No data</td></tr>'}</tbody></table></div>
+    <div style="margin-top:20px"><button class="btn btn-primary" onclick="exportCSV()">📥 Export Payments CSV</button></div>`;
+};
+function exportCSV() {
+  const rows=db.exec('SELECT * FROM payments');
+  if(!rows.length){toast('No Data','Nothing to export.','warning');return;}
+  let csv=rows[0].columns.join(',')+'\n';
+  rows[0].values.forEach(v=>csv+=v.map(x=>'"'+(String(x||'').replace(/"/g,'""'))+'"').join(',')+'\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='has_payments.csv';a.click();
+  toast('Exported','Payments CSV downloaded.','success');
+}
+
+// ─── AUDIT LOG ────────────────────────────────────────────────────────
+PAGES.auditlog = function() {
+  return `<div class="page-header"><h1>Audit Log</h1></div>
+    <div class="table-wrap">
+      <div class="table-toolbar"><input type="text" placeholder="Search event type, entity…" id="auditSearch" oninput="renderAuditTable()"></div>
+      <table><thead><tr><th>#</th><th>Event</th><th>Entity</th><th>Actor</th><th>Details</th><th>When</th></tr></thead><tbody id="auditTableBody"></tbody></table>
+    </div>`;
+};
+PAGES_INIT.auditlog = function() { renderAuditTable(); };
+function renderAuditTable() {
+  const search=(document.getElementById('auditSearch')?.value||'').toLowerCase();
+  const rows=db.exec('SELECT * FROM audit_log ORDER BY id DESC');
+  let items=rows.length?rows[0].values:[]; 
+  if(search) items=items.filter(v=>`${v[1]} ${v[2]} ${v[3]} ${v[4]}`.toLowerCase().includes(search));
+  document.getElementById('auditTableBody').innerHTML=items.slice(0,50).map(v=>
+    `<tr><td style="color:var(--text3)">${v[0]}</td><td>${escHtml(v[1])}</td><td>${escHtml(v[2]+': '+v[3])}</td><td>${escHtml(v[4])}</td><td style="font-size:12px;color:var(--text2)">${escHtml(v[5])}</td><td style="color:var(--text3);font-size:12px;white-space:normal">${fmtDate(v[6])}</td></tr>`
+  ).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px">No log entries.</td></tr>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════════════════════
+(function boot(attempt = 0) {
+  if (typeof window.initSqlJs === 'undefined') {
+    if (attempt < 100) {  // Wait up to 5 seconds (100 × 50ms)
+      setTimeout(() => boot(attempt + 1), 50);
+    } else {
+      document.body.innerHTML = '<div style="padding:40px;text-align:center;font-family:system-ui"><h2 style="color:#dc2626">SQL.js failed to load</h2><p style="margin-top:16px;color:#64748b">The SQL.js library could not be loaded from the CDN. Please check your internet connection and refresh the page.</p></div>';
+      console.error('SQL.js library failed to load after 5 seconds');
+    }
+    return;
+  }
+  initDB().then(() => { console.log('Home Assist Secure — ready.'); });
+})();
+</script>
+</body>
+</html>
