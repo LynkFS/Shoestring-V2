@@ -46,7 +46,7 @@ Application.CreateForm('FormBooksRaw',  TFormBooksRaw);
 ApplyTheme;
 
 //show initial form
-//Application.GoToForm('Kitchensink');
+Application.GoToForm('Kitchensink');
 //Application.GoToForm('InvoiceList');
 //Application.GoToForm('HASLogin');
 //Application.GoToForm('SemanticZoom');
@@ -54,7 +54,7 @@ ApplyTheme;
 //Application.GoToForm('FormNoise');
 //Application.GoToForm('FormInputs');
 //Application.GoToForm('FormSQL1');
-Application.GoToForm('FormBooks');
+//Application.GoToForm('FormBooks');
 //Application.GoToForm('FormBooksRaw');
 
 ///////////////////////////////////////////////////////////////
