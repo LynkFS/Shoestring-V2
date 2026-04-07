@@ -62,6 +62,7 @@ begin
     .split-shell {
       display: grid;
       height: 100vh;
+      height: 100dvh;
       grid-template-columns: var(--split-left-width, 1fr) var(--split-right-width, 1fr);
       gap: var(--split-gap, 0);
     }

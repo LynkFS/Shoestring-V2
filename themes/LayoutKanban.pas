@@ -81,6 +81,7 @@ begin
 
     .kb-shell {
       height: 100vh;
+      height: 100dvh;
       overflow: hidden;
     }
 

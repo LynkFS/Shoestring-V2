@@ -77,6 +77,7 @@ begin
     .hg-shell {
       display: grid;
       height: 100vh;
+      height: 100dvh;
       grid-template-areas:
         "header header header"
         "nav    center aside"

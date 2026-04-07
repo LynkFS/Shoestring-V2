@@ -2,28 +2,30 @@ unit JDataGrid;
 
 // ═══════════════════════════════════════════════════════════════════════════
 //
-//  JW3DataGrid — Simple Data Grid
+//  JW3DataGrid — Virtualized Data Grid
 //
-//  All rows live in the DOM. The browser handles scrolling natively.
-//  No sentinel, no row map, no virtual viewport — just a real <table>.
+//  Virtual scrolling: only visible rows (+ overscan) live in the DOM.
+//  Two height-spacer <tr> elements maintain correct scroll height.
 //
 //  Features:
 //    Column definitions with optional width, alignment, sortable, editable
 //    Header click sort (asc / desc / clear)
 //    Row selection with OnSelectRow event
 //    Cell-level focus with arrow/tab keyboard navigation
-//    Column resize via drag handle on header edge
+//    Column resize via drag handle — rAF-throttled, col elements updated
 //    Inline cell editing (double-click or F2), OnCellEdit event
 //    Ctrl+C / Cmd+C copies focused cell
 //    ARIA roles for accessibility
 //    Event delegation — one listener per event type, not per cell
 //
-//  Remaining asm blocks (5):
+//  Remaining asm blocks:
 //    - SafeStr helper (JS undefined/null check)
 //    - Sort comparator (inline function with typeof/localeCompare)
-//    - Dynamic field read on data objects (3x bracket notation)
+//    - Dynamic field read/write on data objects (bracket notation)
 //    - navigator.clipboard API
 //    - setTimeout in edit blur handler
+//    - Virtual scroll row removal (between-spacer sibling loop)
+//    - requestAnimationFrame for resize throttle
 //
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -85,23 +87,35 @@ type
     FTHead:       variant;
     FTBody:       variant;
 
+    // Virtual scroll
+    FVStart:      Integer;
+    FVEnd:        Integer;
+    FVOverscan:   Integer;
+    FTopSpacer:   variant;
+    FBotSpacer:   variant;
+
     FEditing:     Boolean;
     FEditInput:   variant;
     FEditViewRow: Integer;
     FEditCol:     Integer;
 
-    FResizing:    Boolean;
-    FResizeCol:   Integer;
-    FResizeStartX: Integer;
-    FResizeStartW: Integer;
+    FResizing:         Boolean;
+    FResizeCol:        Integer;
+    FResizeStartX:     Integer;
+    FResizeStartW:     Integer;
+    FResizeRafPending: Boolean;
+    FResizePendingW:   Integer;
 
     FOnSelectRow: TGridSelectRowEvent;
     FOnCellEdit:  TGridCellEditEvent;
 
     procedure BuildStructure;
     procedure BuildColGroup(Table: variant);
+    procedure UpdateColWidthDOM(ColIdx, NewWidth: Integer);
     procedure RenderHeader;
-    procedure RenderBody;
+    procedure UpdateVirtualWindow;
+    procedure RefreshBody;
+    function  BuildRowDOM(vi: Integer): variant;
 
     procedure HandleHeaderClick(ColIndex: Integer);
     procedure ApplySort(ColIndex: Integer);
@@ -176,14 +190,18 @@ begin
   SetAttribute('role', 'grid');
   SetAttribute('tabindex', '0');
 
-  FSortCol     := -1;
-  FSortDir     := sdNone;
-  FFocusRow    := -1;
-  FFocusCol    := -1;
-  FSelectedRow := -1;
-  FRowHeight   := 40;
-  FEditing     := false;
-  FResizing    := false;
+  FSortCol          := -1;
+  FSortDir          := sdNone;
+  FFocusRow         := -1;
+  FFocusCol         := -1;
+  FSelectedRow      := -1;
+  FRowHeight        := 40;
+  FEditing          := false;
+  FResizing         := false;
+  FResizeRafPending := false;
+  FVStart           := -1;
+  FVEnd             := -1;
+  FVOverscan        := 5;
 
   BuildStructure;
 
@@ -200,13 +218,12 @@ var
   el: variant;
   hdiv, htbl, thead: variant;
   bdiv, btbl, tbody: variant;
+  topTd, botTd: variant;
 begin
   el := Self.Handle;
 
-  // Header
   hdiv := document.createElement('div');
   hdiv.className := 'dg-header-wrap';
-  hdiv.style.display := 'block';
   el.appendChild(hdiv);
   FHeaderWrap := hdiv;
 
@@ -219,12 +236,8 @@ begin
   htbl.appendChild(thead);
   FTHead := thead;
 
-  // Body
   bdiv := document.createElement('div');
   bdiv.className := 'dg-body-wrap';
-  bdiv.style.display := 'block';
-  bdiv.style.flexGrow := '1';
-  bdiv.style.overflowY := 'auto';
   el.appendChild(bdiv);
   FBodyWrap := bdiv;
 
@@ -237,12 +250,28 @@ begin
   btbl.appendChild(tbody);
   FTBody := tbody;
 
-  // ── Event delegation ─────────────────────────────────────────────
-  // All using Pascal anonymous procedures + variant event properties.
-  // These survive re-renders because listeners are on persistent
-  // parent elements, not on individual cells.
+  // Top virtual-scroll spacer
+  FTopSpacer := document.createElement('tr');
+  FTopSpacer.className := 'dg-spacer';
+  topTd := document.createElement('td');
+  topTd.style.height  := '0px';
+  topTd.style.padding := '0';
+  topTd.style.border  := 'none';
+  FTopSpacer.appendChild(topTd);
+  tbody.appendChild(FTopSpacer);
 
-  // Header: sort click (skip resize handles)
+  // Bottom virtual-scroll spacer
+  FBotSpacer := document.createElement('tr');
+  FBotSpacer.className := 'dg-spacer';
+  botTd := document.createElement('td');
+  botTd.style.height  := '0px';
+  botTd.style.padding := '0';
+  botTd.style.border  := 'none';
+  FBotSpacer.appendChild(botTd);
+  tbody.appendChild(FBotSpacer);
+
+  // ── Event delegation ─────────────────────────────────────────────
+
   thead.onclick := procedure(e: variant)
   begin
     var b: boolean := e.target.classList.contains('dg-resize-handle');
@@ -250,7 +279,6 @@ begin
     HandleHeaderClick(e.target.cellIndex);
   end;
 
-  // Header: resize handle mousedown
   thead.onmousedown := procedure(e: variant)
   begin
     var b: boolean := e.target.classList.contains('dg-resize-handle');
@@ -260,7 +288,8 @@ begin
     BeginResize(e.target.parentElement.cellIndex, e.clientX);
   end;
 
-  // Body: cell click
+  // sectionRowIndex: 0 = FTopSpacer, 1..N = rendered rows
+  // ViewIdx = FVStart + (sectionRowIndex - 1)
   tbody.onclick := procedure(e: variant)
   begin
     var editing := e.target.closest('.dg-editing');
@@ -268,10 +297,9 @@ begin
     var td := e.target.closest('.dg-td');
     if td = nil then exit;
     var tr := td.parentElement;
-    HandleCellClick(tr.sectionRowIndex, td.cellIndex);
+    HandleCellClick(FVStart + tr.sectionRowIndex - 1, td.cellIndex);
   end;
 
-  // Body: cell double-click
   tbody.ondblclick := procedure(e: variant)
   begin
     var editing := e.target.closest('.dg-editing');
@@ -279,13 +307,14 @@ begin
     var td := e.target.closest('.dg-td');
     if td = nil then exit;
     var tr := td.parentElement;
-    HandleCellDblClick(tr.sectionRowIndex, td.cellIndex);
+    HandleCellDblClick(FVStart + tr.sectionRowIndex - 1, td.cellIndex);
   end;
 
-  // Scroll sync: header follows body horizontal scroll
+  // Scroll: sync header + update virtual window
   bdiv.onscroll := procedure
   begin
     FHeaderWrap.scrollLeft := bdiv.scrollLeft;
+    UpdateVirtualWindow;
   end;
 end;
 
@@ -324,23 +353,37 @@ begin
   for var i := 0 to FColumns.length - 1 do
   begin
     var col := document.createElement('col');
-    var w := FColumns[i].Width;
-    if w > 0 then col.style.width := IntToStr(w) + 'px';
+    if FColumns[i].Width > 0 then
+      col.style.width := IntToStr(FColumns[i].Width) + 'px';
     cg.appendChild(col);
   end;
   Table.insertBefore(cg, Table.firstChild);
 end;
 
+// Update a single column width on existing <col> elements — no DOM rebuild
+procedure JW3DataGrid.UpdateColWidthDOM(ColIdx, NewWidth: Integer);
+var
+  hcg, bcg: variant;
+begin
+  hcg := FHeaderTable.querySelector('colgroup');
+  if hcg then hcg.children[ColIdx].style.width := IntToStr(NewWidth) + 'px';
+
+  bcg := FBodyTable.querySelector('colgroup');
+  if bcg then bcg.children[ColIdx].style.width := IntToStr(NewWidth) + 'px';
+end;
+
 
 // ═════════════════════════════════════════════════════════════════════════
-// Render header
+// Render header (called once per full Refresh; not called on sort/filter)
 // ═════════════════════════════════════════════════════════════════════════
 
 procedure JW3DataGrid.RenderHeader;
 var
   tr, th, handle: variant;
+  n: String;
 begin
   BuildColGroup(FHeaderTable);
+  BuildColGroup(FBodyTable);
 
   FTHead.innerHTML := '';
   tr := document.createElement('tr');
@@ -353,9 +396,8 @@ begin
     th.textContent := FColumns[i].Caption;
     th.setAttribute('role', 'columnheader');
     th.setAttribute('aria-sort', 'none');
-
-    var align := FColumns[i].Align;
-    if align <> 'left' then th.style.textAlign := align;
+    if FColumns[i].Align <> 'left' then
+      th.style.textAlign := FColumns[i].Align;
 
     handle := document.createElement('div');
     handle.className := 'dg-resize-handle';
@@ -363,66 +405,131 @@ begin
 
     tr.appendChild(th);
   end;
+
+  // Keep spacer colspan in sync so the table lays out correctly
+  n := IntToStr(FColumns.length);
+  FTopSpacer.firstChild.setAttribute('colspan', n);
+  FBotSpacer.firstChild.setAttribute('colspan', n);
 end;
 
 
 // ═════════════════════════════════════════════════════════════════════════
-// Render body — all rows, browser handles scrolling
+// Virtual scroll — render only the visible window + overscan
 // ═════════════════════════════════════════════════════════════════════════
 
-procedure JW3DataGrid.RenderBody;
+procedure JW3DataGrid.UpdateVirtualWindow;
 var
-  tr, td: variant;
-  row: variant;
+  scrollTop, viewHeight: Integer;
+  firstVis, lastVis: Integer;
+  newStart, newEnd: Integer;
+  botH: Integer;
 begin
-  FTBody.innerHTML := '';
-  BuildColGroup(FBodyTable);
-
+  // ── Empty state ──────────────────────────────────────────────────
   if FView.Count = 0 then
   begin
-    tr := document.createElement('tr');
-    td := document.createElement('td');
-    td.className := 'dg-empty';
-    td.setAttribute('colspan', IntToStr(FColumns.length));
-    td.textContent := 'No data';
-    tr.appendChild(td);
-    FTBody.appendChild(tr);
-  end;
-
-  for var vi := 0 to FView.Count - 1 do
-  begin
-    var dataIdx := FView[vi];
-    row := FData[dataIdx];
-
-    tr := document.createElement('tr');
-    tr.className := 'dg-row';
-    tr.setAttribute('role', 'row');
-
-    for var ci := 0 to FColumns.length - 1 do
-    begin
-      td := document.createElement('td');
-      td.className := 'dg-td';
-      td.setAttribute('role', 'gridcell');
-
-      var field := FColumns[ci].Field;
-      td.textContent := SafeStr(row[field]);
-
-      var align := FColumns[ci].Align;
-      if align <> 'left' then td.style.textAlign := align;
-
-      tr.appendChild(td);
+    asm
+      var top = @FTopSpacer; var bot = @FBotSpacer;
+      while (top.nextSibling && top.nextSibling !== bot)
+        top.nextSibling.remove();
     end;
+    FTopSpacer.firstChild.style.height := '0px';
+    FBotSpacer.firstChild.style.height := '0px';
+    FVStart := -1;
+    FVEnd   := -1;
 
-    FTBody.appendChild(tr);
+    var emptyTr := document.createElement('tr');
+    var emptyTd := document.createElement('td');
+    emptyTd.className := 'dg-empty';
+    emptyTd.setAttribute('colspan', IntToStr(FColumns.length));
+    emptyTd.textContent := 'No data';
+    emptyTr.appendChild(emptyTd);
+    FTBody.insertBefore(emptyTr, FBotSpacer);
+    exit;
   end;
 
-  // Re-apply visual states after re-render
-  if (FSelectedRow >= 0) and (FSelectedRow < FView.Count) then
+  // ── Calculate visible window ─────────────────────────────────────
+  scrollTop  := FBodyWrap.scrollTop;
+  viewHeight := FBodyWrap.clientHeight;
+  if viewHeight <= 0 then viewHeight := 400;
+
+  firstVis := scrollTop div FRowHeight;
+  lastVis  := (scrollTop + viewHeight - 1) div FRowHeight;
+
+  newStart := firstVis - FVOverscan;
+  if newStart < 0 then newStart := 0;
+
+  newEnd := lastVis + FVOverscan;
+  if newEnd >= FView.Count then newEnd := FView.Count - 1;
+
+  // No change — skip DOM work
+  if (newStart = FVStart) and (newEnd = FVEnd) then exit;
+
+  FVStart := newStart;
+  FVEnd   := newEnd;
+
+  // ── Remove old rendered rows between spacers ─────────────────────
+  asm
+    var top = @FTopSpacer; var bot = @FBotSpacer;
+    while (top.nextSibling && top.nextSibling !== bot)
+      top.nextSibling.remove();
+  end;
+
+  // ── Top spacer ───────────────────────────────────────────────────
+  FTopSpacer.firstChild.style.height := IntToStr(FVStart * FRowHeight) + 'px';
+
+  // ── Render visible rows ───────────────────────────────────────────
+  for var vi := FVStart to FVEnd do
+    FTBody.insertBefore(BuildRowDOM(vi), FBotSpacer);
+
+  // ── Bottom spacer ─────────────────────────────────────────────────
+  botH := (FView.Count - FVEnd - 1) * FRowHeight;
+  if botH < 0 then botH := 0;
+  FBotSpacer.firstChild.style.height := IntToStr(botH) + 'px';
+end;
+
+// Build one <tr> for view index vi
+function JW3DataGrid.BuildRowDOM(vi: Integer): variant;
+var
+  dataIdx: Integer;
+  row: variant;
+  tr, td: variant;
+begin
+  dataIdx := FView[vi];
+  row     := FData[dataIdx];
+
+  tr := document.createElement('tr');
+  tr.className := 'dg-row';
+  tr.setAttribute('role', 'row');
+  tr.setAttribute('aria-rowindex', IntToStr(vi + 1));
+
+  if vi = FSelectedRow then
+    tr.classList.add('dg-row-selected');
+
+  for var ci := 0 to FColumns.length - 1 do
   begin
-    tr := FTBody.rows[FSelectedRow];
-    if tr then tr.classList.add('dg-row-selected');
+    td := document.createElement('td');
+    td.className := 'dg-td';
+    td.setAttribute('role', 'gridcell');
+    td.textContent := SafeStr(row[FColumns[ci].Field]);
+
+    if FColumns[ci].Align <> 'left' then
+      td.style.textAlign := FColumns[ci].Align;
+
+    if (vi = FFocusRow) and (ci = FFocusCol) then
+      td.classList.add('dg-cell-focused');
+
+    tr.appendChild(td);
   end;
-  FocusCellDOM;
+
+  Result := tr;
+end;
+
+// Refresh body only — used after sort/filter; does not rebuild the header
+procedure JW3DataGrid.RefreshBody;
+begin
+  FVStart := -1;
+  FVEnd   := -1;
+  UpdateVirtualWindow;
 end;
 
 
@@ -462,27 +569,27 @@ begin
 end;
 
 procedure JW3DataGrid.Refresh;
-var
-  el: variant;
 begin
-  el := Self.Handle;
-  el.style.setProperty('--dg-row-height', IntToStr(FRowHeight) + 'px');
-
+  Self.Handle.style.setProperty('--dg-row-height', IntToStr(FRowHeight) + 'px');
   RenderHeader;
-  RenderBody;
   UpdateSortIndicators;
+  FVStart := -1;
+  FVEnd   := -1;
+  UpdateVirtualWindow;
 end;
 
 
 // ═════════════════════════════════════════════════════════════════════════
-// Element access — no row map, just table.rows / row.cells
+// Element access — maps view index into the virtual DOM window
 // ═════════════════════════════════════════════════════════════════════════
 
+// tbody.rows layout: [0]=FTopSpacer, [1..N]=rendered rows, [N+1]=FBotSpacer
+// A view index is rendered iff FVStart <= ViewIdx <= FVEnd
 function JW3DataGrid.GetRowElement(ViewIdx: Integer): variant;
 begin
   Result := nil;
-  if (ViewIdx >= 0) and (ViewIdx < FView.Count) then
-    Result := FTBody.rows[ViewIdx];
+  if (ViewIdx < FVStart) or (ViewIdx > FVEnd) then exit;
+  Result := FTBody.rows[ViewIdx - FVStart + 1];
 end;
 
 function JW3DataGrid.GetCellElement(ViewIdx, ColIdx: Integer): variant;
@@ -539,7 +646,8 @@ begin
   end;
 
   SortView;
-  Refresh;
+  UpdateSortIndicators;  // class-only update — no header DOM rebuild
+  RefreshBody;           // body only — header unchanged by sort
 end;
 
 procedure JW3DataGrid.SortView;
@@ -551,11 +659,10 @@ begin
   Field := FColumns[FSortCol].Field;
   if FSortDir = sdAsc then Dir := 1 else Dir := -1;
 
-  // Sort comparator needs asm for inline function + typeof + localeCompare
   asm
-    var data = @self.FData;
+    var data  = @self.FData;
     var field = @Field;
-    var dir = @Dir;
+    var dir   = @Dir;
     (@FView).sort(function(a, b) {
       var va = data[a][field];
       var vb = data[b][field];
@@ -582,7 +689,8 @@ begin
   FSelectedRow := -1;
   FFocusRow    := -1;
   FFocusCol    := -1;
-  Refresh;
+  UpdateSortIndicators;
+  RefreshBody;
 end;
 
 procedure JW3DataGrid.UpdateSortIndicators;
@@ -651,6 +759,18 @@ end;
 procedure JW3DataGrid.HandleCellClick(ViewIdx, ColIdx: Integer);
 begin
   if FEditing then CommitEdit;
+
+  // Second tap on the already-focused editable cell → begin edit.
+  // Handles mobile where dblclick does not fire; on desktop the user can
+  // still use dblclick for a faster path.
+  if (FFocusRow = ViewIdx) and (FFocusCol = ColIdx) and
+     (ColIdx >= 0) and (ColIdx < FColumns.Count) and
+     FColumns[ColIdx].Editable then
+  begin
+    BeginEdit(ViewIdx, ColIdx);
+    exit;
+  end;
+
   ClearCellFocusDOM;
   FFocusRow := ViewIdx;
   FFocusCol := ColIdx;
@@ -676,23 +796,28 @@ begin
   if td then td.classList.remove('dg-cell-focused');
 end;
 
+// Scroll to row using arithmetic position (no layout read).
+// Forces a synchronous virtual-window update so the row is in the DOM
+// before the caller proceeds to FocusCellDOM / GetCellElement.
 procedure JW3DataGrid.ScrollToRow(ViewIdx: Integer);
 var
-  tr: variant;
   rowTop, rowBottom, scrollTop, viewHeight: Integer;
 begin
-  tr := GetRowElement(ViewIdx);
-  if not tr then exit;
-
-  rowTop     := tr.offsetTop;
-  rowBottom  := rowTop + tr.offsetHeight;
+  rowTop     := ViewIdx * FRowHeight;
+  rowBottom  := rowTop + FRowHeight;
   scrollTop  := FBodyWrap.scrollTop;
   viewHeight := FBodyWrap.clientHeight;
+  if viewHeight <= 0 then viewHeight := 400;
 
   if rowTop < scrollTop then
     FBodyWrap.scrollTop := rowTop
   else if rowBottom > scrollTop + viewHeight then
     FBodyWrap.scrollTop := rowBottom - viewHeight;
+
+  // Synchronous refresh so subsequent DOM queries find the row
+  FVStart := -1;
+  FVEnd   := -1;
+  UpdateVirtualWindow;
 end;
 
 
@@ -704,7 +829,6 @@ procedure JW3DataGrid.HandleCellDblClick(ViewIdx, ColIdx: Integer);
 begin
   if (ColIdx < 0) or (ColIdx >= FColumns.Count) then exit;
   if not FColumns[ColIdx].Editable then exit;
-
   ClearCellFocusDOM;
   FFocusRow := ViewIdx;
   FFocusCol := ColIdx;
@@ -715,9 +839,7 @@ end;
 procedure JW3DataGrid.BeginEdit(ViewIdx, ColIdx: Integer);
 var
   td, input: variant;
-  currentVal: String;
   dataIdx: Integer;
-  field: String;
 begin
   if FEditing then CommitEdit;
   if (ColIdx < 0) or (ColIdx >= FColumns.Count) then exit;
@@ -727,8 +849,6 @@ begin
   if not td then exit;
 
   dataIdx := FView[ViewIdx];
-  field   := FColumns[ColIdx].Field;
-  currentVal := FData[dataIdx][field];
 
   FEditing     := true;
   FEditViewRow := ViewIdx;
@@ -739,16 +859,15 @@ begin
   td.textContent := '';
 
   input := document.createElement('input');
-  input.&type := 'text';
+  input.&type    := 'text';
   input.className := 'dg-edit-input';
-  input.value := currentVal;
+  input.value    := FData[dataIdx][FColumns[ColIdx].Field];
   td.appendChild(input);
   FEditInput := input;
 
   input.focus;
   input.select;
 
-  // Keyboard handler on the edit input
   input.onkeydown := procedure(e: variant)
   begin
     if e.key = 'Enter' then
@@ -783,16 +902,13 @@ begin
       end;
     end
     else
-    begin
       e.stopPropagation;
-    end;
   end;
 
-  // Blur: commit on focus loss (setTimeout lets Tab handler fire first)
   input.onblur := procedure
   begin
     if FEditing then
-      asm setTimeout(function() { @CommitEdit(); }, 0); end;
+      asm setTimeout(function() { @self.CommitEdit(); }, 0); end;
   end;
 end;
 
@@ -807,17 +923,13 @@ begin
   if not FEditing then exit;
   FEditing := false;
 
-  if FEditInput then
-    newVal := FEditInput.value
-  else
-    newVal := '';
+  if FEditInput then newVal := FEditInput.value
+  else newVal := '';
 
   dataIdx := FView[FEditViewRow];
   field   := FColumns[FEditCol].Field;
+  oldVal  := FData[dataIdx][field];
 
-  // Dynamic field read/write on JS object
-
-  oldVal := FData[dataIdx][field];
   FData[dataIdx][field] := newVal;
 
   td := GetCellElement(FEditViewRow, FEditCol);
@@ -838,18 +950,12 @@ end;
 procedure JW3DataGrid.CancelEdit;
 var
   td: variant;
-  dataIdx: Integer;
-  field: String;
   originalVal: String;
 begin
   if not FEditing then exit;
   FEditing := false;
 
-  dataIdx := FView[FEditViewRow];
-  field   := FColumns[FEditCol].Field;
-
-  // Dynamic field read on JS object
-  originalVal := FData[dataIdx][field];
+  originalVal := FData[FView[FEditViewRow]][FColumns[FEditCol].Field];
 
   td := GetCellElement(FEditViewRow, FEditCol);
   if td then
@@ -865,38 +971,35 @@ end;
 
 
 // ═════════════════════════════════════════════════════════════════════════
-// Column resize
+// Column resize — rAF-throttled; updates <col> elements, no colgroup rebuild
 // ═════════════════════════════════════════════════════════════════════════
 
 procedure JW3DataGrid.BeginResize(ColIdx, ScreenX: Integer);
 var
   th: variant;
-  body: variant;
 begin
-  FResizing     := true;
-  FResizeCol    := ColIdx;
-  FResizeStartX := ScreenX;
+  FResizing         := true;
+  FResizeCol        := ColIdx;
+  FResizeStartX     := ScreenX;
+  FResizeRafPending := false;
 
   if FColumns[ColIdx].Width > 0 then
     FResizeStartW := FColumns[ColIdx].Width
   else
   begin
     th := GetHeaderCell(ColIdx);
-    if th then
-      FResizeStartW := th.offsetWidth
-    else
-      FResizeStartW := 100;
+    if th then FResizeStartW := th.offsetWidth
+    else FResizeStartW := 100;
   end;
 
   th := GetHeaderCell(ColIdx);
   if th then
   begin
-    var handle: variant := th.querySelector('.dg-resize-handle');
-    if handle then handle.classList.add('dg-resizing');
+    var h: variant := th.querySelector('.dg-resize-handle');
+    if h then h.classList.add('dg-resizing');
   end;
 
-  body := document.body;
-  body.classList.add('dg-col-resizing');
+  document.body.classList.add('dg-col-resizing');
 
   document.onmousemove := procedure(e: variant)
   begin
@@ -905,9 +1008,9 @@ begin
 
   document.onmouseup := procedure(e: variant)
   begin
-    document.onmousemove := procedure begin end;
+    document.onmousemove := nil;
+    document.onmouseup   := nil;
     EndResize;
-    document.onmouseup := procedure begin end;
   end;
 end;
 
@@ -917,28 +1020,37 @@ var
 begin
   delta    := ScreenX - FResizeStartX;
   newWidth := FResizeStartW + delta;
-
   if newWidth < FColumns[FResizeCol].MinWidth then
     newWidth := FColumns[FResizeCol].MinWidth;
 
   FColumns[FResizeCol].Width := newWidth;
-  BuildColGroup(FHeaderTable);
-  BuildColGroup(FBodyTable);
+  FResizePendingW := newWidth;
+
+  if not FResizeRafPending then
+  begin
+    FResizeRafPending := true;
+    asm
+      requestAnimationFrame(function() {
+        @self.UpdateColWidthDOM(@self.FResizeCol, @self.FResizePendingW);
+        @self.FResizeRafPending = false;
+      });
+    end;
+  end;
 end;
 
 procedure JW3DataGrid.EndResize;
-var
-  body: variant;
 begin
   FResizing := false;
-  body := document.body;
-  body.classList.remove('dg-col-resizing');
+  document.body.classList.remove('dg-col-resizing');
+  // Flush any pending rAF width immediately
+  UpdateColWidthDOM(FResizeCol, FColumns[FResizeCol].Width);
+  FResizeRafPending := false;
 
   var th: variant := GetHeaderCell(FResizeCol);
   if th then
   begin
-    var handle: variant := th.querySelector('.dg-resize-handle');
-    if handle then handle.classList.remove('dg-resizing');
+    var h: variant := th.querySelector('.dg-resize-handle');
+    if h then h.classList.remove('dg-resizing');
   end;
 end;
 
@@ -955,14 +1067,10 @@ begin
   if (FFocusRow < 0) or (FFocusCol < 0) then exit;
   td := GetCellElement(FFocusRow, FFocusCol);
   if not td then exit;
-
   text := td.textContent;
-
-  // navigator.clipboard is browser-specific API
   asm
-    if (navigator.clipboard && navigator.clipboard.writeText) {
+    if (navigator.clipboard && navigator.clipboard.writeText)
       navigator.clipboard.writeText(@text);
-    }
   end;
 end;
 
@@ -978,16 +1086,14 @@ var
   pageSize: Integer;
 begin
   if FEditing then exit;
-
-  Key := EventObj.key;
-  CtrlOrMeta := EventObj.ctrlKey or EventObj.metaKey;
-
   if FView.Count = 0 then exit;
+
+  Key        := EventObj.key;
+  CtrlOrMeta := EventObj.ctrlKey or EventObj.metaKey;
 
   if FFocusRow < 0 then FFocusRow := 0;
   if FFocusCol < 0 then FFocusCol := 0;
 
-  // Clipboard
   if CtrlOrMeta and ((Key = 'c') or (Key = 'C')) then
   begin
     CopyFocusedCell;
@@ -1148,6 +1254,7 @@ begin
   end;
 end;
 
+
 // ═════════════════════════════════════════════════════════════════════════
 // Styles
 // ═════════════════════════════════════════════════════════════════════════
@@ -1162,7 +1269,7 @@ begin
     .datagrid {
       display: flex;
       flex-direction: column;
-      border: var(--dg-border, 1px solid var(--border-color, #e2e8f0));
+      border: var(--dg-border, 1px solid var(--border-color, #dddde3));
       border-radius: var(--dg-radius, var(--radius-lg, 8px));
       background: var(--dg-bg, var(--surface-color, #ffffff));
       overflow: hidden;
@@ -1183,14 +1290,17 @@ begin
       flex-grow: 1;
     }
 
+    /* Virtual scroll spacers: zero padding/border so height is exact */
+    .dg-spacer td { padding: 0 !important; border: none !important; }
+
     /* ── Header ───────────────────────────────────────────────────── */
 
     .dg-th {
       height: var(--dg-header-height, 40px);
       padding: var(--dg-cell-padding, 0 12px);
-      background: var(--dg-header-bg, var(--hover-color, #f1f5f9));
-      color: var(--dg-header-color, var(--text-color, #334155));
-      font-size: var(--dg-font-size, var(--font-size-sm, 0.875rem));
+      background: var(--dg-header-bg, var(--hover-color, #eaeaef));
+      color: var(--dg-header-color, var(--text-color, #1c1b21));
+      font-size: var(--dg-font-size, var(--text-sm, 0.875rem));
       font-weight: 600;
       text-align: left;
       white-space: nowrap;
@@ -1198,20 +1308,20 @@ begin
       text-overflow: ellipsis;
       cursor: pointer;
       user-select: none;
-      border-bottom: 2px solid var(--border-color, #e2e8f0);
+      border-bottom: 2px solid var(--border-color, #dddde3);
       position: relative;
     }
 
-    .dg-th:hover { background: var(--border-color, #e2e8f0); }
+    .dg-th:hover { background: var(--border-color, #dddde3); }
     .dg-th::after { content: ""; margin-left: 6px; font-size: 0.7em; }
 
     .dg-sort-asc::after {
       content: " \25B2";
-      color: var(--dg-sort-color, var(--primary-color, #6366f1));
+      color: var(--dg-sort-color, var(--primary-color));
     }
     .dg-sort-desc::after {
       content: " \25BC";
-      color: var(--dg-sort-color, var(--primary-color, #6366f1));
+      color: var(--dg-sort-color, var(--primary-color));
     }
 
     /* ── Resize handle ────────────────────────────────────────────── */
@@ -1227,18 +1337,18 @@ begin
 
     .dg-resize-handle:hover,
     .dg-resize-handle.dg-resizing {
-      background: var(--primary-color, #6366f1);
+      background: var(--primary-color);
       opacity: 0.4;
     }
 
     /* ── Rows ─────────────────────────────────────────────────────── */
 
     .dg-row { transition: background-color 0.1s; }
-    .dg-row:hover { background: var(--dg-row-hover, var(--hover-color, #f1f5f9)); }
+    .dg-row:hover { background: var(--dg-row-hover, var(--hover-color, #eaeaef)); }
 
     .dg-row-selected,
     .dg-row-selected:hover {
-      background: var(--dg-row-selected, var(--primary-color, #6366f1)) !important;
+      background: var(--dg-row-selected, var(--primary-color)) !important;
       color: var(--dg-row-selected-c, #ffffff);
     }
 
@@ -1247,11 +1357,11 @@ begin
     .dg-td {
       height: var(--dg-row-height, 40px);
       padding: var(--dg-cell-padding, 0 12px);
-      font-size: var(--dg-font-size, var(--font-size-sm, 0.875rem));
+      font-size: var(--dg-font-size, var(--text-sm, 0.875rem));
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      border-bottom: 1px solid var(--border-color, #e2e8f0);
+      border-bottom: 1px solid var(--border-color, #dddde3);
       vertical-align: middle;
       cursor: default;
     }
@@ -1259,9 +1369,9 @@ begin
     /* ── Cell focus ───────────────────────────────────────────────── */
 
     .dg-cell-focused {
-      outline: 2px solid var(--primary-color, #6366f1);
+      outline: 2px solid var(--primary-color);
       outline-offset: -2px;
-      background: rgba(99, 102, 241, 0.06);
+      background: oklch(55% 0.24 275 / 0.06);
     }
 
     .dg-row-selected .dg-cell-focused {
@@ -1276,10 +1386,11 @@ begin
     .dg-edit-input {
       width: 100%; height: 100%;
       border: none;
-      outline: 2px solid var(--primary-color, #6366f1);
+      outline: 2px solid var(--primary-color);
       outline-offset: -2px;
       padding: 0 12px;
-      font-size: inherit; font-family: inherit; color: inherit;
+      font-size: inherit; font-family: inherit;
+      color: var(--text-color, #1c1b21);
       background: var(--surface-color, #ffffff);
       box-sizing: border-box;
     }
@@ -1288,8 +1399,8 @@ begin
 
     .dg-empty {
       padding: 32px; text-align: center;
-      color: var(--text-light, #64748b);
-      font-size: var(--dg-font-size, var(--font-size-sm, 0.875rem));
+      color: var(--text-light);
+      font-size: var(--dg-font-size, var(--text-sm, 0.875rem));
     }
 
     /* ── Resize cursor lock ───────────────────────────────────────── */
@@ -1299,6 +1410,7 @@ begin
       cursor: col-resize !important;
       user-select: none !important;
     }
+
   ');
 end;
 

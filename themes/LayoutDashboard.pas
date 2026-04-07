@@ -68,6 +68,7 @@ begin
     .dash-shell {
       display: grid;
       height: 100vh;
+      height: 100dvh;
       grid-template-areas:
         "nav  nav"
         "side main";

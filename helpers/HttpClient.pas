@@ -52,6 +52,9 @@ procedure FetchText(const URL: String;
 procedure PostJSON(const URL, Body: String;
   OnSuccess: TJSONCallback; OnError: TErrorCallback);
 
+procedure PostForm(const URL, Body: String;
+  OnSuccess: TJSONCallback; OnError: TErrorCallback);
+
 procedure HttpRequest(const Method, URL: String;
   const Body: String; const ContentType: String;
   OnSuccess: TJSONCallback; OnTextSuccess: TTextCallback;
@@ -143,6 +146,13 @@ procedure PostJSON(const URL, Body: String;
   OnSuccess: TJSONCallback; OnError: TErrorCallback);
 begin
   HttpRequest('POST', URL, Body, 'application/json',
+    OnSuccess, nil, OnError, true);
+end;
+
+procedure PostForm(const URL, Body: String;
+  OnSuccess: TJSONCallback; OnError: TErrorCallback);
+begin
+  HttpRequest('POST', URL, Body, 'application/x-www-form-urlencoded',
     OnSuccess, nil, OnError, true);
 end;
 

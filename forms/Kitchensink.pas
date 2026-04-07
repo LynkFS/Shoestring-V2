@@ -46,6 +46,7 @@ type
     procedure ShowToolbar;
     procedure ShowModal;
     procedure ShowToast;
+    procedure ShowTable;
     procedure ShowTreeView;
     procedure ShowDataGrid;
     procedure ShowProductCard;
@@ -61,7 +62,7 @@ uses
   ThemeStyles, TypographyStyles,
   JButton, JLabel, JInput, JTextArea, JSelect, JCheckbox,
   JBadge, JCard, JImage, JTabs, JModal, JToast,
-  JTreeView, JDataGrid, JProductCard;
+  JTreeView, JDataGrid, JProductCard, JTable;
 
 
 procedure TKitchensink.InitializeObject;
@@ -108,6 +109,7 @@ begin
   FListBox.AddItem('toolbar',    'Toolbar');
   FListBox.AddItem('modal',      'Modal');
   FListBox.AddItem('toast',      'Toast');
+  FListBox.AddItem('table',      'Table');
   FListBox.AddItem('treeview',   'TreeView');
   FListBox.AddItem('datagrid',   'DataGrid');
   FListBox.AddItem('productcard','Product Card');
@@ -181,7 +183,8 @@ begin
   Title.AddClass('text-xl');
   Title.AddClass('font-bold');
 
-  if Name = 'button'           then ShowButton
+  if Name = 'table'            then ShowTable
+  else if Name = 'button'     then ShowButton
   else if Name = 'label'       then ShowLabel
   else if Name = 'input'       then ShowInput
   else if Name = 'textarea'    then ShowTextArea
@@ -464,6 +467,76 @@ begin
   begin
     Toast('Something went wrong.', ttDanger);
   end;
+end;
+
+procedure TKitchensink.ShowTable;
+var Rows: variant;
+begin
+  // ── Basic table — no delete ───────────────────────────────────────────
+
+  var Lbl1 := JW3Label.Create(FDisplay);
+  Lbl1.SetText('Basic table');
+  Lbl1.AddClass('font-bold');
+
+  var T1 := JW3Table.Create(FDisplay);
+  T1.SetStyle('width', '100%');
+  T1.SetStyle('max-width', '560px');
+  T1.AddColumn('ID',     'id');
+  T1.AddColumn('Title',  'title');
+  T1.AddColumn('Author', 'author');
+  T1.AddColumn('Price',  'price');
+
+  asm
+    @Rows = [
+      { id: 1, title: 'The Pragmatic Programmer', author: 'David Thomas',     price: '$49.99' },
+      { id: 2, title: 'Clean Code',               author: 'Robert C. Martin', price: '$44.99' },
+      { id: 3, title: 'Design Patterns',           author: 'Gang of Four',     price: '$54.99' },
+      { id: 4, title: 'You Dont Know JS',        author: 'Kyle Simpson',     price: '$39.99' }
+    ];
+  end;
+
+  T1.SetRows(Rows);
+
+  // ── Table with delete column ──────────────────────────────────────────
+
+  var Lbl2 := JW3Label.Create(FDisplay);
+  Lbl2.SetText('With delete buttons');
+  Lbl2.AddClass('font-bold');
+  Lbl2.SetStyle('margin-top', 'var(--space-4)');
+
+  var T2 := JW3Table.Create(FDisplay);
+  T2.SetStyle('width', '100%');
+  T2.SetStyle('max-width', '400px');
+  T2.AddColumn('ID',   'id');
+  T2.AddColumn('Name', 'name');
+  T2.AddColumn('Role', 'role');
+  T2.OnDelete := procedure(ID: String)
+  begin
+    Toast('Delete requested for ID ' + ID, ttInfo, 2000);
+  end;
+
+  asm
+    @Rows = [
+      { id: 1, name: 'Alice Johnson', role: 'Admin'  },
+      { id: 2, name: 'Bob Smith',     role: 'Editor' },
+      { id: 3, name: 'Carol White',   role: 'Viewer' }
+    ];
+  end;
+
+  T2.SetRows(Rows);
+
+  // ── Empty state ───────────────────────────────────────────────────────
+
+  var Lbl3 := JW3Label.Create(FDisplay);
+  Lbl3.SetText('Empty state');
+  Lbl3.AddClass('font-bold');
+  Lbl3.SetStyle('margin-top', 'var(--space-4)');
+
+  var T3 := JW3Table.Create(FDisplay);
+  T3.SetStyle('max-width', '300px');
+  T3.AddColumn('ID',   'id');
+  T3.AddColumn('Name', 'name');
+  T3.Clear;
 end;
 
 procedure TKitchensink.ShowTreeView;

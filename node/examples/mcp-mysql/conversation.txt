@@ -1,0 +1,389 @@
+Create a new map server in node/examples/mcp-mysql which allows all sql statements on a mysql database
+
+
+Done. Two files created:
+
+  node/examples/mcp-mysql/
+    index.js       — the MCP server
+    package.json   — dependencies
+
+  Install and run:
+  cd ShoeStringV2/node/examples/mcp-mysql
+  npm install
+  MYSQL_HOST=localhost MYSQL_USER=root MYSQL_PASSWORD=secret MYSQL_DATABASE=mydb
+   node index.js
+
+  Three tools exposed:
+
+  ┌────────────────┬─────────────────────────────────────────────────────────┐
+  │      Tool      │                      What it does                       │
+  ├────────────────┼─────────────────────────────────────────────────────────┤
+  │ execute_sql    │ Any SQL — SELECT returns rows, DML returns              │
+  │                │ affectedRows/insertId. Supports ? params.               │
+  ├────────────────┼─────────────────────────────────────────────────────────┤
+  │ list_tables    │ SHOW TABLES on the connected database                   │
+  ├────────────────┼─────────────────────────────────────────────────────────┤
+  │ describe_table │ DESCRIBE <table> — columns, types, nullability          │
+  └────────────────┴─────────────────────────────────────────────────────────┘
+
+  Add to .claude/settings.local.json:
+  "mcpServers": {
+    "mysql": {
+      "command": "node",
+      "args": ["/absolute/path/to/mcp-mysql/index.js"],
+      "env": {
+        "MYSQL_HOST": "localhost",
+        "MYSQL_USER": "root",
+        "MYSQL_PASSWORD": "secret",
+        "MYSQL_DATABASE": "mydb"
+      }
+    }
+  }
+
+✻ Cogitated for 1m 22s
+
+❯ i have a docker based mysql database path. \Users\nicowouterse\Docker  amend  
+this mcp server so that it can access for instance the legacy_app database      
+
+  Read 2 files, listed 2 directories (ctrl+o to expand)
+
+⏺ Key findings:
+  - MySQL has no port exposed to the host — the backend network is internal:
+  true. Need to add a port mapping.
+  - app_user only has access to app_database. To reach legacy_app (and others)
+  need root credentials.
+
+  Two files to change: expose the port in compose.yml, and update the MCP server
+   to use root + no fixed database.
+
+⏺ Update(~/Docker/compose.yml)
+  ⎿  User rejected update to ../../../Docker/compose.yml
+      251      image: mysql:8.0
+      252      platform: linux/arm64
+      253      container_name: mysql-database
+      254 +    ports:                                                    
+      255 +      - "127.0.0.1:3306:3306"                                 
+      256      environment:
+      257        - MYSQL_DATABASE=app_database
+      258        - MYSQL_USER=app_user
+
+❯ maybe. explain first the why and also would 0.0.0.0 work instead of 127.0.0.1 
+
+⏺ Why the port mapping is needed
+
+  The mysql service sits on the backend network which has internal: true. That
+  flag only blocks containers from reaching the internet — it says nothing about
+   host access. But there's no ports: entry on the mysql service, so Docker
+  never punches a hole from the host into the container. The MCP server runs on
+  your Mac (outside Docker), so it can't reach mysql-database at all right now.
+  Adding a port mapping is the only way to fix that without putting the MCP
+  server inside the Docker network.
+
+  ---
+  127.0.0.1:3306 vs 0.0.0.0:3306
+
+  ┌─────────────────────────┬────────────────────┬──────────────────────────┐
+  │                         │   127.0.0.1:3306   │       0.0.0.0:3306       │
+  ├─────────────────────────┼────────────────────┼──────────────────────────┤
+  │ Reachable from your Mac │ Yes                │ Yes                      │
+  ├─────────────────────────┼────────────────────┼──────────────────────────┤
+  │ Reachable from other    │ No                 │ Yes                      │
+  │ machines on your LAN    │                    │                          │
+  ├─────────────────────────┼────────────────────┼──────────────────────────┤
+  │ Reachable from other    │ No (host loopback  │ Yes, via                 │
+  │ Docker containers       │ only)              │ host.docker.internal     │
+  └─────────────────────────┴────────────────────┴──────────────────────────┘
+
+  For a local MCP server that only Claude Code on your Mac will use, 127.0.0.1
+  is the right choice — it keeps MySQL off the network entirely. 0.0.0.0 would
+  expose port 3306 to every device on your local network, which is risky for a
+  database with a known root password.
+
+  ---
+  One alternative if you'd rather not expose the port at all
+
+  You could connect via docker exec instead — run queries by shelling into the
+  container. That requires no port change but makes the MCP server depend on the
+   Docker CLI being available, which is messier.
+
+  My recommendation: 127.0.0.1:3306. Shall I go ahead with that?
+
+❯ can i have this mcp server connect to a mysql database outside of docker      
+
+⏺ Yes, absolutely — the MCP server is just a Node.js process connecting via
+  mysql2. It doesn't care whether MySQL is in Docker, running natively, or on a
+  remote host. The env vars already handle it:
+
+  MYSQL_HOST=localhost
+  MYSQL_PORT=3306
+  MYSQL_USER=root
+  MYSQL_PASSWORD=Symphony1!Root
+  MYSQL_DATABASE=legacy_app   ← or leave empty to use fully-qualified names
+
+  The only question is how MySQL is exposed:
+
+  ┌─────────────────────┬───────────────────────────────────────────────────┐
+  │   MySQL location    │                   What you need                   │
+  ├─────────────────────┼───────────────────────────────────────────────────┤
+  │ Docker, port mapped │ MYSQL_HOST=127.0.0.1 + the port mapping in        │
+  │  to host            │ compose.yml                                       │
+  ├─────────────────────┼───────────────────────────────────────────────────┤
+  │ Docker, no port     │ Not reachable from host — needs the port mapping  │
+  │ mapping             │                                                   │
+  ├─────────────────────┼───────────────────────────────────────────────────┤
+  │ Native install on   │ MYSQL_HOST=127.0.0.1 — works as-is, no Docker     │
+  │ your Mac            │ changes needed                                    │
+  ├─────────────────────┼───────────────────────────────────────────────────┤
+  │ Remote server       │ MYSQL_HOST=<ip-or-hostname> — needs               │
+  │                     │ firewall/bind-address open                        │
+  └─────────────────────┴───────────────────────────────────────────────────┘
+
+  So if you have a MySQL instance running natively on your Mac (e.g. installed
+  via Homebrew or MySQL installer), you can point the MCP server straight at it
+  with no Docker changes at all. Do you have one, or would you prefer to expose
+  the Docker one?
+
+❯ check if i have mysql natively running                                        
+
+⏺ Bash(brew services list 2>/dev/null | grep -i mysql; mysql --version
+      2>/dev/null; pgrep -x mysqld && echo "mysqld running" || echo "mysqld not
+      running"; ls /usr/loca…)
+  ⎿  mysql       none
+     mysql  Ver 9.3.0 for macos15.2 on arm64 (Homebrew)
+     mysqld not running
+     … +30 lines (ctrl+o to expand)
+
+⏺ You have MySQL 9.3.0 installed via Homebrew with a native data directory at
+  /opt/homebrew/var/mysql. I can even see the legacy_app database is already
+  there.
+
+  It's currently not running though. Start it with:
+
+  ! brew services start mysql
+
+  Then connect the MCP server with:
+  "env": {
+    "MYSQL_HOST": "127.0.0.1",
+    "MYSQL_PORT": "3306",
+    "MYSQL_USER": "root",
+    "MYSQL_PASSWORD": "",
+    "MYSQL_DATABASE": "legacy_app"
+  }
+
+  Homebrew MySQL typically has no root password by default — if it prompts, run
+  ! mysql_secure_installation to set one. No Docker changes needed at all.
+
+❯ is the legacy_app database you can see the same as the one in docker          
+
+⏺ No — they are two completely separate MySQL instances with no connection to
+  each other:
+
+  - Homebrew MySQL stores its data at /opt/homebrew/var/mysql — that's where you
+   saw legacy_app
+  - Docker MySQL stores its data in a Docker named volume (mysql_data), managed
+  entirely by Docker, isolated from the filesystem
+
+  They share no data. The legacy_app in Homebrew was created independently of
+  anything in Docker. The Docker instance was only initialized from the scripts
+  in ./services/mysql/init/ (which don't mention legacy_app at all).
+
+  To see what's actually in each you'd need to start them and query — want me to
+   check the Homebrew one once you start it?
+
+
+
+❯ can i reach this mcp server from claude code running on win11 on a vmware vm  
+on a macbook pro                                                                
+
+⏺ This depends on how the MCP server works — it's not a network service, it's a
+  local process that Claude Code spawns as a child process via stdio. So the
+  question splits into two parts:                                               
+   
+  The MCP server process itself                                                 
+                                                                              
+  Claude Code on the Win11 VM would need to spawn node index.js locally —       
+  meaning Node.js and the mcp-mysql folder need to be installed on the Win11 VM
+  too. You can't point Claude Code at a process running on another machine.     
+                                                                              
+  The MySQL connection from that process
+
+  Once the MCP server is running on the Win11 VM, it connects to MySQL over TCP 
+  — that can be on the Mac Mini. Whether it reaches depends on VMware's network
+  mode:                                                                         
+                                                                              
+  ┌────────────┬────────────────────────────────────────────────────────────┐   
+  │  VMware    │            Can Win11 VM reach Mac Mini's MySQL?            │
+  │    mode    │                                                            │   
+  ├────────────┼────────────────────────────────────────────────────────────┤ 
+  │ Bridged    │ Yes — VM is on the same LAN, use Mac Mini's IP             │
+  ├────────────┼────────────────────────────────────────────────────────────┤   
+  │ NAT        │ Yes — VM can reach the host and LAN machines, use Mac      │
+  │            │ Mini's IP                                                  │   
+  ├────────────┼────────────────────────────────────────────────────────────┤ 
+  │ Host-only  │ Only reaches the MacBook Pro, not the Mac Mini             │
+  └────────────┴────────────────────────────────────────────────────────────┘   
+   
+  MySQL on the Mac Mini would also need to be bound to its network interface    
+  (not just 127.0.0.1) and port 3306 open in the Mac firewall.                
+                                                                                
+  Short answer: Yes, it's reachable — but you need Node.js + the mcp-mysql      
+  folder on the Win11 VM, and MYSQL_HOST set to the Mac Mini's local IP address.
+
+❯ ok. assume i have mysql running on the mac mini and that i am working in the  
+vmware win11 environment. Also assume I have claude code, node.js and the       
+mcp-mysql mcp server running in that win11 environment. What are the commands   
+to connect the mcp server to a specific database (legacy_app) on the mac mini   
+(192.168.1.202, vmwate is in nat mode)                                          
+
+⏺ Two options — CLI command or editing the config file directly:
+
+  Option 1 — Claude Code CLI (run in Win11 terminal)
+
+  claude mcp add mysql node C:\path\to\mcp-mysql\index.js --env
+  MYSQL_HOST=192.168.1.202 --env MYSQL_PORT=3306 --env MYSQL_USER=root --env
+  MYSQL_PASSWORD=Symphony1!Root --env MYSQL_DATABASE=legacy_app
+
+  Option 2 — Edit .claude\settings.local.json directly
+
+  On Win11 the file lives at C:\Users\<yourname>\.claude\settings.local.json.
+  Add:
+
+  {
+    "mcpServers": {
+      "mysql": {
+        "command": "node",
+        "args": ["C:\\path\\to\\mcp-mysql\\index.js"],
+        "env": {
+          "MYSQL_HOST": "192.168.1.202",
+          "MYSQL_PORT": "3306",
+          "MYSQL_USER": "root",
+          "MYSQL_PASSWORD": "Symphony1!Root",
+          "MYSQL_DATABASE": "legacy_app"
+        }
+      }
+    }
+  }
+
+  Then restart Claude Code — it spawns MCP servers on startup.
+
+  Verify it connected:
+  claude mcp list
+
+  ---
+  One thing to check: Mac Mini's MySQL needs to accept connections from outside
+  127.0.0.1. Confirm with:
+
+  # from Win11, test the port is reachable
+  Test-NetConnection -ComputerName 192.168.1.202 -Port 3306
+
+  If that fails, on the Mac Mini run:
+  ! sudo nano /opt/homebrew/etc/my.cnf
+  and ensure bind-address = 0.0.0.0 (or remove the bind-address line), then
+  restart MySQL with ! brew services restart mysql.
+
+❯ create a form (FormDemo.pas) in node/examples/mcp-mysql with a button which   
+connects to this database                                                       
+
+⏺ The form needs an HTTP intermediary — a browser can't open a raw MySQL
+  connection. I'll add a small companion HTTP server (server.js) alongside the
+  MCP server, and have the form call that.
+
+  Read 2 files (ctrl+o to expand)
+
+⏺ Update(ShoeStringV2/node/examples/mcp-mysql/package.json)
+  ⎿  Added 7 lines, removed 1 line
+       6    "scripts": {
+       7      "start": "node index.js"
+       8    },
+       9 +  "scripts": {                                                 
+      10 +    "start": "node index.js",                                  
+      11 +    "serve": "node server.js"                                  
+      12 +  },                                                           
+      13    "dependencies": {
+      14      "@modelcontextprotocol/sdk": "^1.12.0",
+      11 -    "mysql2": "^3.11.0"                                        
+      15 +    "mysql2": "^3.11.0",                                       
+      16 +    "express": "^4.19.0",                                      
+      17 +    "cors": "^2.8.5"                                           
+      18    }
+      19  }
+
+⏺ Update(ShoeStringV2/node/examples/mcp-mysql/package.json)
+  ⎿  Error editing file
+
+  Read 1 file (ctrl+o to expand)
+
+⏺ Write(ShoeStringV2/node/examples/mcp-mysql/package.json)
+  ⎿  Removed 3 lines
+       4    "type": "module",
+       5    "main": "index.js",
+       6    "scripts": {
+       7 -    "start": "node index.js"                                   
+       8 -  },                                                           
+       9 -  "scripts": {                                                 
+       7      "start": "node index.js",
+       8      "serve": "node server.js"
+       9    },
+
+⏺ Now the HTTP companion server:
+
+⏺ Write(ShoeStringV2/node/examples/mcp-mysql/server.js)
+  ⎿  Wrote 109 lines to ShoeStringV2/node/examples/mcp-mysql/server.js
+       1 // HTTP companion server for FormDemo
+       2 //
+       3 // Exposes the MySQL connection as a simple REST API so the brow
+         ser form
+       4 // can reach the database (browsers cannot open raw MySQL connec
+         tions).
+       5 //
+       6 // Endpoints:
+       7 //   GET  /connect        — test connection, return server versi
+         on + active database
+       8 //   GET  /databases      — list all databases
+       9 //   GET  /tables?db=name — list tables in a database
+      10 //   POST /query          — run any SQL  { sql, params? }
+     … +99 lines (ctrl+o to expand)
+
+⏺ Now the form:
+
+⏺ Write(ShoeStringV2/node/examples/mcp-mysql/FormDemo.pas)
+  ⎿  Wrote 96 lines to ShoeStringV2/node/examples/mcp-mysql/FormDemo.pas
+       1 unit FormDemo;
+       2
+       3 // ═════════════════════════════════════════════════════════════
+         ══════════════
+       4 //
+       5 //  FormDemo — MySQL connection demo
+       6 //
+       7 //  A single "Connect" button that calls the companion HTTP serv
+         er
+       8 //  (server.js, default port 3001) and shows the MySQL version a
+         nd
+       9 //  active database on success, or an error message on failure.
+      10 //
+     … +86 lines (ctrl+o to expand)
+
+⏺ Three files created/updated:       
+                                                                              
+  node/examples/mcp-mysql/
+    package.json   — added express, cors, "serve" script
+    server.js      — HTTP companion (GET /connect, /databases, /tables, POST    
+  /query)                                                                       
+    FormDemo.pas   — ShoeStringV2 form with Connect button                      
+                                                                                
+  To run on Win11:                                                              
+  cd mcp-mysql                                                                  
+  npm install                                                                   
+  $env:MYSQL_HOST="192.168.1.202"; $env:MYSQL_USER="root";                    
+  $env:MYSQL_PASSWORD="Symphony1!Root"; $env:MYSQL_DATABASE="legacy_app"; node
+  server.js                                                                     
+           
+  To use the form — add to app.entrypoint.pas:                                  
+  uses ..., FormDemo;                                                           
+  Application.CreateForm('FormDemo', TFormDemo);
+  // then GoToForm('FormDemo') or navigate to it                                
+                                                                                
+  The button calls GET http://localhost:3001/connect, displays the MySQL version
+   and active database on success, or the error message on failure.             
+                                                                                
+
