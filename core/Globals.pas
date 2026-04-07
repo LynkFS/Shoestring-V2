@@ -57,6 +57,11 @@ type
 
 procedure AddStyleBlock(const CSS: String);
 
+// ── Theme ────────────────────────────────────────────────────────────────
+
+procedure ApplyTheme;
+procedure ToggleDark;
+
 
 implementation
 
@@ -72,6 +77,33 @@ begin
   el := document.createElement('style');
   el.textContent := CSS;
   document.head.appendChild(el);
+end;
+
+
+//=============================================================================
+// Theme
+//=============================================================================
+
+procedure ApplyTheme;
+begin
+  asm
+    if (localStorage.getItem('theme') === 'dark')
+      document.documentElement.classList.add('dark');
+  end;
+end;
+
+procedure ToggleDark;
+begin
+  asm
+    var root = document.documentElement;
+    if (root.classList.contains('dark')) {
+      root.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    } else {
+      root.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    }
+  end;
 end;
 
 
