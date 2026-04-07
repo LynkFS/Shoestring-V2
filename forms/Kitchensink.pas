@@ -402,8 +402,15 @@ begin
   TB.AddSeparator;
   var B4 := TB.AddItem('Settings');
   TB.AddSpacer;
-  var B5 := TB.AddItem('Help');
+  var B5 := TB.AddItem('Theme');
+  var B6 := TB.AddItem('Help');
+
+  B5.OnClick := procedure(sender: TObject)
+  begin
+    ToggleDark;
+  end;
 end;
+
 
 procedure TKitchensink.ShowModal;
 begin
