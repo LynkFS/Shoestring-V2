@@ -571,7 +571,7 @@
         
         // Load and render markdown
         function loadContent() {
-            fetch('content.md')
+            fetch('content-v2.md')
                 .then(function(response) {
                     if (!response.ok) throw new Error('Failed to load content');
                     return response.text();
