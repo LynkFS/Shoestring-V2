@@ -50,6 +50,7 @@ type
     procedure ShowTreeView;
     procedure ShowDataGrid;
     procedure ShowProductCard;
+    procedure ShowSpinner;
 
   protected
     procedure InitializeObject; override;
@@ -62,7 +63,7 @@ uses
   ThemeStyles, TypographyStyles,
   JButton, JLabel, JInput, JTextArea, JSelect, JCheckbox,
   JBadge, JCard, JImage, JTabs, JModal, JToast,
-  JTreeView, JDataGrid, JProductCard, JTable;
+  JTreeView, JDataGrid, JProductCard, JTable, JSpinner;
 
 
 procedure TKitchensink.InitializeObject;
@@ -113,6 +114,7 @@ begin
   FListBox.AddItem('treeview',   'TreeView');
   FListBox.AddItem('datagrid',   'DataGrid');
   FListBox.AddItem('productcard','Product Card');
+  FListBox.AddItem('spinner',    'Spinner');
 
   FListBox.OnSelect := HandleListSelect;
 
@@ -200,7 +202,8 @@ begin
   else if Name = 'toast'       then ShowToast
   else if Name = 'treeview'    then ShowTreeView
   else if Name = 'datagrid'    then ShowDataGrid
-  else if Name = 'productcard' then ShowProductCard;
+  else if Name = 'productcard' then ShowProductCard
+  else if Name = 'spinner'     then ShowSpinner;
 end;
 
 
@@ -402,15 +405,8 @@ begin
   TB.AddSeparator;
   var B4 := TB.AddItem('Settings');
   TB.AddSpacer;
-  var B5 := TB.AddItem('Theme');
-  var B6 := TB.AddItem('Help');
-
-  B5.OnClick := procedure(sender: TObject)
-  begin
-    ToggleDark;
-  end;
+  var B5 := TB.AddItem('Help');
 end;
-
 
 procedure TKitchensink.ShowModal;
 begin
@@ -629,6 +625,33 @@ begin
   C3.ImageSrc := 'https://picsum.photos/seed/lantern/400/300';
   C3.AddTag('Eco');
   C3.AddTag('Camping');
+end;
+
+procedure TKitchensink.ShowSpinner;
+begin
+  var Info := JW3Label.Create(FDisplay);
+  Info.SetText('Default (40 px)');
+  Info.AddClass('font-bold');
+
+  var S1 := JW3Spinner.Create(FDisplay);
+
+  var Lbl2 := JW3Label.Create(FDisplay);
+  Lbl2.SetText('Large (80 px, custom colour)');
+  Lbl2.AddClass('font-bold');
+  Lbl2.SetStyle('margin-top', 'var(--space-4, 16px)');
+
+  var S2 := JW3Spinner.Create(FDisplay);
+  S2.SetStyle('--spinner-size',  '80px');
+  S2.SetStyle('--spinner-color', '#f59e0b');
+
+  var Lbl3 := JW3Label.Create(FDisplay);
+  Lbl3.SetText('Small (24 px, slow)');
+  Lbl3.AddClass('font-bold');
+  Lbl3.SetStyle('margin-top', 'var(--space-4, 16px)');
+
+  var S3 := JW3Spinner.Create(FDisplay);
+  S3.SetStyle('--spinner-size',  '24px');
+  S3.SetStyle('--spinner-speed', '3.0s');
 end;
 
 end.
