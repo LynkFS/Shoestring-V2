@@ -711,13 +711,7 @@ begin
 
   S2.OnChange := procedure(Sender: TObject; Checked: Boolean)
   begin
-    asm
-      if (@Checked) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    end;
+    ToggleDark;
     if Checked then
       StatusLbl.SetText('Dark mode: ON')
     else
