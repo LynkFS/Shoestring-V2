@@ -704,8 +704,20 @@ begin
       StatusLbl.SetText('Notifications: OFF');
   end;
 
+  // Sync initial state with whatever the document currently has
+  var IsDark: Boolean;
+  asm @IsDark = document.documentElement.classList.contains('dark'); end;
+  S2.Checked := IsDark;
+
   S2.OnChange := procedure(Sender: TObject; Checked: Boolean)
   begin
+    asm
+      if (@Checked) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    end;
     if Checked then
       StatusLbl.SetText('Dark mode: ON')
     else
