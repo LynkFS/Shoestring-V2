@@ -51,6 +51,8 @@ type
     procedure ShowDataGrid;
     procedure ShowProductCard;
     procedure ShowSpinner;
+    procedure ShowSwitch;
+    procedure ShowRadioGroup;
 
   protected
     procedure InitializeObject; override;
@@ -63,7 +65,8 @@ uses
   ThemeStyles, TypographyStyles,
   JButton, JLabel, JInput, JTextArea, JSelect, JCheckbox,
   JBadge, JCard, JImage, JTabs, JModal, JToast,
-  JTreeView, JDataGrid, JProductCard, JTable, JSpinner;
+  JTreeView, JDataGrid, JProductCard, JTable, JSpinner, JSwitch,
+  JRadioGroup;
 
 
 procedure TKitchensink.InitializeObject;
@@ -115,6 +118,8 @@ begin
   FListBox.AddItem('datagrid',   'DataGrid');
   FListBox.AddItem('productcard','Product Card');
   FListBox.AddItem('spinner',    'Spinner');
+  FListBox.AddItem('switch',     'Switch');
+  FListBox.AddItem('radiogroup', 'RadioGroup');
 
   FListBox.OnSelect := HandleListSelect;
 
@@ -178,6 +183,7 @@ begin
   else if Name = 'treeview'    then DisplayName := 'TreeView'
   else if Name = 'datagrid'    then DisplayName := 'DataGrid'
   else if Name = 'productcard' then DisplayName := 'Product Card'
+  else if Name = 'radiogroup'  then DisplayName := 'Radio Group'
   else DisplayName := UpperCase(Copy(Name, 1, 1)) + Copy(Name, 2, Length(Name));
 
   var Title := JW3Label.Create(FDisplay);
@@ -203,7 +209,9 @@ begin
   else if Name = 'treeview'    then ShowTreeView
   else if Name = 'datagrid'    then ShowDataGrid
   else if Name = 'productcard' then ShowProductCard
-  else if Name = 'spinner'     then ShowSpinner;
+  else if Name = 'spinner'     then ShowSpinner
+  else if Name = 'switch'      then ShowSwitch
+  else if Name = 'radiogroup'  then ShowRadioGroup;
 end;
 
 
@@ -652,6 +660,222 @@ begin
   var S3 := JW3Spinner.Create(FDisplay);
   S3.SetStyle('--spinner-size',  '24px');
   S3.SetStyle('--spinner-speed', '3.0s');
+end;
+
+procedure TKitchensink.ShowSwitch;
+begin
+  var Info := JW3Label.Create(FDisplay);
+  Info.SetText('Toggle switches - on/off controls with an optional caption.');
+  Info.SetStyle('color', 'var(--text-light, #64748b)');
+
+  var Col := JW3Panel.Create(FDisplay);
+  Col.SetStyle('gap', 'var(--space-3, 12px)');
+
+  var S1 := JW3Switch.Create(Col);
+  S1.Caption := 'Enable notifications';
+  S1.Checked := true;
+
+  var S2 := JW3Switch.Create(Col);
+  S2.Caption := 'Dark mode';
+
+  var S3 := JW3Switch.Create(Col);
+  S3.Caption := 'Auto-save';
+  S3.Checked := true;
+
+  var S4 := JW3Switch.Create(Col);
+  S4.Caption := 'Disabled (off)';
+  S4.Enabled := false;
+
+  var S5 := JW3Switch.Create(Col);
+  S5.Caption := 'Disabled (on)';
+  S5.Checked := true;
+  S5.Enabled := false;
+
+  var StatusLbl := JW3Label.Create(FDisplay);
+  StatusLbl.SetText('Last toggled:');
+  StatusLbl.SetStyle('color', 'var(--text-light, #64748b)');
+  StatusLbl.SetStyle('margin-top', 'var(--space-4, 16px)');
+
+  S1.OnChange := procedure(Sender: TObject; Checked: Boolean)
+  begin
+    if Checked then
+      StatusLbl.SetText('Notifications: ON')
+    else
+      StatusLbl.SetText('Notifications: OFF');
+  end;
+
+  S2.OnChange := procedure(Sender: TObject; Checked: Boolean)
+  begin
+    if Checked then
+      StatusLbl.SetText('Dark mode: ON')
+    else
+      StatusLbl.SetText('Dark mode: OFF');
+  end;
+
+  S3.OnChange := procedure(Sender: TObject; Checked: Boolean)
+  begin
+    if Checked then
+      StatusLbl.SetText('Auto-save: ON')
+    else
+      StatusLbl.SetText('Auto-save: OFF');
+  end;
+end;
+
+procedure TKitchensink.ShowRadioGroup;
+begin
+  var Info := JW3Label.Create(FDisplay);
+  Info.SetText('Mutually exclusive radio buttons. The group auto-detects '
+    + 'available width and switches between horizontal and vertical layout.');
+  Info.SetStyle('color', 'var(--text-light, #64748b)');
+  Info.SetStyle('max-width', '520px');
+
+  //
+  var Lbl1 := JW3Label.Create(FDisplay);
+  Lbl1.SetText('Shipping speed');
+  Lbl1.AddClass('font-bold');
+  Lbl1.SetStyle('margin-top', 'var(--space-4, 16px)');
+
+  var RgShip := JW3RadioGroup.Create(FDisplay);
+  RgShip.AddButton('Standard (5 days)',  'standard');
+  RgShip.AddButton('Express (2 days)',   'express');
+  RgShip.AddButton('Overnight',            'overnight');
+  RgShip.SelectedIndex := 0;   // pre-select "Standard"
+
+  var ShipStatus := JW3Label.Create(FDisplay);
+  ShipStatus.SetText('Selected: standard');
+  ShipStatus.SetStyle('color', 'var(--text-light, #64748b)');
+
+  RgShip.OnChange := procedure(Sender: TObject; ItemIndex: Integer;
+    const Value: String)
+  begin
+    ShipStatus.SetText('Selected: ' + Value);
+  end;
+
+  //
+  var Lbl2 := JW3Label.Create(FDisplay);
+  Lbl2.SetText('Colour theme');
+  Lbl2.AddClass('font-bold');
+  Lbl2.SetStyle('margin-top', 'var(--space-4, 16px)');
+
+  var RgTheme := JW3RadioGroup.Create(FDisplay);
+  RgTheme.AddButton('Indigo',  'indigo');
+  RgTheme.AddButton('Emerald', 'emerald');
+  RgTheme.AddButton('Rose',    'rose');
+  RgTheme.AddButton('Amber',   'amber');
+
+  var ThemeSwatch := JW3Label.Create(FDisplay);
+  ThemeSwatch.SetText('pick a theme');
+  ThemeSwatch.SetStyle('color', 'var(--text-light, #64748b)');
+  ThemeSwatch.SetStyle('padding', '4px 12px');
+  ThemeSwatch.SetStyle('border-radius', 'var(--radius-full, 9999px)');
+  ThemeSwatch.SetStyle('display', 'inline-block');
+  ThemeSwatch.SetStyle('transition', 'background 0.2s, color 0.2s');
+
+  RgTheme.OnChange := procedure(Sender: TObject; ItemIndex: Integer;
+    const Value: String)
+  var
+    bg, fg: String;
+  begin
+    if      Value = 'indigo'  then begin bg := '#6366f1'; fg := '#fff'; end
+    else if Value = 'emerald' then begin bg := '#10b981'; fg := '#fff'; end
+    else if Value = 'rose'    then begin bg := '#f43f5e'; fg := '#fff'; end
+    else                           begin bg := '#f59e0b'; fg := '#1e293b'; end;
+    ThemeSwatch.SetText(Value);
+    ThemeSwatch.SetStyle('background', bg);
+    ThemeSwatch.SetStyle('color', fg);
+  end;
+
+  //
+  var Lbl3 := JW3Label.Create(FDisplay);
+  Lbl3.SetText('T-shirt size (narrow container, vertical layout)');
+  Lbl3.AddClass('font-bold');
+  Lbl3.SetStyle('margin-top', 'var(--space-4, 16px)');
+
+  var NarrowWrap := JW3Panel.Create(FDisplay);
+  NarrowWrap.SetStyle('width', '160px');
+  NarrowWrap.SetStyle('padding', 'var(--space-3, 12px)');
+  NarrowWrap.SetStyle('border', '1px solid var(--border-color, #e2e8f0)');
+  NarrowWrap.SetStyle('border-radius', 'var(--radius-lg, 8px)');
+
+  var RgSize := JW3RadioGroup.Create(NarrowWrap);
+  RgSize.AddButton('XS', 'xs');
+  RgSize.AddButton('S',  's');
+  RgSize.AddButton('M',  'm');
+  RgSize.AddButton('L',  'l');
+  RgSize.AddButton('XL', 'xl');
+  RgSize.SelectedIndex := 2;   // pre-select M
+
+  //
+  var Lbl4 := JW3Label.Create(FDisplay);
+  Lbl4.SetText('Payment method (disabled)');
+  Lbl4.AddClass('font-bold');
+  Lbl4.SetStyle('margin-top', 'var(--space-4, 16px)');
+
+  var RgPay := JW3RadioGroup.Create(FDisplay);
+  RgPay.AddButton('Credit card',  'cc');
+  RgPay.AddButton('Bank transfer','bank');
+  RgPay.AddButton('Crypto',       'crypto');
+  RgPay.SelectedIndex := 0;
+  RgPay.Enabled := false;
+
+  //
+  var Lbl5 := JW3Label.Create(FDisplay);
+  Lbl5.SetText('Priority level (click buttons to control programmatically)');
+  Lbl5.AddClass('font-bold');
+  Lbl5.SetStyle('margin-top', 'var(--space-4, 16px)');
+
+  var RgPri := JW3RadioGroup.Create(FDisplay);
+  RgPri.AddButton('Low',      'low');
+  RgPri.AddButton('Medium',   'medium');
+  RgPri.AddButton('High',     'high');
+  RgPri.AddButton('Critical', 'critical');
+
+  // Status label must be declared first so BtnClear's closure can capture it
+  var PriStatus := JW3Label.Create(FDisplay);
+  PriStatus.SetText('Nothing selected');
+  PriStatus.SetStyle('color', 'var(--text-light, #64748b)');
+
+  var BtnRow := JW3Panel.Create(FDisplay);
+  BtnRow.SetStyle('flex-direction', 'row');
+  BtnRow.SetStyle('gap', 'var(--space-2, 8px)');
+  BtnRow.SetStyle('flex-wrap', 'wrap');
+  BtnRow.SetStyle('margin-top', 'var(--space-2, 8px)');
+
+  var BtnPrev := JW3Button.Create(BtnRow);
+  BtnPrev.SetText('Prev');
+  BtnPrev.OnClick := procedure(Sender: TObject)
+  var idx: Integer;
+  begin
+    idx := RgPri.SelectedIndex;
+    if idx > 0 then
+      RgPri.SelectedIndex := idx - 1;
+  end;
+
+  var BtnNext := JW3Button.Create(BtnRow);
+  BtnNext.SetText('Next');
+  BtnNext.OnClick := procedure(Sender: TObject)
+  var idx: Integer;
+  begin
+    idx := RgPri.SelectedIndex;
+    if (idx < 0) or (idx < RgPri.Count - 1) then
+      RgPri.SelectedIndex := idx + 1;
+  end;
+
+  var BtnClear := JW3Button.Create(BtnRow);
+  BtnClear.SetText('Clear');
+  BtnClear.AddClass(csBtnGhost);
+  BtnClear.OnClick := procedure(Sender: TObject)
+  begin
+    RgPri.SelectedIndex := -1;
+    PriStatus.SetText('Nothing selected');
+  end;
+
+  RgPri.OnChange := procedure(Sender: TObject; ItemIndex: Integer;
+    const Value: String)
+  begin
+    PriStatus.SetText('Priority: ' + RgPri.ItemCaption[ItemIndex]
+      + '  (value = "' + Value + '")');
+  end;
 end;
 
 end.
