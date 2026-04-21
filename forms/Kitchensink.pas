@@ -1,15 +1,15 @@
 ﻿unit Kitchensink;
 
-// ═══════════════════════════════════════════════════════════════════════════
+// ----------------------------------------------------------------------------
 //
 //  Kitchen Sink
 //
 //  Toolbar with a "Components" button. Clicking it toggles a listbox
 //  on the left. Selecting a component from the listbox displays a live
-//  instance on the main panel. Only one component is shown at a time —
+//  instance on the main panel. Only one component is shown at a time --
 //  the panel is cleared and rebuilt on each selection.
 //
-// ═══════════════════════════════════════════════════════════════════════════
+// ----------------------------------------------------------------------------
 
 interface
 
@@ -45,6 +45,7 @@ type
     procedure ShowTabs;
     procedure ShowToolbar;
     procedure ShowModal;
+    procedure ShowDrawer;
     procedure ShowToast;
     procedure ShowTable;
     procedure ShowTreeView;
@@ -53,6 +54,7 @@ type
     procedure ShowSpinner;
     procedure ShowSwitch;
     procedure ShowRadioGroup;
+    procedure ShowChart;
 
   protected
     procedure InitializeObject; override;
@@ -66,14 +68,14 @@ uses
   JButton, JLabel, JInput, JTextArea, JSelect, JCheckbox,
   JBadge, JCard, JImage, JTabs, JModal, JToast,
   JTreeView, JDataGrid, JProductCard, JTable, JSpinner, JSwitch,
-  JRadioGroup;
+  JRadioGroup, JDrawer, JChart;
 
 
 procedure TKitchensink.InitializeObject;
 begin
   inherited;
 
-  // ── Toolbar ────────────────────────────────────────────────────────
+  // -- Toolbar ---------------------------------------------------------------
 
   FToolbar := JW3Toolbar.Create(Self);
   FToolBar.SetStyle('flex-wrap', 'nowrap');
@@ -86,16 +88,16 @@ begin
   BtnNonVisual.OnClick := HandleNonVisualClick;
   BtnInvoiceDemo.OnClick := HandleInvoiceDemoClick;
 
-  // ── Body: listbox (left) + display panel (right) ───────────────────
+  // -- Body: listbox (left) + display panel (right) --------------------------
 
   FBody := JW3Panel.Create(Self);
   FBody.SetGrow(1);
   FBody.SetStyle('flex-direction', 'row');
 
-  // ── Listbox ────────────────────────────────────────────────────────────────
+  // -- Listbox ---------------------------------------------------------------
 
   FListBox := JW3ListBox.Create(FBody);
-  FListBox.SetStyle('width', '200px');
+  FListBox.SetStyle('width', '175px');
   FListBox.SetStyle('flex-shrink', '0');
   FListBox.SetStyle('border-right', '1px solid var(--border-color, #e2e8f0)');
 
@@ -112,6 +114,7 @@ begin
   FListBox.AddItem('tabs',       'Tabs');
   FListBox.AddItem('toolbar',    'Toolbar');
   FListBox.AddItem('modal',      'Modal');
+  FListBox.AddItem('drawer',     'Drawer');
   FListBox.AddItem('toast',      'Toast');
   FListBox.AddItem('table',      'Table');
   FListBox.AddItem('treeview',   'TreeView');
@@ -120,10 +123,13 @@ begin
   FListBox.AddItem('spinner',    'Spinner');
   FListBox.AddItem('switch',     'Switch');
   FListBox.AddItem('radiogroup', 'RadioGroup');
+  FListBox.AddItem('chart',      'Chart');
+
+  FListBox.Sort;  // alphabetical order
 
   FListBox.OnSelect := HandleListSelect;
 
-  // ── Display panel — where the selected component appears ───────────
+  // -- Display panel -- where the selected component appears -----------------
 
   FDisplay := JW3Panel.Create(FBody);
   FDisplay.SetGrow(1);
@@ -139,9 +145,9 @@ begin
 end;
 
 
-// ═════════════════════════════════════════════════════════════════════════
-// Toolbar click — toggle the listbox
-// ═════════════════════════════════════════════════════════════════════════
+// ----------------------------------------------------------------------------
+// Toolbar click -- toggle the listbox
+// ----------------------------------------------------------------------------
 
 procedure TKitchensink.HandleComponentsClick(Sender: TObject);
 begin
@@ -163,9 +169,9 @@ begin
   Application.GoToForm('InvoiceList');
 end;
 
-// ═════════════════════════════════════════════════════════════════════════
-// Listbox selection — display the chosen component
-// ═════════════════════════════════════════════════════════════════════════
+// ----------------------------------------------------------------------------
+// Listbox selection -- display the chosen component
+// ----------------------------------------------------------------------------
 
 procedure TKitchensink.HandleListSelect(Sender: TObject; Value: String);
 begin
@@ -178,7 +184,7 @@ var
 begin
   FDisplay.Clear;
 
-  // Map key → display caption
+  // Map key -> display caption
   if      Name = 'textarea'    then DisplayName := 'TextArea'
   else if Name = 'treeview'    then DisplayName := 'TreeView'
   else if Name = 'datagrid'    then DisplayName := 'DataGrid'
@@ -205,19 +211,21 @@ begin
   else if Name = 'tabs'        then ShowTabs
   else if Name = 'toolbar'     then ShowToolbar
   else if Name = 'modal'       then ShowModal
+  else if Name = 'drawer'      then ShowDrawer
   else if Name = 'toast'       then ShowToast
   else if Name = 'treeview'    then ShowTreeView
   else if Name = 'datagrid'    then ShowDataGrid
   else if Name = 'productcard' then ShowProductCard
   else if Name = 'spinner'     then ShowSpinner
   else if Name = 'switch'      then ShowSwitch
-  else if Name = 'radiogroup'  then ShowRadioGroup;
+  else if Name = 'radiogroup'  then ShowRadioGroup
+  else if Name = 'chart'       then ShowChart;
 end;
 
 
-// ═════════════════════════════════════════════════════════════════════════
+// ----------------------------------------------------------------------------
 // Component builders
-// ═════════════════════════════════════════════════════════════════════════
+// ----------------------------------------------------------------------------
 
 procedure TKitchensink.ShowButton;
 begin
@@ -397,7 +405,7 @@ begin
 
   var Page3 := Tabs.AddTab('About');
   var L3 := JW3Label.Create(Page3);
-  L3.SetText('Shoestring Framework — Kitchen Sink Demo');
+  L3.SetText('Shoestring Framework -- Kitchen Sink Demo');
   L3.SetStyle('padding', 'var(--space-4, 16px)');
 end;
 
@@ -413,7 +421,13 @@ begin
   TB.AddSeparator;
   var B4 := TB.AddItem('Settings');
   TB.AddSpacer;
-  var B5 := TB.AddItem('Help');
+  var B5 := TB.AddItem('Theme');
+  var B6 := TB.AddItem('Help');
+
+  B5.OnClick := procedure(sender: TObject)
+  begin
+    ToggleDark;
+  end;
 end;
 
 procedure TKitchensink.ShowModal;
@@ -483,7 +497,7 @@ end;
 procedure TKitchensink.ShowTable;
 var Rows: variant;
 begin
-  // ── Basic table — no delete ───────────────────────────────────────────
+  // -- Basic table (no delete) -----------------------------------------------
 
   var Lbl1 := JW3Label.Create(FDisplay);
   Lbl1.SetText('Basic table');
@@ -508,7 +522,7 @@ begin
 
   T1.SetRows(Rows);
 
-  // ── Table with delete column ──────────────────────────────────────────
+  // -- Table with delete column ----------------------------------------------
 
   var Lbl2 := JW3Label.Create(FDisplay);
   Lbl2.SetText('With delete buttons');
@@ -536,7 +550,7 @@ begin
 
   T2.SetRows(Rows);
 
-  // ── Empty state ───────────────────────────────────────────────────────
+  // -- Empty state -----------------------------------------------------------
 
   var Lbl3 := JW3Label.Create(FDisplay);
   Lbl3.SetText('Empty state');
@@ -608,13 +622,13 @@ end;
 
 procedure TKitchensink.ShowProductCard;
 begin
-  // FDisplay is the container — make it a card container
+  // FDisplay is the container -- make it a card container
   AddCardContainer(FDisplay);
 
   var C1 := TProductCard.Create(FDisplay);
   C1.Title := 'Reef Snorkel Set';
   C1.Price := '$49.95';
-  C1.Description := 'Full-face snorkel mask with dry-top system and 180° panoramic view.';
+  C1.Description := 'Full-face snorkel mask with dry-top system and 180-degree panoramic view.';
   C1.ImageSrc := 'https://picsum.photos/seed/snorkel/400/300';
   C1.AddTag('New');
   C1.AddTag('Sale');
@@ -692,7 +706,7 @@ begin
   S5.Enabled := false;
 
   var StatusLbl := JW3Label.Create(FDisplay);
-  StatusLbl.SetText('Last toggled:');
+  StatusLbl.SetText('Last toggled: --');
   StatusLbl.SetStyle('color', 'var(--text-light, #64748b)');
   StatusLbl.SetStyle('margin-top', 'var(--space-4, 16px)');
 
@@ -882,6 +896,189 @@ begin
     PriStatus.SetText('Priority: ' + RgPri.ItemCaption[ItemIndex]
       + '  (value = "' + Value + '")');
   end;
+end;
+
+procedure TKitchensink.ShowDrawer;
+begin
+  var Info := JW3Label.Create(FDisplay);
+  Info.SetText('Click the button to slide in the drawer from the left.');
+  Info.SetStyle('color', 'var(--text-light, #64748b)');
+
+  var Btn := JW3Button.Create(FDisplay);
+  Btn.SetText('Open Drawer');
+  Btn.AddClass(csBtnPrimary);
+
+  Btn.OnClick := procedure(Sender: TObject)
+  begin
+    var Drawer := JW3Drawer.Create(Self);
+    Drawer.Title := 'Navigation';
+    Drawer.Duration := 500;
+
+    // -- Nav items ------------------------------------------------------------
+
+    var NavItems: array of String := [
+      'Dashboard', 'Orders', 'Customers', 'Products', 'Analytics', 'Settings'
+    ];
+
+    for var i := 0 to NavItems.Length - 1 do
+    begin
+      var Item := JW3Panel.Create(Drawer.Body);
+      Item.SetText(NavItems[i]);
+      Item.SetStyle('padding', 'var(--space-3, 12px) var(--space-4, 16px)');
+      Item.SetStyle('border-radius', 'var(--radius-md, 6px)');
+      Item.SetStyle('cursor', 'pointer');
+      Item.SetStyle('color', 'var(--text-color, #334155)');
+      Item.SetStyle('font-size', 'var(--font-size-sm, 0.875rem)');
+      Item.SetStyle('transition', 'background var(--anim-duration, 0.2s)');
+      Item.SetRulePseudo('hover', 'background', 'var(--hover-color, #f1f5f9)');
+    end;
+
+    // -- Footer: close button -------------------------------------------------
+
+    Drawer.Footer.Visible := true;
+
+    var BtnClose := JW3Button.Create(Drawer.Footer);
+    BtnClose.SetText('Close');
+    BtnClose.AddClass(csBtnGhost);
+    BtnClose.OnClick := procedure(Sender: TObject)
+    begin
+      Drawer.Free;
+    end;
+
+    Drawer.OnClose := procedure(Sender: TObject)
+    begin
+      Drawer.Free;
+    end;
+
+    Drawer.Open;
+  end;   // Btn.OnClick
+end;     // ShowDrawer
+
+
+// ----------------------------------------------------------------------------
+// ShowChart -- all four chart types with realistic data
+//
+//  Layout: section heading per chart type, each chart in a bordered card-like
+//  panel with a fixed height so it looks consistent regardless of FDisplay
+//  width.  All charts are animated and use the ShoeString theme palette.
+// ----------------------------------------------------------------------------
+
+procedure TKitchensink.ShowChart;
+
+  // Helper: build a thin section-label + bordered chart wrapper,
+  // returns the JW3Chart ready to receive series / categories.
+  function MakeSlot(const SectionTitle, Subtitle: String): JW3Chart;
+  var
+    Wrap:  JW3Panel;
+    Lbl:   JW3Label;
+    Sub:   JW3Label;
+    Chart: JW3Chart;
+  begin
+    Wrap := JW3Panel.Create(FDisplay);
+    Wrap.SetStyle('width', '100%');
+    Wrap.SetStyle('max-width', '680px');
+    Wrap.SetStyle('border', '1px solid var(--border-color)');
+    Wrap.SetStyle('border-radius', 'var(--radius-lg, 12px)');
+    Wrap.SetStyle('overflow', 'hidden');
+    Wrap.SetStyle('background', 'var(--surface-color)');
+    Wrap.SetStyle('box-shadow', 'var(--shadow-sm)');
+
+    Lbl := JW3Label.Create(Wrap);
+    Lbl.SetText(SectionTitle);
+    Lbl.AddClass('font-bold');
+    Lbl.SetStyle('padding', '14px 20px 2px 20px');
+    Lbl.SetStyle('font-size', 'var(--text-base, 1rem)');
+    Lbl.SetStyle('color', 'var(--text-color)');
+
+    Sub := JW3Label.Create(Wrap);
+    Sub.SetText(Subtitle);
+    Sub.SetStyle('padding', '0 20px 12px 20px');
+    Sub.SetStyle('font-size', 'var(--text-sm, 0.875rem)');
+    Sub.SetStyle('color', 'var(--text-light)');
+
+    Chart := JW3Chart.Create(Wrap);
+    Chart.SetStyle('height', '280px');
+    Chart.SetStyle('padding', '0 12px 16px 12px');
+
+    Result := Chart;
+  end;
+
+var
+  C: JW3Chart;
+  S: TJChartSeries;
+
+begin
+
+  // ==========================================================================
+  //  1. Bar chart -- Quarterly revenue, two series
+  // ==========================================================================
+
+  C := MakeSlot('Bar Chart', 'Quarterly revenue comparison (2023 vs 2024)');
+  C.ChartType := ctBar;
+  C.Animated  := true;
+  C.SetCategories(['Q1', 'Q2', 'Q3', 'Q4']);
+
+  S := C.NewSeries('2023');
+  S.AddValue(142); S.AddValue(198); S.AddValue(231); S.AddValue(189);
+
+  S := C.NewSeries('2024');
+  S.AddValue(175); S.AddValue(224); S.AddValue(310); S.AddValue(268);
+
+  C.Refresh;
+
+  // ==========================================================================
+  //  2. Line chart -- Monthly website traffic, two series
+  // ==========================================================================
+
+  C := MakeSlot('Line Chart', 'Monthly unique visitors by device (thousands)');
+  C.ChartType := ctLine;
+  C.Animated  := true;
+  C.SetCategories(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']);
+
+  S := C.NewSeries('Desktop');
+  S.AddValue(38); S.AddValue(42); S.AddValue(55); S.AddValue(61); S.AddValue(58); S.AddValue(74);
+
+  S := C.NewSeries('Mobile');
+  S.AddValue(22); S.AddValue(31); S.AddValue(40); S.AddValue(52); S.AddValue(67); S.AddValue(83);
+
+  S := C.NewSeries('Tablet');
+  S.AddValue(8); S.AddValue(11); S.AddValue(9); S.AddValue(14); S.AddValue(12); S.AddValue(16);
+
+  C.Refresh;
+
+  // ==========================================================================
+  //  3. Pie chart -- Regional sales breakdown
+  // ==========================================================================
+
+  C := MakeSlot('Pie Chart', 'Regional sales breakdown for FY 2024');
+  C.ChartType   := ctPie;
+  C.Animated    := true;
+  C.ShowLegend  := true;
+
+  C.NewSeries('North America').AddValue(38);
+  C.NewSeries('Europe').AddValue(27);
+  C.NewSeries('Asia Pacific').AddValue(21);
+  C.NewSeries('Latin America').AddValue(9);
+  C.NewSeries('Other').AddValue(5);
+
+  C.Refresh;
+
+  // ==========================================================================
+  //  4. Donut chart -- Budget allocation
+  // ==========================================================================
+
+  C := MakeSlot('Donut Chart', 'Annual budget allocation by department');
+  C.ChartType  := ctDonut;
+  C.Animated   := true;
+  C.ShowLegend := true;
+
+  C.NewSeries('Engineering').AddValue(42);
+  C.NewSeries('Marketing').AddValue(23);
+  C.NewSeries('Operations').AddValue(18);
+  C.NewSeries('Support').AddValue(17);
+
+  C.Refresh;
+
 end;
 
 end.
