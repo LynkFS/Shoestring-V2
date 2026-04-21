@@ -1,6 +1,6 @@
 ﻿unit Globals;
 
-// ═══════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //
 //  Globals
 //
@@ -8,8 +8,8 @@
 //  and application creation.
 //
 //  This unit provides infrastructure only. It does NOT declare theme
-//  variables — those live in ThemeStyles. It does NOT declare font-size
-//  scales — those live in TypographyStyles. The separation is intentional:
+//  variables â€” those live in ThemeStyles. It does NOT declare font-size
+//  scales â€” those live in TypographyStyles. The separation is intentional:
 //  Globals is the plumbing. Style units are the design.
 //
 //  The framework stylesheet (styleSheet) exists for SetRule/SetRulePseudo
@@ -24,27 +24,26 @@
 //    3. Body defaults applied (minimal, no theme dependency)
 //    4. Application instance created
 //
-// ═══════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 interface
 
 uses JApplication, Types, JElement;
 
-// ── Browser externals ────────────────────────────────────────────────────
+// Browser externals
 
 var document external 'document': variant;
 var window   external 'window':   variant;
 var console  external 'console':  variant;
 
-// ── Framework globals ────────────────────────────────────────────────────
+// Framework globals
 
 var Application:  JW3Application;
 var ScreenWidth:  Integer := 0;
 var ScreenHeight: Integer := 0;
 var styleSheet:   variant;
 
-// ── ID generation ────────────────────────────────────────────────────────
-
+// ID generation
 type
   TW3Identifiers = static class
   private
@@ -53,14 +52,19 @@ type
     class function GenerateUniqueObjectId: String;
   end;
 
-// ── Style injection ──────────────────────────────────────────────────────
+// Style injection
 
 procedure AddStyleBlock(const CSS: String);
 
-// ── Theme ────────────────────────────────────────────────────────────────
+// Theme
 
 procedure ApplyTheme;
 procedure ToggleDark;
+
+// -- Sorting ----------------------------------------------------------------
+
+procedure SortStrings(var Arr: array of String; Descending: Boolean = false);
+
 
 
 implementation
@@ -119,6 +123,30 @@ end;
 
 
 //=============================================================================
+// Sorting
+//=============================================================================
+
+// SortStrings -- sort an array of strings in-place, case-insensitive.
+//
+//   SortStrings(MyArr);              // ascending  (default)
+//   SortStrings(MyArr, true);        // descending
+//
+// Delegates to the JavaScript engine's native Array.sort for performance.
+
+procedure SortStrings(var Arr: array of String; Descending: Boolean = false);
+begin
+  asm
+    Arr.sort(function(a, b) {
+      var la = a.toLowerCase(), lb = b.toLowerCase();
+      if (la < lb) return Descending ? 1 : -1;
+      if (la > lb) return Descending ? -1 : 1;
+      return 0;
+    });
+  end;
+end;
+
+
+//=============================================================================
 // Initialization
 //=============================================================================
 
@@ -127,13 +155,13 @@ initialization
   ScreenWidth  := window.innerWidth;
   ScreenHeight := window.innerHeight;
 
-  // ── Framework stylesheet — for SetRule (per-element ID rules) ──────
+  // Framework stylesheet for SetRule (per-element ID rules)
 
   var styleEl: variant := document.createElement('style');
   document.head.appendChild(styleEl);
   styleSheet := styleEl.sheet;
 
-  // ── Body defaults — minimal, no theme variables ───────────────────
+  // Body defaults minimal, no theme variables
 
   AddStyleBlock(#'
     html, body {
@@ -153,7 +181,7 @@ initialization
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── Base class for all TElement instances ───────────────────── */
+    /* Base class for all TElement instances */
     /* Applied by the constructor. Replaces inline styles so that   */
     /* component CSS classes can override without specificity wars.  */
 
@@ -163,7 +191,7 @@ initialization
     }
   ');
 
-  // ── Application — created last ────────────────────────────────────
+  // created last
 
   Application := JW3Application.Create(nil);
 
