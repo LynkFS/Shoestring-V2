@@ -1,6 +1,6 @@
 ﻿unit JListBox;
 
-// ═══════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //
 //  ListBox
 //
@@ -28,7 +28,7 @@
 //    --lb-item-selected   Selected item bg       default: var(--primary-color)
 //    --lb-item-sel-color  Selected item text     default: #fff
 //
-// ═══════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 interface
 
@@ -57,6 +57,7 @@ type
     procedure AddItem(const Value, Text: String);
     procedure Clear;
     function  ItemCount: Integer;
+    procedure Sort(Descending: Boolean = false);
 
     function  GetSelectedIndex: Integer;
     procedure SetSelectedIndex(Index: Integer);
@@ -184,6 +185,78 @@ begin
     Result := FValues[FSelIndex]
   else
     Result := '';
+end;
+
+
+// Sort -- re-order all items alphabetically by their display text.
+//
+//   List.Sort;           // ascending  (default)
+//   List.Sort(true);     // descending
+//
+// Implementation notes:
+//   - Pairs (display text, value) are sorted together so the value-to-text
+//     mapping is always preserved.
+//   - The current selection is remembered by value and restored afterward.
+//   - The list is cleared and rebuilt, so DOM order matches sort order.
+
+procedure JW3ListBox.Sort(Descending: Boolean = false);
+var
+  i:      Integer;
+  Texts:  array of String;
+  Vals:   array of String;
+  SelVal: String;
+begin
+  if FItems.Count < 2 then exit;
+
+  // -- Snapshot current texts and values ------------------------------------
+
+  Texts := [];
+  Vals  := [];
+  for i := 0 to FItems.Count - 1 do
+  begin
+    Texts.Add(FItems[i].GetText);
+    Vals.Add(FValues[i]);
+  end;
+
+  // -- Sort (text, value) pairs by text, case-insensitive -------------------
+
+  asm
+    var pairs = [];
+    for (var k = 0; k < Texts.length; k++)
+      pairs.push({ text: Texts[k], value: Vals[k] });
+
+    pairs.sort(function(a, b) {
+      var la = a.text.toLowerCase(), lb = b.text.toLowerCase();
+      if (la < lb) return Descending ? 1 : -1;
+      if (la > lb) return Descending ? -1 : 1;
+      return 0;
+    });
+
+    for (var k = 0; k < pairs.length; k++) {
+      Texts[k] = pairs[k].text;
+      Vals[k]  = pairs[k].value;
+    }
+  end;
+
+  // -- Remember selection by value so we can restore it --------------------
+
+  SelVal := GetSelectedValue;
+
+  // -- Rebuild in sorted order ----------------------------------------------
+
+  Clear;
+  for i := 0 to Texts.Count - 1 do
+    AddItem(Vals[i], Texts[i]);
+
+  // -- Restore the prior selection (by value, stable across re-orders) ------
+
+  if SelVal <> '' then
+    for i := 0 to FValues.Count - 1 do
+      if FValues[i] = SelVal then
+      begin
+        SetSelectedIndex(i);
+        break;
+      end;
 end;
 
 initialization
