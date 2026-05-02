@@ -75,6 +75,7 @@ type
     procedure ShowDataStore;
     procedure ShowModels;
     procedure ShowAdapters;
+    procedure ShowFormulator;
 
     // Shared helpers
     function  AddSection(const Title: String): JW3Panel;
@@ -90,7 +91,7 @@ implementation
 uses
   Globals, ThemeStyles, TypographyStyles,
   JButton, JLabel, JInput, JBadge,
-  HttpClient, Validators;
+  HttpClient, Validators, JFormulator;
 
 
 // Local styles
@@ -285,6 +286,7 @@ begin
   FNav.AddItem('datastore',  'DataStore');
   FNav.AddItem('models',     'Models');
   FNav.AddItem('adapters',   'Adapters');
+  FNav.AddItem('formulator', 'Form-ulator');
 
   FNav.OnSelect := HandleNavSelect;
 
@@ -320,7 +322,8 @@ begin
   else if Name = 'validators' then begin Heading.SetText('Validators');   ShowValidators; end
   else if Name = 'datastore'  then begin Heading.SetText('DataStore');    ShowDataStore;  end
   else if Name = 'models'     then begin Heading.SetText('Models');       ShowModels;     end
-  else if Name = 'adapters'   then begin Heading.SetText('Adapters');     ShowAdapters;   end;
+  else if Name = 'adapters'   then begin Heading.SetText('Adapters');     ShowAdapters;   end
+  else if Name = 'formulator' then begin Heading.SetText('Form-ulator');  ShowFormulator; end;
 end;
 
 
@@ -1054,6 +1057,87 @@ begin
     'var Adapter := TContactAdapter.Create(ListBox);' + #13 +
     'Adapter.SetData(Contacts);' + #13 +
     '// Adapter populates the list; selection reads back TContact.');
+end;
+
+
+// Form-ulator
+
+procedure TFormNonVisual.ShowFormulator;
+var FormJson: String;
+begin
+  var Desc := JW3Label.Create(FDisplay);
+  Desc.SetText(
+    'TFormulator makes form creation declarative and turns a JSON config into a working form. ' +
+    'Field types, two-column rows, defaults, required-validation, and dynamic defaults ' +
+    'driven by another field — all from one config tree.');
+  Desc.AddClass('text-prose');
+
+  var Sec := AddSection('Live form rendered from JSON');
+
+  // Output panel — submission results land here.
+  var Output := AddOutput(Sec, 'Submit the form to see the collected values.');
+
+  // Host element the form will render into.
+  var FormHost := TElement.Create('div', Sec);
+
+  FormJson :=
+    '{' +
+    '  "title":    "Contact us",' +
+    '  "subtitle": "Send a question or report a bug.",' +
+    '  "submit":   { "label": "Send", "variant": "primary" },' +
+    '  "fields": [' +
+    '    { "row": [' +
+    '      { "name": "first", "type": "text", "label": "First name",' +
+    '        "required": true, "requiredMessage": "First name is required" },' +
+    '      { "name": "last",  "type": "text", "label": "Last name" }' +
+    '    ] },' +
+    '    { "name": "email", "type": "email", "label": "Email",' +
+    '      "placeholder": "you@example.com",' +
+    '      "required": true, "requiredMessage": "Email is required" },' +
+    '    { "name": "topic", "type": "select", "label": "Topic",' +
+    '      "default": "question", "options": [' +
+    '        { "value": "question", "label": "Question" },' +
+    '        { "value": "bug",      "label": "Bug report" },' +
+    '        { "value": "feedback", "label": "Feedback" }' +
+    '      ] },' +
+    '    { "name": "message", "type": "textarea", "label": "Message",' +
+    '      "rows": 4, "required": true,' +
+    '      "requiredMessage": "Please write a message",' +
+    '      "defaultFrom": { "switch": "topic", "cases": {' +
+    '        "question": "I have a question about...",' +
+    '        "bug":      "I found a bug. Steps to reproduce:",' +
+    '        "feedback": "My feedback is..."' +
+    '      } } }' +
+    '  ]' +
+    '}';
+
+  TFormulator.BuildFromJSON(FormHost, FormJson,
+    procedure(Values: variant)
+    var Lines: String;
+    begin
+      Lines := '';
+      asm
+        var keys = Object.keys(@Values);
+        for (var i = 0; i < keys.length; i++) {
+          var k = keys[i];
+          @Lines += k + ' = ' + String(@Values[k]) + '\n';
+        }
+      end;
+      Output.SetText(Lines);
+    end);
+
+  AddCodeHint(Sec,
+    'TFormulator.BuildFromJSON(Host, json,' + #13 +
+    '  procedure(Values: variant) begin' + #13 +
+    '    HandleSubmit(Values);' + #13 +
+    '  end);');
+
+  // Source JSON — pretty-printed so the schema is readable.
+  var Sec2 := AddSection('Source JSON');
+  var Pretty: String;
+  asm @Pretty = JSON.stringify(JSON.parse(@FormJson), null, 2); end;
+  AddOutput(Sec2, Pretty);
+
 end;
 
 
