@@ -431,6 +431,28 @@ The grid follows framework principles throughout: CSS variables for all visual p
 
 If a light-weight data table is the better solution, use `JW3Table`. The kitchen-sink app contains a worked example of this component. Columns are declared once; `SetRows` replaces the table body from a row array (for example, a database result).
 
+## Chat Panel
+
+`JW3ChatPanel` is a bubble-style message list with a typing indicator and click-to-copy on each bubble. ~270 lines including styles.
+
+```pascal
+Chat := JW3ChatPanel.Create(Panel);
+Chat.AppendUser('Hello');
+Chat.AppendAssistant('Hi — what can I help with?');
+Chat.ShowTyping;       // animated three-dot indicator
+Chat.HideTyping;
+```
+
+**Bubble layout** — each message is a flex row (right-justified for user, left for assistant) with a styled bubble at `max-width: 75%` and asymmetric border-radius for the tail-on-corner shape. Auto-scrolls to the bottom on every append.
+
+**Typing indicator** — single lazily-created row, three dots animated via staggered `animation-delay`. Toggled by `display`, not destroyed and recreated — avoids touching the parent's child list mid-life. Re-appended to the end on every new message so it stays beneath the latest bubble.
+
+**Click to copy** — clicking a bubble writes its raw text (not the rendered HTML) to `navigator.clipboard`, then flashes a "copied" hint for ~900ms via a CSS class toggle.
+
+**Light markdown only** — `**bold**` and `\n`. HTML entities escaped first; ~5 lines of regex. Code blocks, syntax highlighting, full markdown, link previews — those are the consuming app's problem. Apps that need them call `SetHTML` on the bubble's DOM node after their own parser.
+
+Reuses framework tokens — `--surface-color`, `--surface-3`, `--primary-color`, `--radius-lg`, `--text-light` — so dark mode and theme changes land automatically.
+
 # Chapter 10: Non-Visual Components
 
 Non-visual components are plain Pascal classes inheriting from `TObject`. No DOM elements.
