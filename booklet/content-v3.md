@@ -465,6 +465,33 @@ Non-visual components are plain Pascal classes inheriting from `TObject`. No DOM
 - **Adapters** — bridges between visual and non-visual. Connects a data array to a list component.
 - **Stores** — observable state. `DataStore` is a key-value store; UI components subscribe to keys and update on change. `BeginUpdate`/`EndUpdate` batches notifications.
 
+A live gallery of every category below sits in the **Non-Visual Components** entry of the kitchen-sink app.
+
+## Services
+
+Long-lived objects created once and used across the application. Hold state, own resources, expose a typed API. Inherit from `TObject` and never touch the DOM.
+
+```pascal
+type
+  TSessionService = class
+  public
+    procedure Login(const UserName: String);
+    procedure Logout;
+    function  IsLoggedIn: Boolean;
+    function  UserName: String;
+    function  Role: String;
+  end;
+
+// In a form's InitializeObject:
+FSession := TSessionService.Create;
+
+// Anywhere afterwards:
+FSession.Login('Nico');
+if FSession.IsLoggedIn then ...
+```
+
+Lifetime tracks the form that owns it. Survives navigation, freed in the form's destructor. The framework imposes no service container or dependency-injection layer — Pascal scope and ownership are sufficient.
+
 ## HTTP Helper
 
 ```pascal
@@ -491,6 +518,101 @@ PostForm(URL, 'action=books_all&id=42', OnSuccess, OnError);
 ```
 
 `PostJSON` is appropriate for REST APIs that expect a JSON request body.
+
+## Validators
+
+Pure functions in `Validators.pas`. Take a string, return a boolean. No DOM dependency, no side effects. Compile to both browser and Node.
+
+`IsRequired` · `IsEmail` · `IsURL` · `IsInteger` · `IsNumeric` · `MinLength(s, n)` · `MaxLength(s, n)` · `ExactLength(s, n)` · `InRange(s, lo, hi)` · `Matches(s, regex)`
+
+```pascal
+if IsEmail(Email.Value)
+  then Email.AddClass('valid')
+  else Email.AddClass('invalid');
+```
+
+The class triggers CSS styling. The function provides logic. The component provides the value. Three responsibilities, three places. Form-ulator (Chapter 7) wires `required` declaratively for the common case; reach for the validators directly when you need anything more.
+
+## Models
+
+Plain Pascal records or classes that hold typed data. Optionally carry validation. No DOM dependency, no framework coupling — they move unchanged to a Node.js backend.
+
+```pascal
+type TOrder = record
+  OrderID:   String;
+  Customer:  String;
+  Amount:    Float;
+  Lines:     Integer;
+  Completed: Boolean;
+end;
+
+// Validation lives next to the data, not in a separate "model" base class.
+var Valid := (O.Customer <> '') and (O.Amount > 0) and (O.Lines > 0);
+```
+
+Records over classes when there is no behaviour. Classes when methods or inheritance are needed. The framework never imposes a base class on your domain types.
+
+## DataStore
+
+`JW3DataStore` is an observable key-value store. Components subscribe to keys and receive a callback whenever the value changes. Decouples data producers from consumers — the producer never knows who's listening.
+
+```pascal
+var Store := JW3DataStore.Create;
+
+// Subscribe — returns a sub-ID for later Unsubscribe.
+var SubId := Store.Subscribe('user.name',
+  procedure(const Key: String; Value: variant)
+  begin
+    NameLabel.SetText(Value);
+  end);
+
+// Put fires every subscriber on that key.
+Store.Put('user.name', 'Nico');
+
+// Wildcard — fires on every change, useful for logging.
+Store.Subscribe('*', LogChange);
+
+// Observe — subscribe AND immediately fire with the current value.
+Store.Observe('cart.count', UpdateBadge);
+
+// Batched updates — defer notifications until EndUpdate.
+Store.BeginUpdate;
+Store.Put('x', 1); Store.Put('y', 2); Store.Put('x', 3);
+Store.EndUpdate;  // fires once per changed key, not once per Put
+```
+
+Convention: dot-notation keys (`cart.count`, `user.name`) — string-typed, not enforced. Values are `variant`, anything JS can hold. Multiple writes to the same key inside `BeginUpdate`/`EndUpdate` collapse into a single notification with the final value.
+
+The pattern scales beyond UI — agent-orchestration code uses the same store as a pub/sub bus (`FBus.Put('msg:' + MsgId, AMsg)`), with the dashboard subscribing to render events. One primitive, two domains.
+
+## Adapters
+
+Bridges between non-visual data and visual components. The data side knows nothing about the DOM; the visual side knows nothing about the array's shape. The adapter is the only place that sees both.
+
+```pascal
+type
+  TContactAdapter = class
+  private
+    FData:    array of TContact;
+    FListBox: JW3ListBox;
+  public
+    constructor Create(ListBox: JW3ListBox);
+    procedure   SetData(Data: array of TContact);
+    function    ItemAt(Index: Integer): TContact;
+  end;
+
+// One direction: array → list.
+var A := TContactAdapter.Create(MyListBox);
+A.SetData(Contacts);
+
+// Other direction: selection → record.
+MyListBox.OnSelect := procedure(Sender: TObject; Value: String)
+begin
+  ShowDetails(A.ItemAt(StrToInt(Value)));
+end;
+```
+
+If you find an adapter starting to grow into a small framework, that's the signal to step back — most adapters are 30–50 lines and doing more is usually a sign you've conflated the bridge with the data model behind it.
 
 ## Database Connectivity
 
