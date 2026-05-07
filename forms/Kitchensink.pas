@@ -55,6 +55,7 @@ type
     procedure ShowSwitch;
     procedure ShowRadioGroup;
     procedure ShowChart;
+    procedure ShowChatPanel;
 
   protected
     procedure InitializeObject; override;
@@ -68,7 +69,7 @@ uses
   JButton, JLabel, JInput, JTextArea, JSelect, JCheckbox,
   JBadge, JCard, JImage, JTabs, JModal, JToast,
   JTreeView, JDataGrid, JProductCard, JTable, JSpinner, JSwitch,
-  JRadioGroup, JDrawer, JChart;
+  JRadioGroup, JDrawer, JChart, JChatPanel;
 
 
 procedure TKitchensink.InitializeObject;
@@ -124,6 +125,7 @@ begin
   FListBox.AddItem('switch',     'Switch');
   FListBox.AddItem('radiogroup', 'RadioGroup');
   FListBox.AddItem('chart',      'Chart');
+  FListBox.AddItem('chatpanel',  'Chat Panel');
 
   FListBox.Sort;  // alphabetical order
 
@@ -190,6 +192,7 @@ begin
   else if Name = 'datagrid'    then DisplayName := 'DataGrid'
   else if Name = 'productcard' then DisplayName := 'Product Card'
   else if Name = 'radiogroup'  then DisplayName := 'Radio Group'
+  else if Name = 'chatpanel'   then DisplayName := 'Chat Panel'
   else DisplayName := UpperCase(Copy(Name, 1, 1)) + Copy(Name, 2, Length(Name));
 
   var Title := JW3Label.Create(FDisplay);
@@ -219,7 +222,8 @@ begin
   else if Name = 'spinner'     then ShowSpinner
   else if Name = 'switch'      then ShowSwitch
   else if Name = 'radiogroup'  then ShowRadioGroup
-  else if Name = 'chart'       then ShowChart;
+  else if Name = 'chart'       then ShowChart
+  else if Name = 'chatpanel'   then ShowChatPanel;
 end;
 
 
@@ -1079,6 +1083,73 @@ begin
 
   C.Refresh;
 
+end;
+
+procedure TKitchensink.ShowChatPanel;
+begin
+  var Info := JW3Label.Create(FDisplay);
+  Info.SetText('Click any bubble to copy its text. Light markdown only — **bold** and newlines.');
+  Info.SetStyle('color', 'var(--text-light, #64748b)');
+
+  // Chat panel with a fixed scrollable area so the typing indicator stays visible.
+  var Chat := JW3ChatPanel.Create(FDisplay);
+  Chat.SetStyle('width',       '480px');
+  Chat.SetStyle('max-width',   '100%');
+  Chat.SetStyle('height',      '320px');
+  Chat.SetStyle('flex-shrink', '0');
+
+  Chat.AppendAssistant(
+    'Hi — I''m an example assistant.' + #10 +
+    'Try clicking any bubble. Its raw text gets copied to your clipboard.');
+  Chat.AppendUser('What can you render?');
+  Chat.AppendAssistant(
+    '**Bold** text and preserved newlines.' + #10 +
+    'Code blocks, syntax highlighting, full markdown — those are app concerns,' + #10 +
+    'not framework concerns. Bring your own parser if you need them.');
+
+  // Controls
+  var BtnRow := TElement.Create('div', FDisplay);
+  BtnRow.SetStyle('display',   'flex');
+  BtnRow.SetStyle('gap',       'var(--space-2, 8px)');
+  BtnRow.SetStyle('flex-wrap', 'wrap');
+
+  var BtnUser := JW3Button.Create(BtnRow);
+  BtnUser.Caption := '+ user';
+  BtnUser.AddClass(csBtnSecondary);
+  BtnUser.AddClass(csBtnSmall);
+  BtnUser.OnClick := procedure(Sender: TObject)
+  begin
+    Chat.AppendUser('Another question — what about **bold** mid-sentence?');
+  end;
+
+  var BtnAsst := JW3Button.Create(BtnRow);
+  BtnAsst.Caption := '+ assistant';
+  BtnAsst.AddClass(csBtnSecondary);
+  BtnAsst.AddClass(csBtnSmall);
+  BtnAsst.OnClick := procedure(Sender: TObject)
+  begin
+    Chat.AppendAssistant(
+      'Bold mid-sentence works **just fine**.' + #10 +
+      'And so does a second line right after.');
+  end;
+
+  var BtnShow := JW3Button.Create(BtnRow);
+  BtnShow.Caption := 'show typing';
+  BtnShow.AddClass(csBtnPrimary);
+  BtnShow.AddClass(csBtnSmall);
+  BtnShow.OnClick := procedure(Sender: TObject)
+  begin
+    Chat.ShowTyping;
+  end;
+
+  var BtnHide := JW3Button.Create(BtnRow);
+  BtnHide.Caption := 'hide typing';
+  BtnHide.AddClass(csBtnGhost);
+  BtnHide.AddClass(csBtnSmall);
+  BtnHide.OnClick := procedure(Sender: TObject)
+  begin
+    Chat.HideTyping;
+  end;
 end;
 
 end.
