@@ -491,6 +491,7 @@ begin
         OutEnc.SetText(String(Enc));
 
         Deco := P.Decode(Enc);
+        asm @Deco = JSON.stringify(@Deco, null, 2) end;  //just for display purposes
         OutDec.SetText(String(Deco));
       except
         on E: Exception do
