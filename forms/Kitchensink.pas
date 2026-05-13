@@ -28,6 +28,7 @@ type
     procedure HandleLayoutsClick(Sender: TObject);
     procedure HandleNonVisualClick(Sender: TObject);
     procedure HandleListSelect(Sender: TObject; Value: String);
+    procedure HandleCodecsDemoClick(Sender: TObject);
     procedure HandleInvoiceDemoClick(Sender: TObject);
     procedure ShowComponent(const Name: String);
 
@@ -83,10 +84,12 @@ begin
   var BtnComp := FToolbar.AddItem('Components');
   var BtnLayouts := FToolbar.AddItem('Layouts');
   var BtnNonVisual := FToolbar.AddItem('Non-visual');
+  var BtnCodecsDemo := FToolbar.AddItem('Codecs');
   var BtnInvoiceDemo := FToolbar.AddItem('InvoiceApp');
   BtnComp.OnClick := HandleComponentsClick;
   BtnLayouts.OnClick := HandleLayoutsClick;
   BtnNonVisual.OnClick := HandleNonVisualClick;
+  BtnCodecsDemo.OnClick := HandleCodecsDemoClick;
   BtnInvoiceDemo.OnClick := HandleInvoiceDemoClick;
 
   // -- Body: listbox (left) + display panel (right) --------------------------
@@ -169,6 +172,11 @@ end;
 procedure TKitchensink.HandleInvoiceDemoClick(Sender: TObject);
 begin
   Application.GoToForm('InvoiceList');
+end;
+
+procedure TKitchensink.HandleCodecsDemoClick(Sender: TObject);
+begin
+  Application.GoToForm('FormCodecs');
 end;
 
 // ----------------------------------------------------------------------------
