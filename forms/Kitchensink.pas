@@ -392,11 +392,25 @@ end;
 
 procedure TKitchensink.ShowImage;
 begin
+  var Info := JW3Label.Create(FDisplay);
+  Info.SetText('jpg etc');
+
   var Img := JW3Image.Create(FDisplay);
-  Img.Src := 'https://picsum.photos/300/200';
+  Img.Src := 'images/testimage.jpg';  //'https://picsum.photos/300/200';
   Img.Alt := 'Random placeholder image';
   Img.SetStyle('border-radius', 'var(--radius-lg, 8px)');
   Img.SetStyle('max-width', '300px');
+
+  var Info2 := JW3Label.Create(FDisplay);
+  Info2.SetText('animated gif');
+
+  var Image := Jw3Image.Create(FDisplay);
+  Image.Src := 'images/testgif.gif';
+  Image.Alt := 'Random placeholder image';
+  Image.SetStyle('border-radius', '50%');
+  Image.SetStyle('width', '100px');
+  Image.SetStyle('height', '100px');
+  Image.Fit := ifCover;    //Image.SetStyle('object-fit', 'cover');
 end;
 
 procedure TKitchensink.ShowTabs;
