@@ -268,6 +268,47 @@ begin
   var B6 := JW3Button.Create(Row);
   B6.SetText('Disabled');
   B6.Enabled := false;
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowButton;
+begin
+  var Row := JW3Panel.Create(FDisplay);
+  Row.SetStyle('flex-direction', 'row');
+  Row.SetStyle('gap', 'var(--space-3, 12px)');
+  Row.SetStyle('flex-wrap', 'wrap');
+
+  var B1 := JW3Button.Create(Row);
+  B1.SetText('Default');
+
+  var B2 := JW3Button.Create(Row);
+  B2.SetText('Primary');
+  B2.AddClass(csBtnPrimary);
+
+  var B3 := JW3Button.Create(Row);
+  B3.SetText('Danger');
+  B3.AddClass(csBtnDanger);
+
+  var B4 := JW3Button.Create(Row);
+  B4.SetText('Ghost');
+  B4.AddClass(csBtnGhost);
+
+  var B5 := JW3Button.Create(Row);
+  B5.SetText('Small');
+  B5.AddClass(csBtnSmall);
+
+  var B6 := JW3Button.Create(Row);
+  B6.SetText('Disabled');
+  B6.Enabled := false;
+end;
+
+";
 end;
 
 procedure TKitchensink.ShowLabel;
@@ -283,6 +324,33 @@ begin
   L3.SetText('Large coloured label');
   L3.AddClass('text-2xl');
   L3.SetStyle('color', 'var(--primary-color, #6366f1)');
+
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowLabel;
+begin
+  var L1 := JW3Label.Create(FDisplay);
+  L1.SetText('A simple label');
+
+  var L2 := JW3Label.Create(FDisplay);
+  L2.SetText('Bold label');
+  L2.AddClass('font-bold');
+
+  var L3 := JW3Label.Create(FDisplay);
+  L3.SetText('Large coloured label');
+  L3.AddClass('text-2xl');
+  L3.SetStyle('color', 'var(--primary-color, #6366f1)');
+
+end;
+
+";
 end;
 
 procedure TKitchensink.ShowInput;
@@ -295,6 +363,28 @@ begin
   I2.SetAttribute('placeholder', 'Disabled input');
   I2.Enabled := false;
   I2.SetStyle('max-width', '300px');
+
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowInput;
+begin
+  var I1 := JW3Input.Create(FDisplay);
+  I1.SetAttribute('placeholder', 'Type something...');
+  I1.SetStyle('max-width', '300px');
+
+  var I2 := JW3Input.Create(FDisplay);
+  I2.SetAttribute('placeholder', 'Disabled input');
+  I2.Enabled := false;
+  I2.SetStyle('max-width', '300px');
+end;
+";
 end;
 
 procedure TKitchensink.ShowTextArea;
@@ -304,6 +394,24 @@ begin
   TA.SetAttribute('rows', '5');
   TA.SetStyle('max-width', '400px');
   TA.SetStyle('width', '100%');
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowTextArea;
+begin
+  var TA := JW3TextArea.Create(FDisplay);
+  TA.SetAttribute('placeholder', 'Enter multiple lines...');
+  TA.SetAttribute('rows', '5');
+  TA.SetStyle('max-width', '400px');
+  TA.SetStyle('width', '100%');
+end;
+";
 end;
 
 procedure TKitchensink.ShowSelect;
@@ -315,6 +423,26 @@ begin
   Sel.AddOption('blue', 'Blue');
   Sel.AddOption('yellow', 'Yellow');
   Sel.SetStyle('max-width', '200px');
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowSelect;
+begin
+  var Sel := JW3Select.Create(FDisplay);
+  Sel.AddOption('', '-- Choose --');
+  Sel.AddOption('red', 'Red');
+  Sel.AddOption('green', 'Green');
+  Sel.AddOption('blue', 'Blue');
+  Sel.AddOption('yellow', 'Yellow');
+  Sel.SetStyle('max-width', '200px');
+end;
+";
 end;
 
 procedure TKitchensink.ShowCheckbox;
@@ -328,6 +456,28 @@ begin
   var C3 := JW3Checkbox.Create(FDisplay);
   C3.Caption := 'Disabled option';
   C3.Enabled := false;
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowCheckbox;
+begin
+  var C1 := JW3Checkbox.Create(FDisplay);
+  C1.Caption := 'Accept terms';
+
+  var C2 := JW3Checkbox.Create(FDisplay);
+  C2.Caption := 'Subscribe to newsletter';
+
+  var C3 := JW3Checkbox.Create(FDisplay);
+  C3.Caption := 'Disabled option';
+  C3.Enabled := false;
+end;
+";
 end;
 
 procedure TKitchensink.ShowListBox;
@@ -341,6 +491,28 @@ begin
   LB.AddItem('go', 'Go');
   LB.AddItem('python', 'Python');
   LB.AddItem('csharp', 'C#');
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowListBox;
+begin
+  var LB := JW3ListBox.Create(FDisplay);
+  LB.SetStyle('width', '200px');
+  LB.SetStyle('height', '180px');
+  LB.AddItem('pascal', 'Object Pascal');
+  LB.AddItem('js', 'JavaScript');
+  LB.AddItem('rust', 'Rust');
+  LB.AddItem('go', 'Go');
+  LB.AddItem('python', 'Python');
+  LB.AddItem('csharp', 'C#');
+end;
+";
 end;
 
 procedure TKitchensink.ShowBadge;
@@ -373,6 +545,47 @@ begin
   var B6 := JW3Badge.Create(Row);
   B6.SetText('Primary');
   B6.AddClass(csBadgePrimary);
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowBadge;
+begin
+  var Row := JW3Panel.Create(FDisplay);
+  Row.SetStyle('flex-direction', 'row');
+  Row.SetStyle('gap', 'var(--space-3, 12px)');
+  Row.SetStyle('flex-wrap', 'wrap');
+  Row.SetStyle('align-items', 'center');
+
+  var B1 := JW3Badge.Create(Row);
+  B1.SetText('Default');
+
+  var B2 := JW3Badge.Create(Row);
+  B2.SetText('Success');
+  B2.AddClass(csBadgeSuccess);
+
+  var B3 := JW3Badge.Create(Row);
+  B3.SetText('Warning');
+  B3.AddClass(csBadgeWarning);
+
+  var B4 := JW3Badge.Create(Row);
+  B4.SetText('Danger');
+  B4.AddClass(csBadgeDanger);
+
+  var B5 := JW3Badge.Create(Row);
+  B5.SetText('Info');
+  B5.AddClass(csBadgeInfo);
+
+  var B6 := JW3Badge.Create(Row);
+  B6.SetText('Primary');
+  B6.AddClass(csBadgePrimary);
+end;
+";
 end;
 
 procedure TKitchensink.ShowCard;
@@ -388,6 +601,30 @@ begin
   var Btn := JW3Button.Create(Card.Footer);
   Btn.SetText('Action');
   Btn.AddClass(csBtnPrimary);
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowCard;
+begin
+  var Card := JW3Card.Create(FDisplay);
+  Card.Title := 'Example Card';
+  Card.SetStyle('max-width', '360px');
+  Card.SetStyle('width', '100%');
+
+  var Lbl := JW3Label.Create(Card.Body);
+  Lbl.SetText('This is the card body. Cards have a header, body, and footer panel.');
+
+  var Btn := JW3Button.Create(Card.Footer);
+  Btn.SetText('Action');
+  Btn.AddClass(csBtnPrimary);
+end;
+";
 end;
 
 procedure TKitchensink.ShowImage;
@@ -411,6 +648,38 @@ begin
   Image.SetStyle('width', '100px');
   Image.SetStyle('height', '100px');
   Image.Fit := ifCover;    //Image.SetStyle('object-fit', 'cover');
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowImage;
+begin
+  var Info := JW3Label.Create(FDisplay);
+  Info.SetText('jpg etc');
+
+  var Img := JW3Image.Create(FDisplay);
+  Img.Src := 'images/testimage.jpg';  //'https://picsum.photos/300/200';
+  Img.Alt := 'Random placeholder image';
+  Img.SetStyle('border-radius', 'var(--radius-lg, 8px)');
+  Img.SetStyle('max-width', '300px');
+
+  var Info2 := JW3Label.Create(FDisplay);
+  Info2.SetText('animated gif');
+
+  var Image := Jw3Image.Create(FDisplay);
+  Image.Src := 'images/testgif.gif';
+  Image.Alt := 'Random placeholder image';
+  Image.SetStyle('border-radius', '50%');
+  Image.SetStyle('width', '100px');
+  Image.SetStyle('height', '100px');
+  Image.Fit := ifCover;    //Image.SetStyle('object-fit', 'cover');
+end;
+";
 end;
 
 procedure TKitchensink.ShowTabs;
@@ -433,6 +702,37 @@ begin
   var L3 := JW3Label.Create(Page3);
   L3.SetText('Shoestring Framework -- Kitchen Sink Demo');
   L3.SetStyle('padding', 'var(--space-4, 16px)');
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowTabs;
+begin
+  var Tabs := JW3TabControl.Create(FDisplay);
+  Tabs.SetStyle('max-width', '500px');
+  Tabs.SetStyle('width', '100%');
+
+  var Page1 := Tabs.AddTab('General');
+  var L1 := JW3Label.Create(Page1);
+  L1.SetText('This is the General tab content.');
+  L1.SetStyle('padding', 'var(--space-4, 16px)');
+
+  var Page2 := Tabs.AddTab('Advanced');
+  var L2 := JW3Label.Create(Page2);
+  L2.SetText('Advanced settings would go here.');
+  L2.SetStyle('padding', 'var(--space-4, 16px)');
+
+  var Page3 := Tabs.AddTab('About');
+  var L3 := JW3Label.Create(Page3);
+  L3.SetText('Shoestring Framework -- Kitchen Sink Demo');
+  L3.SetStyle('padding', 'var(--space-4, 16px)');
+end;
+";
 end;
 
 procedure TKitchensink.ShowToolbar;
@@ -454,6 +754,36 @@ begin
   begin
     ToggleDark;
   end;
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowToolbar;
+begin
+  var TB := JW3Toolbar.Create(FDisplay);
+  TB.SetStyle('width', '100%');
+  TB.SetStyle('max-width', '500px');
+
+  var B1 := TB.AddItem('New');
+  var B2 := TB.AddItem('Open');
+  var B3 := TB.AddItem('Save');
+  TB.AddSeparator;
+  var B4 := TB.AddItem('Settings');
+  TB.AddSpacer;
+  var B5 := TB.AddItem('Theme');
+  var B6 := TB.AddItem('Help');
+
+  B5.OnClick := procedure(sender: TObject)
+  begin
+    ToggleDark;
+  end;
+end;
+";
 end;
 
 procedure TKitchensink.ShowModal;
@@ -484,6 +814,45 @@ begin
 
     Dlg.Show;
   end;
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowModal;
+begin
+  var Info := JW3Label.Create(FDisplay);
+  Info.SetText('Click the button to open a modal dialog.');
+
+  var Btn := JW3Button.Create(FDisplay);
+  Btn.SetText('Open Modal');
+  Btn.AddClass(csBtnPrimary);
+
+  Btn.OnClick := procedure(Sender: TObject)
+  begin
+    var Dlg := JW3Modal.Create(Self);
+    Dlg.Title := 'Example Modal';
+
+    var Lbl := JW3Label.Create(Dlg.Body);
+    Lbl.SetText('This is a modal dialog. Click the backdrop or close button to dismiss.');
+    Lbl.SetStyle('padding', 'var(--space-4, 16px)');
+
+    var CloseBtn := JW3Button.Create(Dlg.Footer);
+    CloseBtn.SetText('Close');
+    CloseBtn.AddClass(csBtnPrimary);
+    CloseBtn.OnClick := procedure(Sender: TObject)
+    begin
+      Dlg.Free;
+    end;
+
+    Dlg.Show;
+  end;
+end;
+";
 end;
 
 procedure TKitchensink.ShowToast;
@@ -518,6 +887,49 @@ begin
   begin
     Toast('Something went wrong.', ttDanger);
   end;
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowToast;
+begin
+  var Info := JW3Label.Create(FDisplay);
+  Info.SetText('Click a button to fire a toast notification.');
+
+  var Row := JW3Panel.Create(FDisplay);
+  Row.SetStyle('flex-direction', 'row');
+  Row.SetStyle('gap', 'var(--space-3, 12px)');
+  Row.SetStyle('flex-wrap', 'wrap');
+
+  var B1 := JW3Button.Create(Row);
+  B1.SetText('Info Toast');
+  B1.OnClick := procedure(Sender: TObject)
+  begin
+    Toast('This is an info message.', ttInfo);
+  end;
+
+  var B2 := JW3Button.Create(Row);
+  B2.SetText('Success Toast');
+  B2.AddClass(csBtnPrimary);
+  B2.OnClick := procedure(Sender: TObject)
+  begin
+    Toast('Operation completed!', ttSuccess);
+  end;
+
+  var B3 := JW3Button.Create(Row);
+  B3.SetText('Error Toast');
+  B3.AddClass(csBtnDanger);
+  B3.OnClick := procedure(Sender: TObject)
+  begin
+    Toast('Something went wrong.', ttDanger);
+  end;
+end;
+";
 end;
 
 procedure TKitchensink.ShowTable;
@@ -545,6 +957,109 @@ begin
       { id: 4, title: 'You Dont Know JS',        author: 'Kyle Simpson',     price: '$39.99' }
     ];
   end;
+
+//or :
+//  var Rows : array of variant;
+//  Var Row1: variant;
+//  Row1 := class
+//    id := 1;
+//    title := 'The Pragmatic Programmer';
+//    author:= 'David Thomas';
+//    price := '49.99';
+//  end;
+//  Rows.add(row1);
+//
+//  etc
+
+  T1.SetRows(Rows);
+
+  // -- Table with delete column ----------------------------------------------
+
+  var Lbl2 := JW3Label.Create(FDisplay);
+  Lbl2.SetText('With delete buttons');
+  Lbl2.AddClass('font-bold');
+  Lbl2.SetStyle('margin-top', 'var(--space-4)');
+
+  var T2 := JW3Table.Create(FDisplay);
+  T2.SetStyle('width', '100%');
+  T2.SetStyle('max-width', '400px');
+  T2.AddColumn('ID',   'id');
+  T2.AddColumn('Name', 'name');
+  T2.AddColumn('Role', 'role');
+  T2.OnDelete := procedure(ID: String)
+  begin
+    Toast('Delete requested for ID ' + ID, ttInfo, 2000);
+  end;
+
+  asm
+    @Rows = [
+      { id: 1, name: 'Alice Johnson', role: 'Admin'  },
+      { id: 2, name: 'Bob Smith',     role: 'Editor' },
+      { id: 3, name: 'Carol White',   role: 'Viewer' }
+    ];
+  end;
+
+  T2.SetRows(Rows);
+
+  // -- Empty state -----------------------------------------------------------
+
+  var Lbl3 := JW3Label.Create(FDisplay);
+  Lbl3.SetText('Empty state');
+  Lbl3.AddClass('font-bold');
+  Lbl3.SetStyle('margin-top', 'var(--space-4)');
+
+  var T3 := JW3Table.Create(FDisplay);
+  T3.SetStyle('max-width', '300px');
+  T3.AddColumn('ID',   'id');
+  T3.AddColumn('Name', 'name');
+  T3.Clear;
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowTable;
+var Rows: variant;
+begin
+  // -- Basic table (no delete) -----------------------------------------------
+
+  var Lbl1 := JW3Label.Create(FDisplay);
+  Lbl1.SetText('Basic table');
+  Lbl1.AddClass('font-bold');
+
+  var T1 := JW3Table.Create(FDisplay);
+  T1.SetStyle('width', '100%');
+  T1.SetStyle('max-width', '560px');
+  T1.AddColumn('ID',     'id');
+  T1.AddColumn('Title',  'title');
+  T1.AddColumn('Author', 'author');
+  T1.AddColumn('Price',  'price');
+
+  asm
+    @Rows = [
+      { id: 1, title: 'The Pragmatic Programmer', author: 'David Thomas',     price: '$49.99' },
+      { id: 2, title: 'Clean Code',               author: 'Robert C. Martin', price: '$44.99' },
+      { id: 3, title: 'Design Patterns',           author: 'Gang of Four',     price: '$54.99' },
+      { id: 4, title: 'You Dont Know JS',        author: 'Kyle Simpson',     price: '$39.99' }
+    ];
+  end;
+
+//or something like :
+//  var Rows : array of variant;
+//  Var Row1: variant;
+//  Row1 := class
+//    id := 1;
+//    title := 'The Pragmatic Programmer';
+//    author:= 'David Thomas';
+//    price := '49.99';
+//  end;
+//  Rows.add(row1);
+//
+//  etc
 
   T1.SetRows(Rows);
 
@@ -589,6 +1104,8 @@ begin
   T3.AddColumn('Name', 'name');
   T3.Clear;
 end;
+";
+end;
 
 procedure TKitchensink.ShowTreeView;
 begin
@@ -611,6 +1128,38 @@ begin
   Tree.AddNode(Proj, 'JElement.pas');
   Tree.AddNode(Proj, 'Globals.pas');
   Tree.AddNode(Proj, 'Types.pas');
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowTreeView;
+begin
+  var Tree := JW3TreeView.Create(FDisplay);
+  Tree.SetStyle('width', '600px');
+  Tree.SetStyle('height', '300px');
+  Tree.SetStyle('border', '1px solid var(--border-color, #e2e8f0)');
+  Tree.SetStyle('border-radius', 'var(--radius-lg, 8px)');
+
+  var Root := Tree.AddNode(nil, 'Documents');
+  var Work := Tree.AddNode(Root, 'Work');
+  Tree.AddNode(Work, 'Report.docx');
+  Tree.AddNode(Work, 'Budget.xlsx');
+  Tree.AddNode(Work, 'Presentation.pptx');
+  var Personal := Tree.AddNode(Root, 'Personal');
+  Tree.AddNode(Personal, 'Photos');
+  Tree.AddNode(Personal, 'Music');
+  var Dev := Tree.AddNode(nil, 'Development');
+  var Proj := Tree.AddNode(Dev, 'Shoestring');
+  Tree.AddNode(Proj, 'JElement.pas');
+  Tree.AddNode(Proj, 'Globals.pas');
+  Tree.AddNode(Proj, 'Types.pas');
+end;
+";
 end;
 
 procedure TKitchensink.ShowDataGrid;
@@ -644,6 +1193,48 @@ begin
   end;
 
   Grid.SetData(Rows);
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowDataGrid;
+begin
+  var Grid := JW3DataGrid.Create(FDisplay);
+  Grid.SetStyle('width', '100%');
+  Grid.SetStyle('max-width', '600px');
+  Grid.SetStyle('height', '300px');
+
+  Grid.AddColumn('name',   'Name',   160);
+  Grid.AddColumn('email',  'Email',  220, 'left', true, true);
+  Grid.AddColumn('role',   'Role',   100);
+  Grid.AddColumn('status', 'Status', 80, 'center');
+
+  var Rows: array of variant;
+
+  asm
+    function mkRow(n, e, r, s) { return {name:n, email:e, role:r, status:s}; }
+    @Rows = [
+      mkRow('Alice Johnson',  'alice@example.com',   'Admin',     'Active'),
+      mkRow('Bob Smith',      'bob@example.com',     'Editor',    'Active'),
+      mkRow('Carol White',    'carol@example.com',   'Viewer',    'Inactive'),
+      mkRow('Dave Brown',     'dave@example.com',    'Editor',    'Active'),
+      mkRow('Eve Davis',      'eve@example.com',     'Admin',     'Active'),
+      mkRow('Frank Miller',   'frank@example.com',   'Viewer',    'Active'),
+      mkRow('Grace Wilson',   'grace@example.com',   'Editor',    'Inactive'),
+      mkRow('Henry Taylor',   'henry@example.com',   'Viewer',    'Active'),
+      mkRow('Irene Clark',    'irene@example.com',   'Admin',     'Active'),
+      mkRow('Jack Lewis',     'jack@example.com',    'Editor',    'Active')
+    ];
+  end;
+
+  Grid.SetData(Rows);
+end;
+";
 end;
 
 procedure TKitchensink.ShowProductCard;
@@ -673,6 +1264,44 @@ begin
   C3.ImageSrc := 'https://picsum.photos/seed/lantern/400/300';
   C3.AddTag('Eco');
   C3.AddTag('Camping');
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowProductCard;
+begin
+  // FDisplay is the container -- make it a card container
+  AddCardContainer(FDisplay);
+
+  var C1 := TProductCard.Create(FDisplay);
+  C1.Title := 'Reef Snorkel Set';
+  C1.Price := '$49.95';
+  C1.Description := 'Full-face snorkel mask with dry-top system and 180-degree panoramic view.';
+  C1.ImageSrc := 'https://picsum.photos/seed/snorkel/400/300';
+  C1.AddTag('New');
+  C1.AddTag('Sale');
+
+  var C2 := TProductCard.Create(FDisplay);
+  C2.Title := 'Hiking Daypack 28L';
+  C2.Price := '$79.00';
+  C2.Description := 'Lightweight ripstop nylon with hydration sleeve and rain cover.';
+  C2.ImageSrc := 'https://picsum.photos/seed/hiking/400/300';
+  C2.AddTag('Popular');
+
+  var C3 := TProductCard.Create(FDisplay);
+  C3.Title := 'Solar Lantern';
+  C3.Price := '$24.50';
+  C3.Description := 'Collapsible LED lantern with built-in solar panel. 12-hour runtime.';
+  C3.ImageSrc := 'https://picsum.photos/seed/lantern/400/300';
+  C3.AddTag('Eco');
+  C3.AddTag('Camping');
+end;
+";
 end;
 
 procedure TKitchensink.ShowSpinner;
@@ -700,6 +1329,43 @@ begin
   var S3 := JW3Spinner.Create(FDisplay);
   S3.SetStyle('--spinner-size',  '24px');
   S3.SetStyle('--spinner-speed', '3.0s');
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowSpinner;
+begin
+  var Info := JW3Label.Create(FDisplay);
+  Info.SetText('Default (40 px)');
+  Info.AddClass('font-bold');
+
+  var S1 := JW3Spinner.Create(FDisplay);
+
+  var Lbl2 := JW3Label.Create(FDisplay);
+  Lbl2.SetText('Large (80 px, custom colour)');
+  Lbl2.AddClass('font-bold');
+  Lbl2.SetStyle('margin-top', 'var(--space-4, 16px)');
+
+  var S2 := JW3Spinner.Create(FDisplay);
+  S2.SetStyle('--spinner-size',  '80px');
+  S2.SetStyle('--spinner-color', '#f59e0b');
+
+  var Lbl3 := JW3Label.Create(FDisplay);
+  Lbl3.SetText('Small (24 px, slow)');
+  Lbl3.AddClass('font-bold');
+  Lbl3.SetStyle('margin-top', 'var(--space-4, 16px)');
+
+  var S3 := JW3Spinner.Create(FDisplay);
+  S3.SetStyle('--spinner-size',  '24px');
+  S3.SetStyle('--spinner-speed', '3.0s');
+end;
+";
+
 end;
 
 procedure TKitchensink.ShowSwitch;
@@ -765,6 +1431,80 @@ begin
     else
       StatusLbl.SetText('Auto-save: OFF');
   end;
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowSwitch;
+begin
+  var Info := JW3Label.Create(FDisplay);
+  Info.SetText('Toggle switches - on/off controls with an optional caption.');
+  Info.SetStyle('color', 'var(--text-light, #64748b)');
+
+  var Col := JW3Panel.Create(FDisplay);
+  Col.SetStyle('gap', 'var(--space-3, 12px)');
+
+  var S1 := JW3Switch.Create(Col);
+  S1.Caption := 'Enable notifications';
+  S1.Checked := true;
+
+  var S2 := JW3Switch.Create(Col);
+  S2.Caption := 'Dark mode';
+
+  var S3 := JW3Switch.Create(Col);
+  S3.Caption := 'Auto-save';
+  S3.Checked := true;
+
+  var S4 := JW3Switch.Create(Col);
+  S4.Caption := 'Disabled (off)';
+  S4.Enabled := false;
+
+  var S5 := JW3Switch.Create(Col);
+  S5.Caption := 'Disabled (on)';
+  S5.Checked := true;
+  S5.Enabled := false;
+
+  var StatusLbl := JW3Label.Create(FDisplay);
+  StatusLbl.SetText('Last toggled: --');
+  StatusLbl.SetStyle('color', 'var(--text-light, #64748b)');
+  StatusLbl.SetStyle('margin-top', 'var(--space-4, 16px)');
+
+  S1.OnChange := procedure(Sender: TObject; Checked: Boolean)
+  begin
+    if Checked then
+      StatusLbl.SetText('Notifications: ON')
+    else
+      StatusLbl.SetText('Notifications: OFF');
+  end;
+
+  // Sync initial state with whatever the document currently has
+  var IsDark: Boolean;
+  asm @IsDark = document.documentElement.classList.contains('dark'); end;
+  S2.Checked := IsDark;
+
+  S2.OnChange := procedure(Sender: TObject; Checked: Boolean)
+  begin
+    ToggleDark;
+    if Checked then
+      StatusLbl.SetText('Dark mode: ON')
+    else
+      StatusLbl.SetText('Dark mode: OFF');
+  end;
+
+  S3.OnChange := procedure(Sender: TObject; Checked: Boolean)
+  begin
+    if Checked then
+      StatusLbl.SetText('Auto-save: ON')
+    else
+      StatusLbl.SetText('Auto-save: OFF');
+  end;
+end;
+";
 end;
 
 procedure TKitchensink.ShowRadioGroup;
@@ -922,6 +1662,173 @@ begin
     PriStatus.SetText('Priority: ' + RgPri.ItemCaption[ItemIndex]
       + '  (value = "' + Value + '")');
   end;
+
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowRadioGroup;
+begin
+  var Info := JW3Label.Create(FDisplay);
+  Info.SetText('Mutually exclusive radio buttons. The group auto-detects '
+    + 'available width and switches between horizontal and vertical layout.');
+  Info.SetStyle('color', 'var(--text-light, #64748b)');
+  Info.SetStyle('max-width', '520px');
+
+  //
+  var Lbl1 := JW3Label.Create(FDisplay);
+  Lbl1.SetText('Shipping speed');
+  Lbl1.AddClass('font-bold');
+  Lbl1.SetStyle('margin-top', 'var(--space-4, 16px)');
+
+  var RgShip := JW3RadioGroup.Create(FDisplay);
+  RgShip.AddButton('Standard (5 days)',  'standard');
+  RgShip.AddButton('Express (2 days)',   'express');
+  RgShip.AddButton('Overnight',            'overnight');
+  RgShip.SelectedIndex := 0;   // pre-select 'Standard'
+
+  var ShipStatus := JW3Label.Create(FDisplay);
+  ShipStatus.SetText('Selected: standard');
+  ShipStatus.SetStyle('color', 'var(--text-light, #64748b)');
+
+  RgShip.OnChange := procedure(Sender: TObject; ItemIndex: Integer;
+    const Value: String)
+  begin
+    ShipStatus.SetText('Selected: ' + Value);
+  end;
+
+  //
+  var Lbl2 := JW3Label.Create(FDisplay);
+  Lbl2.SetText('Colour theme');
+  Lbl2.AddClass('font-bold');
+  Lbl2.SetStyle('margin-top', 'var(--space-4, 16px)');
+
+  var RgTheme := JW3RadioGroup.Create(FDisplay);
+  RgTheme.AddButton('Indigo',  'indigo');
+  RgTheme.AddButton('Emerald', 'emerald');
+  RgTheme.AddButton('Rose',    'rose');
+  RgTheme.AddButton('Amber',   'amber');
+
+  var ThemeSwatch := JW3Label.Create(FDisplay);
+  ThemeSwatch.SetText('pick a theme');
+  ThemeSwatch.SetStyle('color', 'var(--text-light, #64748b)');
+  ThemeSwatch.SetStyle('padding', '4px 12px');
+  ThemeSwatch.SetStyle('border-radius', 'var(--radius-full, 9999px)');
+  ThemeSwatch.SetStyle('display', 'inline-block');
+  ThemeSwatch.SetStyle('transition', 'background 0.2s, color 0.2s');
+
+  RgTheme.OnChange := procedure(Sender: TObject; ItemIndex: Integer;
+    const Value: String)
+  var
+    bg, fg: String;
+  begin
+    if      Value = 'indigo'  then begin bg := '#6366f1'; fg := '#fff'; end
+    else if Value = 'emerald' then begin bg := '#10b981'; fg := '#fff'; end
+    else if Value = 'rose'    then begin bg := '#f43f5e'; fg := '#fff'; end
+    else                           begin bg := '#f59e0b'; fg := '#1e293b'; end;
+    ThemeSwatch.SetText(Value);
+    ThemeSwatch.SetStyle('background', bg);
+    ThemeSwatch.SetStyle('color', fg);
+  end;
+
+  //
+  var Lbl3 := JW3Label.Create(FDisplay);
+  Lbl3.SetText('T-shirt size (narrow container, vertical layout)');
+  Lbl3.AddClass('font-bold');
+  Lbl3.SetStyle('margin-top', 'var(--space-4, 16px)');
+
+  var NarrowWrap := JW3Panel.Create(FDisplay);
+  NarrowWrap.SetStyle('width', '160px');
+  NarrowWrap.SetStyle('padding', 'var(--space-3, 12px)');
+  NarrowWrap.SetStyle('border', '1px solid var(--border-color, #e2e8f0)');
+  NarrowWrap.SetStyle('border-radius', 'var(--radius-lg, 8px)');
+
+  var RgSize := JW3RadioGroup.Create(NarrowWrap);
+  RgSize.AddButton('XS', 'xs');
+  RgSize.AddButton('S',  's');
+  RgSize.AddButton('M',  'm');
+  RgSize.AddButton('L',  'l');
+  RgSize.AddButton('XL', 'xl');
+  RgSize.SelectedIndex := 2;   // pre-select M
+
+  //
+  var Lbl4 := JW3Label.Create(FDisplay);
+  Lbl4.SetText('Payment method (disabled)');
+  Lbl4.AddClass('font-bold');
+  Lbl4.SetStyle('margin-top', 'var(--space-4, 16px)');
+
+  var RgPay := JW3RadioGroup.Create(FDisplay);
+  RgPay.AddButton('Credit card',  'cc');
+  RgPay.AddButton('Bank transfer','bank');
+  RgPay.AddButton('Crypto',       'crypto');
+  RgPay.SelectedIndex := 0;
+  RgPay.Enabled := false;
+
+  //
+  var Lbl5 := JW3Label.Create(FDisplay);
+  Lbl5.SetText('Priority level (click buttons to control programmatically)');
+  Lbl5.AddClass('font-bold');
+  Lbl5.SetStyle('margin-top', 'var(--space-4, 16px)');
+
+  var RgPri := JW3RadioGroup.Create(FDisplay);
+  RgPri.AddButton('Low',      'low');
+  RgPri.AddButton('Medium',   'medium');
+  RgPri.AddButton('High',     'high');
+  RgPri.AddButton('Critical', 'critical');
+
+  // Status label must be declared first so BtnClear's closure can capture it
+  var PriStatus := JW3Label.Create(FDisplay);
+  PriStatus.SetText('Nothing selected');
+  PriStatus.SetStyle('color', 'var(--text-light, #64748b)');
+
+  var BtnRow := JW3Panel.Create(FDisplay);
+  BtnRow.SetStyle('flex-direction', 'row');
+  BtnRow.SetStyle('gap', 'var(--space-2, 8px)');
+  BtnRow.SetStyle('flex-wrap', 'wrap');
+  BtnRow.SetStyle('margin-top', 'var(--space-2, 8px)');
+
+  var BtnPrev := JW3Button.Create(BtnRow);
+  BtnPrev.SetText('Prev');
+  BtnPrev.OnClick := procedure(Sender: TObject)
+  var idx: Integer;
+  begin
+    idx := RgPri.SelectedIndex;
+    if idx > 0 then
+      RgPri.SelectedIndex := idx - 1;
+  end;
+
+  var BtnNext := JW3Button.Create(BtnRow);
+  BtnNext.SetText('Next');
+  BtnNext.OnClick := procedure(Sender: TObject)
+  var idx: Integer;
+  begin
+    idx := RgPri.SelectedIndex;
+    if (idx < 0) or (idx < RgPri.Count - 1) then
+      RgPri.SelectedIndex := idx + 1;
+  end;
+
+  var BtnClear := JW3Button.Create(BtnRow);
+  BtnClear.SetText('Clear');
+  BtnClear.AddClass(csBtnGhost);
+  BtnClear.OnClick := procedure(Sender: TObject)
+  begin
+    RgPri.SelectedIndex := -1;
+    PriStatus.SetText('Nothing selected');
+  end;
+
+  RgPri.OnChange := procedure(Sender: TObject; ItemIndex: Integer;
+    const Value: String)
+  begin
+    PriStatus.SetText('Priority: ' + RgPri.ItemCaption[ItemIndex]
+      + '  (value = `' + Value + '`)');
+  end;
+end;
+";
 end;
 
 procedure TKitchensink.ShowDrawer;
@@ -978,6 +1885,71 @@ begin
 
     Drawer.Open;
   end;   // Btn.OnClick
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowDrawer;
+begin
+  var Info := JW3Label.Create(FDisplay);
+  Info.SetText('Click the button to slide in the drawer from the left.');
+  Info.SetStyle('color', 'var(--text-light, #64748b)');
+
+  var Btn := JW3Button.Create(FDisplay);
+  Btn.SetText('Open Drawer');
+  Btn.AddClass(csBtnPrimary);
+
+  Btn.OnClick := procedure(Sender: TObject)
+  begin
+    var Drawer := JW3Drawer.Create(Self);
+    Drawer.Title := 'Navigation';
+    Drawer.Duration := 500;
+
+    // -- Nav items ------------------------------------------------------------
+
+    var NavItems: array of String := [
+      'Dashboard', 'Orders', 'Customers', 'Products', 'Analytics', 'Settings'
+    ];
+
+    for var i := 0 to NavItems.Length - 1 do
+    begin
+      var Item := JW3Panel.Create(Drawer.Body);
+      Item.SetText(NavItems[i]);
+      Item.SetStyle('padding', 'var(--space-3, 12px) var(--space-4, 16px)');
+      Item.SetStyle('border-radius', 'var(--radius-md, 6px)');
+      Item.SetStyle('cursor', 'pointer');
+      Item.SetStyle('color', 'var(--text-color, #334155)');
+      Item.SetStyle('font-size', 'var(--font-size-sm, 0.875rem)');
+      Item.SetStyle('transition', 'background var(--anim-duration, 0.2s)');
+      Item.SetRulePseudo('hover', 'background', 'var(--hover-color, #f1f5f9)');
+    end;
+
+    // -- Footer: close button -------------------------------------------------
+
+    Drawer.Footer.Visible := true;
+
+    var BtnClose := JW3Button.Create(Drawer.Footer);
+    BtnClose.SetText('Close');
+    BtnClose.AddClass(csBtnGhost);
+    BtnClose.OnClick := procedure(Sender: TObject)
+    begin
+      Drawer.Free;
+    end;
+
+    Drawer.OnClose := procedure(Sender: TObject)
+    begin
+      Drawer.Free;
+    end;
+
+    Drawer.Open;
+  end;
+end;
+";
 end;     // ShowDrawer
 
 
@@ -1105,6 +2077,132 @@ begin
 
   C.Refresh;
 
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowChart;
+
+  // Helper: build a thin section-label + bordered chart wrapper,
+  // returns the JW3Chart ready to receive series / categories.
+  function MakeSlot(const SectionTitle, Subtitle: String): JW3Chart;
+  var
+    Wrap:  JW3Panel;
+    Lbl:   JW3Label;
+    Sub:   JW3Label;
+    Chart: JW3Chart;
+  begin
+    Wrap := JW3Panel.Create(FDisplay);
+    Wrap.SetStyle('width', '100%');
+    Wrap.SetStyle('max-width', '680px');
+    Wrap.SetStyle('border', '1px solid var(--border-color)');
+    Wrap.SetStyle('border-radius', 'var(--radius-lg, 12px)');
+    Wrap.SetStyle('overflow', 'hidden');
+    Wrap.SetStyle('background', 'var(--surface-color)');
+    Wrap.SetStyle('box-shadow', 'var(--shadow-sm)');
+
+    Lbl := JW3Label.Create(Wrap);
+    Lbl.SetText(SectionTitle);
+    Lbl.AddClass('font-bold');
+    Lbl.SetStyle('padding', '14px 20px 2px 20px');
+    Lbl.SetStyle('font-size', 'var(--text-base, 1rem)');
+    Lbl.SetStyle('color', 'var(--text-color)');
+
+    Sub := JW3Label.Create(Wrap);
+    Sub.SetText(Subtitle);
+    Sub.SetStyle('padding', '0 20px 12px 20px');
+    Sub.SetStyle('font-size', 'var(--text-sm, 0.875rem)');
+    Sub.SetStyle('color', 'var(--text-light)');
+
+    Chart := JW3Chart.Create(Wrap);
+    Chart.SetStyle('height', '280px');
+    Chart.SetStyle('padding', '0 12px 16px 12px');
+
+    Result := Chart;
+  end;
+
+var
+  C: JW3Chart;
+  S: TJChartSeries;
+
+begin
+
+  // ==========================================================================
+  //  1. Bar chart -- Quarterly revenue, two series
+  // ==========================================================================
+
+  C := MakeSlot('Bar Chart', 'Quarterly revenue comparison (2023 vs 2024)');
+  C.ChartType := ctBar;
+  C.Animated  := true;
+  C.SetCategories(['Q1', 'Q2', 'Q3', 'Q4']);
+
+  S := C.NewSeries('2023');
+  S.AddValue(142); S.AddValue(198); S.AddValue(231); S.AddValue(189);
+
+  S := C.NewSeries('2024');
+  S.AddValue(175); S.AddValue(224); S.AddValue(310); S.AddValue(268);
+
+  C.Refresh;
+
+  // ==========================================================================
+  //  2. Line chart -- Monthly website traffic, two series
+  // ==========================================================================
+
+  C := MakeSlot('Line Chart', 'Monthly unique visitors by device (thousands)');
+  C.ChartType := ctLine;
+  C.Animated  := true;
+  C.SetCategories(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']);
+
+  S := C.NewSeries('Desktop');
+  S.AddValue(38); S.AddValue(42); S.AddValue(55); S.AddValue(61); S.AddValue(58); S.AddValue(74);
+
+  S := C.NewSeries('Mobile');
+  S.AddValue(22); S.AddValue(31); S.AddValue(40); S.AddValue(52); S.AddValue(67); S.AddValue(83);
+
+  S := C.NewSeries('Tablet');
+  S.AddValue(8); S.AddValue(11); S.AddValue(9); S.AddValue(14); S.AddValue(12); S.AddValue(16);
+
+  C.Refresh;
+
+  // ==========================================================================
+  //  3. Pie chart -- Regional sales breakdown
+  // ==========================================================================
+
+  C := MakeSlot('Pie Chart', 'Regional sales breakdown for FY 2024');
+  C.ChartType   := ctPie;
+  C.Animated    := true;
+  C.ShowLegend  := true;
+
+  C.NewSeries('North America').AddValue(38);
+  C.NewSeries('Europe').AddValue(27);
+  C.NewSeries('Asia Pacific').AddValue(21);
+  C.NewSeries('Latin America').AddValue(9);
+  C.NewSeries('Other').AddValue(5);
+
+  C.Refresh;
+
+  // ==========================================================================
+  //  4. Donut chart -- Budget allocation
+  // ==========================================================================
+
+  C := MakeSlot('Donut Chart', 'Annual budget allocation by department');
+  C.ChartType  := ctDonut;
+  C.Animated   := true;
+  C.ShowLegend := true;
+
+  C.NewSeries('Engineering').AddValue(42);
+  C.NewSeries('Marketing').AddValue(23);
+  C.NewSeries('Operations').AddValue(18);
+  C.NewSeries('Support').AddValue(17);
+
+  C.Refresh;
+end;
+";
+
 end;
 
 procedure TKitchensink.ShowChatPanel;
@@ -1172,6 +2270,82 @@ begin
   begin
     Chat.HideTyping;
   end;
+
+//////////////
+
+  var TA1 := JW3TextArea.Create(FDisplay);
+  TA1.SetStyle('margin-top', 'var(--space-8, 16px)');
+  TA1.AddClass('text-mono');
+  TA1.SetStyle('font-size', '0.8em');
+  TA1.Rows := 15;
+  TA1.Value := "
+procedure TKitchensink.ShowChatPanel;
+begin
+  var Info := JW3Label.Create(FDisplay);
+  Info.SetText('Click any bubble to copy its text. Light markdown only — **bold** and newlines.');
+  Info.SetStyle('color', 'var(--text-light, #64748b)');
+
+  // Chat panel with a fixed scrollable area so the typing indicator stays visible.
+  var Chat := JW3ChatPanel.Create(FDisplay);
+  Chat.SetStyle('width',       '480px');
+  Chat.SetStyle('max-width',   '100%');
+  Chat.SetStyle('height',      '320px');
+  Chat.SetStyle('flex-shrink', '0');
+
+  Chat.AppendAssistant(
+    'Hi — I''m an example assistant.' + #10 +
+    'Try clicking any bubble. Its raw text gets copied to your clipboard.');
+  Chat.AppendUser('What can you render?');
+  Chat.AppendAssistant(
+    '**Bold** text and preserved newlines.' + #10 +
+    'Code blocks, syntax highlighting, full markdown — those are app concerns,' + #10 +
+    'not framework concerns. Bring your own parser if you need them.');
+
+  // Controls
+  var BtnRow := TElement.Create('div', FDisplay);
+  BtnRow.SetStyle('display',   'flex');
+  BtnRow.SetStyle('gap',       'var(--space-2, 8px)');
+  BtnRow.SetStyle('flex-wrap', 'wrap');
+
+  var BtnUser := JW3Button.Create(BtnRow);
+  BtnUser.Caption := '+ user';
+  BtnUser.AddClass(csBtnSecondary);
+  BtnUser.AddClass(csBtnSmall);
+  BtnUser.OnClick := procedure(Sender: TObject)
+  begin
+    Chat.AppendUser('Another question — what about **bold** mid-sentence?');
+  end;
+
+  var BtnAsst := JW3Button.Create(BtnRow);
+  BtnAsst.Caption := '+ assistant';
+  BtnAsst.AddClass(csBtnSecondary);
+  BtnAsst.AddClass(csBtnSmall);
+  BtnAsst.OnClick := procedure(Sender: TObject)
+  begin
+    Chat.AppendAssistant(
+      'Bold mid-sentence works **just fine**.' + #10 +
+      'And so does a second line right after.');
+  end;
+
+  var BtnShow := JW3Button.Create(BtnRow);
+  BtnShow.Caption := 'show typing';
+  BtnShow.AddClass(csBtnPrimary);
+  BtnShow.AddClass(csBtnSmall);
+  BtnShow.OnClick := procedure(Sender: TObject)
+  begin
+    Chat.ShowTyping;
+  end;
+
+  var BtnHide := JW3Button.Create(BtnRow);
+  BtnHide.Caption := 'hide typing';
+  BtnHide.AddClass(csBtnGhost);
+  BtnHide.AddClass(csBtnSmall);
+  BtnHide.OnClick := procedure(Sender: TObject)
+  begin
+    Chat.HideTyping;
+  end;
+end;
+";
 end;
 
 end.
