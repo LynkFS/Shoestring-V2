@@ -140,7 +140,7 @@ begin
 
   FFooter := JW3Panel.Create(Self);
   FFooter.AddClass(csCardFooter);
-  FFooter.Visible := false;  // hidden until developer adds content
+  //FFooter.Visible := false;  // hidden until developer adds content
 end;
 
 function JW3Card.GetTitle: String;
