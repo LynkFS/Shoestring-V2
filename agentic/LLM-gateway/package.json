@@ -1,0 +1,15 @@
+{
+  "name": "llm-proxy-shoestring",
+  "version": "1.0.0",
+  "description": "Stateless generic LLM proxy — ShoeString Pascal skeleton + runtime JS provider plugins",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2"
+  }
+}

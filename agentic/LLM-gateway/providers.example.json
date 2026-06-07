@@ -1,0 +1,44 @@
+{
+  "_comment": "Copy to providers.json. Adding/retuning a provider is THIS file + a plugins/*.js — never a Pascal recompile. `plugin` is resolved relative to the proxy's working directory. `keyEnv` names the env var the proxy reads the API key from (the key is never written here).",
+
+  "openai": {
+    "plugin":       "./plugins/openai.js",
+    "endpoint":     "https://api.openai.com/v1/chat/completions",
+    "keyEnv":       "OPENAI_API_KEY",
+    "modelDefault": "gpt-4o",
+    "models": ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "o1", "o1-mini"]
+  },
+
+  "deepseek": {
+    "plugin":       "./plugins/openai.js",
+    "endpoint":     "https://api.deepseek.com/chat/completions",
+    "keyEnv":       "DEEPSEEK_API_KEY",
+    "modelDefault": "deepseek-chat",
+    "models": ["deepseek-chat", "deepseek-reasoner"]
+  },
+
+  "ollama": {
+    "plugin":       "./plugins/ollama.js",
+    "endpoint":     "http://localhost:11434/v1/chat/completions",
+    "keyEnv":       "",
+    "modelDefault": "llama3.1",
+    "models": ["llama3.1", "llama3.2", "mistral", "gemma3"]
+  },
+
+  "claude": {
+    "plugin":       "./plugins/claude.js",
+    "endpoint":     "https://api.anthropic.com/v1/messages",
+    "keyEnv":       "ANTHROPIC_API_KEY",
+    "modelDefault": "claude-sonnet-4-6",
+    "models": [
+      "claude-opus-4-8",
+      "claude-sonnet-4-6",
+      "claude-haiku-4-5-20251001"
+    ],
+
+    "_transports":     "The adapter's Transport field picks the path; one row covers all three. `endpoint`/`keyEnv` are the api transport; `cliBin` the cli transport; `managedEndpoint` the managed transport — independent fields, no conflict.",
+    "cliBin":          "claude",
+    "managedEndpoint": "https://your-host/agents/api.php",
+    "skill":           "generic_assistant"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "claude": {
+    "plugin":       "./plugins/claude.js",
+    "endpoint":     "https://api.anthropic.com/v1/messages",
+    "keyEnv":       "ANTHROPIC_API_KEY",
+    "modelDefault": "claude-opus-4-8",
+    "models": [
+      "claude-opus-4-8",
+      "claude-sonnet-4-6",
+      "claude-haiku-4-5-20251001"
+    ]
+  }
+}
