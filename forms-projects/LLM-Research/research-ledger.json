@@ -1,0 +1,479 @@
+{
+  "claims": [
+    {
+      "id": "cmq9e1ykx700",
+      "text": "Studies report that higher daily screen time in children under 5 is associated with poorer performance on measures of attention and executive function.",
+      "species": [
+        "scientific"
+      ],
+      "status": "working",
+      "claimType": "therapeutic",
+      "causalBasis": "observational",
+      "riskGrade": "LOW",
+      "sources": [
+        {
+          "tier": 1,
+          "origin": "Bustamante et al. meta-analysis (2023) under-6 screen time executive function",
+          "ref": "",
+          "url": "https://www.sciencedirect.com/science/article/pii/S0747563223000900",
+          "verified": false
+        },
+        {
+          "tier": 2,
+          "origin": "Fitzpatrick et al. prospective preschooler study 2024",
+          "ref": "",
+          "url": "https://www.academicpedsjnl.net/article/S1876-2859(24)00548-5/fulltext",
+          "verified": false
+        },
+        {
+          "tier": 2,
+          "origin": "Cross-lagged Taiwan longitudinal study ages 3-5",
+          "ref": "",
+          "url": "https://www.sciencedirect.com/science/article/pii/S0193397325001388",
+          "verified": false
+        },
+        {
+          "tier": 2,
+          "origin": "McHarg et al. longitudinal toddler study Cambridge (2020)",
+          "ref": "",
+          "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7643631/",
+          "verified": true
+        },
+        {
+          "tier": 3,
+          "origin": "Massaroni et al. & Sticca et al. systematic reviews executive function attention",
+          "ref": "",
+          "url": "https://ijcrt.org/papers/IJCRT2508737.pdf",
+          "verified": true
+        },
+        {
+          "tier": 2,
+          "origin": "Thai preschooler cross-sectional executive dysfunction mediation study",
+          "ref": "",
+          "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10994291/",
+          "verified": true
+        }
+      ],
+      "steelman": "The relationship is associational rather than causal; longitudinal studies show only modest effect sizes (−0.05 to −0.06), reverse causation cannot be excluded, and effect sizes vary substantially by content type and contextual factors such as parental involvement; additionally, most evidence involves observational measurement of parent-reported screen time which introduces measurement error",
+      "regulatoryStatus": "AAP recommends ≤1 hour high-quality content for under-5s; WHO recommends ≤1 hour daily",
+      "predictionsTested": true,
+      "harmfulInstruction": false,
+      "signoff": "",
+      "actor": "runner"
+    },
+    {
+      "id": "cmq9e1ykx313",
+      "text": "The evidence is mixed on whether all screen content affects child development equally, with some research suggesting that educational programming is associated with smaller negative developmental outcomes compared to purely entertainment content.",
+      "species": [
+        "scientific"
+      ],
+      "status": "working",
+      "claimType": "",
+      "causalBasis": "observational",
+      "riskGrade": "LOW",
+      "sources": [
+        {
+          "tier": 2,
+          "origin": "2019 JAMA Pediatrics meta-analysis of 68 studies, 200,000+ children",
+          "ref": "",
+          "url": "https://www.codeyoung.com/blog/coding-screen-time-kids-guide",
+          "verified": true
+        },
+        {
+          "tier": 2,
+          "origin": "Cambridge University - Journal of Child Language study",
+          "ref": "",
+          "url": "https://www.cambridge.org/core/journals/journal-of-child-language/article/association-between-screen-media-quantity-content-and-context-and-language-development/4160F7B83AD3D76EA1C347D937703CF2",
+          "verified": true
+        },
+        {
+          "tier": 2,
+          "origin": "American Academy of Pediatrics - Pediatrics journal 2017",
+          "ref": "",
+          "url": "https://publications.aap.org/pediatrics/article/140/Supplement_2/S57/34173/Digital-Screen-Media-and-Cognitive-Development",
+          "verified": false
+        },
+        {
+          "tier": 3,
+          "origin": "2024 Frontiers systematic scoping review",
+          "ref": "",
+          "url": "https://www.frontiersin.org/journals/developmental-psychology/articles/10.3389/fdpys.2024.1439040/full",
+          "verified": true
+        }
+      ],
+      "steelman": "Some argue that all distinctions between educational and entertainment content are overstated, with total duration and individual differences in children mattering far more than content type, and that the evidence for educational benefits remains limited by correlational study designs unable to isolate causation",
+      "regulatoryStatus": "",
+      "predictionsTested": false,
+      "harmfulInstruction": false,
+      "signoff": "",
+      "actor": "runner"
+    },
+    {
+      "id": "cmq9e1ykx656",
+      "text": "The American Academy of Pediatrics recommends limiting screen time to one hour per day of high-quality programming for children aged 2 to 5, and avoiding screen use beyond video chatting for children under 18 months.",
+      "species": [
+        "regulatory"
+      ],
+      "status": "finding",
+      "claimType": "",
+      "causalBasis": "n/a",
+      "riskGrade": "LOW",
+      "sources": [
+        {
+          "tier": 4,
+          "origin": "AAP.org official",
+          "ref": "",
+          "url": "https://www.aap.org/en/patient-care/media-and-children/center-of-excellence-on-social-media-and-youth-mental-health/qa-portal/qa-portal-library/qa-portal-library-questions/screen-time-for-infants/",
+          "verified": true
+        },
+        {
+          "tier": 3,
+          "origin": "CHOC children's health",
+          "ref": "",
+          "url": "https://health.choc.org/updated-aap-recommendations-for-screen-time/",
+          "verified": true
+        }
+      ],
+      "steelman": "AAP guidance emphasizes that the one-hour-per-day recommendation for ages 2-5 is now presented within a broader framework prioritizing quality and context over strict time limits, and no firm limits exist for older children",
+      "regulatoryStatus": "AAP Clinical Guidance (updated January 2026)",
+      "predictionsTested": false,
+      "harmfulInstruction": false,
+      "signoff": "",
+      "actor": "runner"
+    },
+    {
+      "id": "cmq9e1ykx226",
+      "text": "Longitudinal studies report that children with higher cumulative screen time exposure during early childhood show associations with increased ADHD symptom scores, though causality has not been firmly established.",
+      "species": [
+        "scientific"
+      ],
+      "status": "working",
+      "claimType": "therapeutic",
+      "causalBasis": "observational",
+      "riskGrade": "LOW",
+      "sources": [
+        {
+          "tier": 2,
+          "origin": "peer-reviewed: Levelink et al. longitudinal cohort",
+          "ref": "",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/32924722/",
+          "verified": true
+        },
+        {
+          "tier": 2,
+          "origin": "peer-reviewed: CHILD study longitudinal",
+          "ref": "",
+          "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11703913/",
+          "verified": true
+        },
+        {
+          "tier": 2,
+          "origin": "peer-reviewed: Mendelian randomization analysis (genetic)",
+          "ref": "",
+          "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11457377/",
+          "verified": true
+        },
+        {
+          "tier": 3,
+          "origin": "reputable commentary synthesis",
+          "ref": "",
+          "url": "https://www.frontiersin.org/journals/psychiatry/articles/10.3389/fpsyt.2024.1512149/full",
+          "verified": true
+        }
+      ],
+      "steelman": "While longitudinal studies consistently report associations between higher screen time in early childhood and increased ADHD symptom scores, the peer-reviewed consensus explicitly states that causality has not been established through these designs. Cross-sectional and longitudinal observational studies show varied results—some report associations with inattention problems (CHILD study), while others (KOALA Birth Cohort, Levelink) found no longitudinal association between early childhood screen time and ADHD diagnosis. Mendelian randomization studies using genetic data provide some suggestive evidence of directionality but remain distinct from experimental evidence. The claim accurately reflects the current state of observational evidence and the acknowledged limits on causal inference.",
+      "regulatoryStatus": "",
+      "predictionsTested": false,
+      "harmfulInstruction": false,
+      "signoff": "",
+      "actor": "runner"
+    },
+    {
+      "id": "cmq9e1ykx380",
+      "text": "Screen time in children is often marketed by device and app manufacturers as educational or developmental, with limited independent evidence supporting many such claims.",
+      "species": [
+        "marketing"
+      ],
+      "status": "finding",
+      "claimType": "",
+      "causalBasis": "observational",
+      "riskGrade": "LOW",
+      "sources": [
+        {
+          "tier": 1,
+          "origin": "PMC/PRISMA systematic review",
+          "ref": "",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12563978/",
+          "verified": true
+        },
+        {
+          "tier": 1,
+          "origin": "ScienceDirect meta-analysis",
+          "ref": "",
+          "url": "https://www.sciencedirect.com/science/article/pii/S2667009723000465",
+          "verified": false
+        },
+        {
+          "tier": 2,
+          "origin": "peer-reviewed longitudinal study",
+          "ref": "",
+          "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6884886/",
+          "verified": true
+        },
+        {
+          "tier": 3,
+          "origin": "FTC enforcement record/advocacy groups",
+          "ref": "",
+          "url": "https://www.cbsnews.com/news/toddler-apps-dont-make-smarter-kids-group-says/",
+          "verified": true
+        },
+        {
+          "tier": 3,
+          "origin": "Research study on app marketing practices",
+          "ref": "",
+          "url": "https://worth.com/study-preschoolers-targeted-marketing-apps/",
+          "verified": true
+        },
+        {
+          "tier": 3,
+          "origin": "Human Rights Watch investigation",
+          "ref": "",
+          "url": "https://www.cbc.ca/amp/1.6465739",
+          "verified": false
+        }
+      ],
+      "steelman": "Some independent research demonstrates nuanced benefits of educational screen time under specific conditions (parental involvement, interactive content), suggesting not all manufacturer claims are unfounded",
+      "regulatoryStatus": "FTC has taken action against deceptive marketing claims (Baby Einstein settlements 2009-2013); COPPA enforcement remains limited",
+      "predictionsTested": true,
+      "harmfulInstruction": false,
+      "signoff": "",
+      "actor": "runner"
+    }
+  ],
+  "events": [
+    {
+      "ts": 1781175752529,
+      "actor": "runner",
+      "type": "add",
+      "claim": "cmq9e1ykx700",
+      "detail": "scientific"
+    },
+    {
+      "ts": 1781175752529,
+      "actor": "runner",
+      "type": "add",
+      "claim": "cmq9e1ykx313",
+      "detail": "scientific"
+    },
+    {
+      "ts": 1781175752529,
+      "actor": "runner",
+      "type": "add",
+      "claim": "cmq9e1ykx656",
+      "detail": "regulatory"
+    },
+    {
+      "ts": 1781175752529,
+      "actor": "runner",
+      "type": "add",
+      "claim": "cmq9e1ykx226",
+      "detail": "scientific"
+    },
+    {
+      "ts": 1781175752529,
+      "actor": "runner",
+      "type": "add",
+      "claim": "cmq9e1ykx380",
+      "detail": "marketing"
+    },
+    {
+      "ts": 1781175772313,
+      "actor": "runner",
+      "type": "source-unverified",
+      "claim": "cmq9e1ykx700",
+      "detail": "Bustamante et al. meta-analysis (2023) under-6 screen time executive function"
+    },
+    {
+      "ts": 1781175772313,
+      "actor": "runner",
+      "type": "source-unverified",
+      "claim": "cmq9e1ykx700",
+      "detail": "Fitzpatrick et al. prospective preschooler study 2024"
+    },
+    {
+      "ts": 1781175772313,
+      "actor": "runner",
+      "type": "source-unverified",
+      "claim": "cmq9e1ykx700",
+      "detail": "Cross-lagged Taiwan longitudinal study ages 3-5"
+    },
+    {
+      "ts": 1781175772313,
+      "actor": "runner",
+      "type": "source",
+      "claim": "cmq9e1ykx700",
+      "detail": "McHarg et al. longitudinal toddler study Cambridge (2020)"
+    },
+    {
+      "ts": 1781175772313,
+      "actor": "runner",
+      "type": "source",
+      "claim": "cmq9e1ykx700",
+      "detail": "Massaroni et al. & Sticca et al. systematic reviews executive function attention"
+    },
+    {
+      "ts": 1781175772313,
+      "actor": "runner",
+      "type": "source",
+      "claim": "cmq9e1ykx700",
+      "detail": "Thai preschooler cross-sectional executive dysfunction mediation study"
+    },
+    {
+      "ts": 1781175772314,
+      "actor": "runner",
+      "type": "promote-blocked",
+      "claim": "cmq9e1ykx700",
+      "detail": "[domain] a scientific verdict needs a Tier-1 source.\n[domain] claim type \"therapeutic\" needs Tier-1 evidence; best source is Tier-2.\n[domain] causal claim (\"therapeutic\") rests on observational evidence, not interventional."
+    },
+    {
+      "ts": 1781175782482,
+      "actor": "runner",
+      "type": "source",
+      "claim": "cmq9e1ykx313",
+      "detail": "2019 JAMA Pediatrics meta-analysis of 68 studies, 200,000+ children"
+    },
+    {
+      "ts": 1781175782482,
+      "actor": "runner",
+      "type": "source",
+      "claim": "cmq9e1ykx313",
+      "detail": "Cambridge University - Journal of Child Language study"
+    },
+    {
+      "ts": 1781175782482,
+      "actor": "runner",
+      "type": "source-unverified",
+      "claim": "cmq9e1ykx313",
+      "detail": "American Academy of Pediatrics - Pediatrics journal 2017"
+    },
+    {
+      "ts": 1781175782482,
+      "actor": "runner",
+      "type": "source",
+      "claim": "cmq9e1ykx313",
+      "detail": "2024 Frontiers systematic scoping review"
+    },
+    {
+      "ts": 1781175782483,
+      "actor": "runner",
+      "type": "promote-blocked",
+      "claim": "cmq9e1ykx313",
+      "detail": "[domain] a scientific verdict needs a Tier-1 source."
+    },
+    {
+      "ts": 1781175793594,
+      "actor": "runner",
+      "type": "source",
+      "claim": "cmq9e1ykx656",
+      "detail": "AAP.org official"
+    },
+    {
+      "ts": 1781175793595,
+      "actor": "runner",
+      "type": "source",
+      "claim": "cmq9e1ykx656",
+      "detail": "CHOC children's health"
+    },
+    {
+      "ts": 1781175793595,
+      "actor": "runner",
+      "type": "promote",
+      "claim": "cmq9e1ykx656",
+      "detail": "finding"
+    },
+    {
+      "ts": 1781175802385,
+      "actor": "runner",
+      "type": "source",
+      "claim": "cmq9e1ykx226",
+      "detail": "peer-reviewed: Levelink et al. longitudinal cohort"
+    },
+    {
+      "ts": 1781175802385,
+      "actor": "runner",
+      "type": "source",
+      "claim": "cmq9e1ykx226",
+      "detail": "peer-reviewed: CHILD study longitudinal"
+    },
+    {
+      "ts": 1781175802385,
+      "actor": "runner",
+      "type": "source",
+      "claim": "cmq9e1ykx226",
+      "detail": "peer-reviewed: Mendelian randomization analysis (genetic)"
+    },
+    {
+      "ts": 1781175802385,
+      "actor": "runner",
+      "type": "source",
+      "claim": "cmq9e1ykx226",
+      "detail": "reputable commentary synthesis"
+    },
+    {
+      "ts": 1781175802385,
+      "actor": "runner",
+      "type": "promote-blocked",
+      "claim": "cmq9e1ykx226",
+      "detail": "[domain] a scientific verdict needs a Tier-1 source.\n[domain] claim type \"therapeutic\" needs Tier-1 evidence; best source is Tier-2.\n[domain] causal claim (\"therapeutic\") rests on observational evidence, not interventional."
+    },
+    {
+      "ts": 1781175823927,
+      "actor": "runner",
+      "type": "source",
+      "claim": "cmq9e1ykx380",
+      "detail": "PMC/PRISMA systematic review"
+    },
+    {
+      "ts": 1781175823927,
+      "actor": "runner",
+      "type": "source-unverified",
+      "claim": "cmq9e1ykx380",
+      "detail": "ScienceDirect meta-analysis"
+    },
+    {
+      "ts": 1781175823927,
+      "actor": "runner",
+      "type": "source",
+      "claim": "cmq9e1ykx380",
+      "detail": "peer-reviewed longitudinal study"
+    },
+    {
+      "ts": 1781175823928,
+      "actor": "runner",
+      "type": "source",
+      "claim": "cmq9e1ykx380",
+      "detail": "FTC enforcement record/advocacy groups"
+    },
+    {
+      "ts": 1781175823928,
+      "actor": "runner",
+      "type": "source",
+      "claim": "cmq9e1ykx380",
+      "detail": "Research study on app marketing practices"
+    },
+    {
+      "ts": 1781175823928,
+      "actor": "runner",
+      "type": "source-unverified",
+      "claim": "cmq9e1ykx380",
+      "detail": "Human Rights Watch investigation"
+    },
+    {
+      "ts": 1781175823928,
+      "actor": "runner",
+      "type": "promote",
+      "claim": "cmq9e1ykx380",
+      "detail": "finding"
+    }
+  ]
+}
