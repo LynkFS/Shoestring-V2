@@ -192,22 +192,22 @@ var
   body, url: String;
   // Continuations invoked from the JS stream loop. Building the record and
   // touching multi-turn state stays in Pascal (records don't cross asm well).
-  finishCb: procedure(const AText, AFinish, APsid: String; AWsNA: Boolean);
+  finishCb: procedure(const AText, AFinish, APsid: String; AWsNA: Boolean; AInTok, AOutTok: Integer);
   errCb:    procedure(AStatus: Integer; const AMsg: String);
 begin
   PushMessage(FMessages, 'user', AUserText);
   body := BuildBody(True);            // stream:true
   url  := FProxyUrl + '/v1/chat';
 
-  finishCb := procedure(const AText, AFinish, APsid: String; AWsNA: Boolean)
+  finishCb := procedure(const AText, AFinish, APsid: String; AWsNA: Boolean; AInTok, AOutTok: Integer)
               var
                 r: TLLMResult;
               begin
                 if APsid <> '' then FProviderSessionId := APsid;
                 PushMessage(FMessages, 'assistant', AText);
                 r.Text                 := AText;
-                r.InputTokens          := 0;
-                r.OutputTokens         := 0;
+                r.InputTokens          := AInTok;
+                r.OutputTokens         := AOutTok;
                 r.FinishReason         := AFinish;
                 r.WebSearchUsed        := False;
                 r.WebSearchUnavailable := AWsNA;
@@ -243,6 +243,8 @@ begin
         var finish = 'stop';
         var psid   = '';
         var wsNA   = false;
+        var inTok  = 0;
+        var outTok = 0;
 
         while (true) {
           var ch = await reader.read();
@@ -267,13 +269,17 @@ begin
               finish = ev.finishReason || 'stop';
               psid   = ev.providerSessionId || '';
               wsNA   = ev.webSearchUnavailable === true;
+              if (ev.usage) {
+                inTok  = ev.usage.inputTokens  || 0;
+                outTok = ev.usage.outputTokens || 0;
+              }
             } else if (ev.type === 'error') {
               (@errCb)(502, ev.error || 'stream error');
               return;
             }
           }
         }
-        (@finishCb)(acc, finish, psid, wsNA);
+        (@finishCb)(acc, finish, psid, wsNA, inTok, outTok);
       } catch (e) {
         (@errCb)(0, 'transport: ' + (e && e.message));
       }
