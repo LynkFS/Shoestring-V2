@@ -138,7 +138,7 @@ begin
   Result.Messages          := NewMessages;
   PushMessage(Result.Messages, 'user', APrompt);
   Result.MaxTokens         := 1024;
-  Result.Temperature       := 0.7;
+  Result.Temperature       := 0.7;   //note : opus 4.8 refuses any temp values, so claude.js omits it
   Result.Stream            := False;
   Result.WebSearch         := False;
   Result.ProviderSessionId := '';
